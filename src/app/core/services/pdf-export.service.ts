@@ -265,8 +265,12 @@ export class PdfExportService {
 
   // ─── Helpers ──────────────────────────────────────────────────────────────
   private titulo(doc: jsPDF, texto: string, y: number): void {
+    this.tituloColor(doc, texto, y, COLOR_VERDE);
+  }
+
+  private tituloColor(doc: jsPDF, texto: string, y: number, color: [number, number, number]): void {
     const ancho = doc.internal.pageSize.getWidth();
-    doc.setFillColor(...COLOR_VERDE);
+    doc.setFillColor(...color);
     doc.rect(MARGEN, y, ancho - MARGEN * 2, 7, 'F');
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
@@ -483,8 +487,9 @@ export class PdfExportService {
     }
 
     // Sección 6: Alertas
+    let cursorFinal = finalY(doc);
     if (r.alertas.length > 0) {
-      const y6   = finalY(doc) + 10;
+      const y6   = cursorFinal + 10;
       const aw   = doc.internal.pageSize.getWidth() - MARGEN * 2 - 6;
       this.titulo(doc, '6. Alertas', y6);
       let posY = y6 + 10;
@@ -496,6 +501,119 @@ export class PdfExportService {
         doc.text(lineas, MARGEN + 4, posY);
         posY += lineas.length * 5 + 3;
       }
+      cursorFinal = posY;
+    }
+
+    // ── Sección 7: Composición Corporal 4 Componentes ─────────────────────────
+    if (
+      r.pesoGrasaKg    !== undefined &&
+      r.pesoMuscularKg !== undefined &&
+      r.pesoOseoKg     !== undefined &&
+      r.pesoResidualKg !== undefined
+    ) {
+      const COLOR_VERDE_4C: [number, number, number] = [26, 107, 58];
+      const y7 = cursorFinal + 10;
+      this.tituloColor(doc, '7. Composición Corporal 4 Componentes (Drinkwater & Ross)', y7, COLOR_VERDE_4C);
+      const total = inp.peso;
+      autoTable(doc, {
+        startY: y7 + 8, margin: { left: MARGEN, right: MARGEN },
+        head: [['Componente', 'Peso (kg)', 'Porcentaje']],
+        body: [
+          ['Grasa',    `${r.pesoGrasaKg.toFixed(1)}`,    `${r.porcentajeGrasa4C?.toFixed(1)}%`],
+          ['Muscular', `${r.pesoMuscularKg.toFixed(1)}`,  `${r.porcentajeMuscular?.toFixed(1)}%`],
+          ['Óseo',     `${r.pesoOseoKg.toFixed(1)}`,     `${r.porcentajeOseo?.toFixed(1)}%`],
+          ['Residual', `${r.pesoResidualKg.toFixed(1)}`,  `${r.porcentajeResidual?.toFixed(1)}%`],
+          ['TOTAL',    `${total.toFixed(1)}`,              '100%'],
+        ],
+        ...this.estilos(),
+        headStyles: { fillColor: COLOR_VERDE_4C, textColor: COLOR_BLANCO, fontStyle: 'bold', fontSize: 9 },
+        didParseCell: (hook: any) => {
+          if (hook.section === 'body' && hook.row.index === 4) {
+            hook.cell.styles.fontStyle = 'bold';
+          }
+        },
+      });
+
+      // Barra visual de composición
+      let barY = finalY(doc) + 8;
+      const barW = 160;
+      const barH = 8;
+      const segmentos: { label: string; pct: number; color: [number, number, number] }[] = [
+        { label: 'Grasa',    pct: r.porcentajeGrasa4C  ?? 0, color: [231, 76,  60]  },
+        { label: 'Muscular', pct: r.porcentajeMuscular ?? 0, color: [46,  204, 113] },
+        { label: 'Óseo',     pct: r.porcentajeOseo     ?? 0, color: [52,  152, 219] },
+        { label: 'Residual', pct: r.porcentajeResidual ?? 0, color: [155, 89,  182] },
+      ];
+      for (const seg of segmentos) {
+        const w = Math.round(seg.pct / 100 * barW * 10) / 10;
+        doc.setFillColor(...seg.color);
+        doc.roundedRect(MARGEN, barY, w, barH, 1, 1, 'F');
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(...COLOR_TEXTO);
+        doc.text(`${seg.label}  ${seg.pct.toFixed(1)}%`, MARGEN + w + 3, barY + 5.5);
+        barY += barH + 5;
+      }
+      cursorFinal = barY;
+    }
+
+    // ── Sección 8: Pesos de Referencia ────────────────────────────────────────
+    if (r.pesoIdealDikovics !== undefined || r.pesoIdealLorents !== undefined || r.pesoIdealMin !== undefined) {
+      const COLOR_AZUL_REF: [number, number, number] = [26, 74, 138];
+      const y8 = cursorFinal + 10;
+      this.tituloColor(doc, '8. Pesos de Referencia', y8, COLOR_AZUL_REF);
+      const bodyRef: string[][] = [];
+      const diff = (ideal: number) => {
+        const d = inp.peso - ideal;
+        return `${d > 0 ? '+' : ''}${d.toFixed(1)} kg`;
+      };
+      if (r.pesoIdealDikovics !== undefined)
+        bodyRef.push(['Dikovics (1966)',    `${r.pesoIdealDikovics.toFixed(1)} kg`, diff(r.pesoIdealDikovics)]);
+      if (r.pesoIdealLorents !== undefined)
+        bodyRef.push(['Lorents (1929)',     `${r.pesoIdealLorents.toFixed(1)} kg`,  diff(r.pesoIdealLorents)]);
+      if (r.pesoIdealMin !== undefined && r.pesoIdealMax !== undefined)
+        bodyRef.push(['Hamwi (rango)',      `${r.pesoIdealMin.toFixed(1)} – ${r.pesoIdealMax.toFixed(1)} kg`, inp.peso >= r.pesoIdealMin && inp.peso <= r.pesoIdealMax ? 'En rango' : diff((r.pesoIdealMin + r.pesoIdealMax) / 2)]);
+      if (r.pesoAModificar !== undefined) {
+        const pesoIdealComp = inp.peso - r.pesoAModificar;
+        bodyRef.push(['Por composición',   `${pesoIdealComp.toFixed(1)} kg`, `${r.pesoAModificar > 0 ? '+' : ''}${r.pesoAModificar.toFixed(1)} kg`]);
+      }
+      autoTable(doc, {
+        startY: y8 + 8, margin: { left: MARGEN, right: MARGEN },
+        head: [['Método', 'Peso ideal', 'Diferencia']],
+        body: bodyRef,
+        ...this.estilos(),
+        headStyles: { fillColor: COLOR_AZUL_REF, textColor: COLOR_BLANCO, fontStyle: 'bold', fontSize: 9 },
+      });
+      cursorFinal = finalY(doc);
+    }
+
+    // ── Sección 9: Excesos y Objetivos ────────────────────────────────────────
+    if (r.grasaIdealPorcentaje !== undefined || r.excesoGrasaKg !== undefined || r.tmb24hrs !== undefined) {
+      const COLOR_ROJO_EXC: [number, number, number] = [192, 57, 43];
+      const y9 = cursorFinal + 10;
+      this.tituloColor(doc, '9. Excesos y Objetivos', y9, COLOR_ROJO_EXC);
+      const bodyExc: string[][] = [];
+      if (r.grasaIdealPorcentaje !== undefined)
+        bodyExc.push(['% Grasa ideal (Lohman)',     `${r.grasaIdealPorcentaje}%`]);
+      if (r.excesoGrasaKg !== undefined)
+        bodyExc.push(['Exceso de grasa',             `${r.excesoGrasaKg.toFixed(1)} kg`]);
+      if (r.excesoCalorico !== undefined && r.excesoCalorico > 0)
+        bodyExc.push(['Exceso calórico total',        `${r.excesoCalorico.toLocaleString('es-ES')} kcal`]);
+      if (r.pesoAModificar !== undefined)
+        bodyExc.push(['Peso a modificar',             `${r.pesoAModificar > 0 ? '+' : ''}${r.pesoAModificar.toFixed(1)} kg`]);
+      if (r.masaCorporalActiva !== undefined)
+        bodyExc.push(['Masa Corporal Activa',         `${r.masaCorporalActiva.toFixed(1)} kg`]);
+      if (r.indiceAKS !== undefined)
+        bodyExc.push(['Índice AKS (Kerr & Ross)',     `${r.indiceAKS.toFixed(3)}  (${r.clasificacionAKS ?? ''})`]);
+      if (r.tmb24hrs !== undefined)
+        bodyExc.push(['TMB 24 hrs (Mifflin-St Jeor)', `${r.tmb24hrs.toLocaleString('es-ES')} kcal/día`]);
+      autoTable(doc, {
+        startY: y9 + 8, margin: { left: MARGEN, right: MARGEN },
+        head: [['Indicador', 'Valor']],
+        body: bodyExc,
+        ...this.estilos(),
+        headStyles: { fillColor: COLOR_ROJO_EXC, textColor: COLOR_BLANCO, fontStyle: 'bold', fontSize: 9 },
+      });
     }
 
     this.dibujarPiePaginas(doc, fecha);

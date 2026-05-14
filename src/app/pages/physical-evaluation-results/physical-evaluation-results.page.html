@@ -16,7 +16,7 @@
   @if (results()) {
     <div class="results-grid">
 
-      <!-- ═══════ CARD 1: Composición Corporal ═══════ -->
+      <!-- ═══════ CARD 1: Composición Corporal (existente) ═══════ -->
       <ion-card class="result-card animate-in" style="animation-delay:0s">
         <div class="card-header-colored header-comp">
           <ion-icon name="body-outline"></ion-icon>
@@ -26,8 +26,6 @@
           }
         </div>
         <ion-card-content>
-
-          <!-- IMC -->
           <div class="data-row">
             <span class="dr-label">IMC</span>
             <div class="dr-right">
@@ -35,9 +33,7 @@
               <ion-badge [color]="imcColor()">{{ imcClasif() }}</ion-badge>
             </div>
           </div>
-
           @if (porcentajeGrasa() !== null) {
-            <!-- % Grasa -->
             <div class="main-metric-row">
               <div class="big-metric">
                 <span class="big-label">% Grasa Corporal</span>
@@ -63,8 +59,6 @@
                 }
               </div>
             </div>
-
-            <!-- Barra composición -->
             <div class="comp-bar-wrap">
               <div class="comp-bar">
                 <div class="cb-fat" [style.width.%]="porcentajeGrasa()">
@@ -78,12 +72,216 @@
           } @else {
             <p class="no-data">Ingresa datos de pliegues o perímetros para calcular composición corporal.</p>
           }
-
         </ion-card-content>
       </ion-card>
 
-      <!-- ═══════ CARD 2: Índices Corporales ═══════ -->
-      <ion-card class="result-card animate-in" style="animation-delay:0.08s">
+      <!-- ═══════ CARD 2: Composición Corporal 4 Componentes + Donut ═══════ -->
+      <ion-card class="result-card animate-in" style="animation-delay:0.07s">
+        <div class="card-header-colored header-comp4c">
+          <ion-icon name="analytics-outline"></ion-icon>
+          <span>Composición Corporal 4C</span>
+          <span class="method-badge">Drinkwater & Ross</span>
+        </div>
+        <ion-card-content>
+          @if (has4C()) {
+            <!-- Grid 2×2 de valores grandes -->
+            <div class="comp4c-grid">
+              <div class="comp4c-cell">
+                <span class="comp4c-dot" style="background:#e74c3c"></span>
+                <span class="comp4c-num">{{ r.pesoGrasaKg | number:'1.1-1' }}</span>
+                <span class="comp4c-unit">kg</span>
+                <span class="comp4c-label">Grasa<br><small>{{ r.porcentajeGrasa4C | number:'1.1-1' }}%</small></span>
+              </div>
+              <div class="comp4c-cell">
+                <span class="comp4c-dot" style="background:#2ecc71"></span>
+                <span class="comp4c-num">{{ r.pesoMuscularKg | number:'1.1-1' }}</span>
+                <span class="comp4c-unit">kg</span>
+                <span class="comp4c-label">Muscular<br><small>{{ r.porcentajeMuscular | number:'1.1-1' }}%</small></span>
+              </div>
+              <div class="comp4c-cell">
+                <span class="comp4c-dot" style="background:#3498db"></span>
+                <span class="comp4c-num">{{ r.pesoOseoKg | number:'1.1-1' }}</span>
+                <span class="comp4c-unit">kg</span>
+                <span class="comp4c-label">Óseo<br><small>{{ r.porcentajeOseo | number:'1.1-1' }}%</small></span>
+              </div>
+              <div class="comp4c-cell">
+                <span class="comp4c-dot" style="background:#9b59b6"></span>
+                <span class="comp4c-num">{{ r.pesoResidualKg | number:'1.1-1' }}</span>
+                <span class="comp4c-unit">kg</span>
+                <span class="comp4c-label">Residual<br><small>{{ r.porcentajeResidual | number:'1.1-1' }}%</small></span>
+              </div>
+            </div>
+
+            <!-- Donut SVG -->
+            <div class="donut-layout">
+              <div class="donut-wrap">
+                <svg viewBox="0 0 100 100" class="donut-svg">
+                  <!-- fondo del anillo -->
+                  <circle cx="50" cy="50" r="35" fill="none" stroke-width="14" class="donut-bg-ring"/>
+                  <!-- relleno del centro -->
+                  <circle cx="50" cy="50" r="27" class="donut-center-fill"/>
+                  <!-- segmentos animados -->
+                  @for (seg of donutSegments(); track seg.label) {
+                    <circle
+                      cx="50" cy="50" r="35"
+                      fill="none"
+                      stroke-width="14"
+                      [attr.stroke]="seg.color"
+                      [attr.stroke-dasharray]="seg.dashLen + ' ' + seg.dashGap"
+                      [attr.transform]="'rotate(' + seg.rotation + ', 50, 50)'"
+                      class="donut-segment"/>
+                  }
+                  <!-- peso total centrado -->
+                  <text x="50" y="46" text-anchor="middle" class="donut-text-weight">{{ inp.peso }}</text>
+                  <text x="50" y="57" text-anchor="middle" class="donut-text-label">kg total</text>
+                </svg>
+              </div>
+
+              <!-- Leyenda -->
+              <div class="donut-legend">
+                @for (seg of donutSegments(); track seg.label) {
+                  <div class="legend-item">
+                    <span class="legend-dot" [style.background]="seg.color"></span>
+                    <span class="legend-name">{{ seg.label }}</span>
+                    <span class="legend-pct">{{ seg.pct | number:'1.1-1' }}%</span>
+                    <span class="legend-kg">{{ seg.kg | number:'1.1-1' }} kg</span>
+                  </div>
+                }
+              </div>
+            </div>
+          } @else {
+            <p class="no-data">
+              Completa los diámetros óseos (biepicondilar húmero y fémur) y registra pliegues
+              para ver la composición completa.
+            </p>
+          }
+        </ion-card-content>
+      </ion-card>
+
+      <!-- ═══════ CARD 3: Pesos de Referencia ═══════ -->
+      <ion-card class="result-card animate-in" style="animation-delay:0.14s">
+        <div class="card-header-colored header-pesosref">
+          <ion-icon name="scale-outline"></ion-icon>
+          <span>Pesos de Referencia</span>
+        </div>
+        <ion-card-content>
+          <div class="ref-table">
+            <!-- Hamwi -->
+            @if (r.pesoIdealMin !== undefined && r.pesoIdealMax !== undefined) {
+              <div class="ref-row">
+                <span class="ref-method">Hamwi</span>
+                <span class="ref-range">{{ r.pesoIdealMin | number:'1.1-1' }} – {{ r.pesoIdealMax | number:'1.1-1' }} kg</span>
+                <ion-badge [color]="pesoDiferenciaColor()" class="ref-diff-badge">{{ pesoDiferencia() }}</ion-badge>
+              </div>
+            }
+            <!-- Dikovics -->
+            @if (r.pesoIdealDikovics !== undefined) {
+              <div class="ref-row">
+                <span class="ref-method">Dikovics</span>
+                <span class="ref-range">{{ r.pesoIdealDikovics | number:'1.1-1' }} kg</span>
+                <ion-badge [color]="diffColor(r.pesoIdealDikovics)" class="ref-diff-badge">
+                  {{ diffPeso(r.pesoIdealDikovics) }}
+                </ion-badge>
+              </div>
+            }
+            <!-- Lorents -->
+            @if (r.pesoIdealLorents !== undefined) {
+              <div class="ref-row">
+                <span class="ref-method">Lorents</span>
+                <span class="ref-range">{{ r.pesoIdealLorents | number:'1.1-1' }} kg</span>
+                <ion-badge [color]="diffColor(r.pesoIdealLorents)" class="ref-diff-badge">
+                  {{ diffPeso(r.pesoIdealLorents) }}
+                </ion-badge>
+              </div>
+            }
+            <!-- Por composición -->
+            @if (r.pesoAModificar !== undefined) {
+              <div class="ref-row">
+                <span class="ref-method">Por composición</span>
+                <span class="ref-range">{{ (inp.peso - r.pesoAModificar) | number:'1.1-1' }} kg</span>
+                <ion-badge [color]="r.pesoAModificar > 0 ? 'danger' : 'success'" class="ref-diff-badge">
+                  {{ r.pesoAModificar > 0 ? '+' : '' }}{{ r.pesoAModificar | number:'1.1-1' }} kg
+                </ion-badge>
+              </div>
+            }
+          </div>
+          @if (r.pesoIdealDikovics === undefined) {
+            <p class="no-data">Peso actual: {{ inp.peso }} kg</p>
+          }
+        </ion-card-content>
+      </ion-card>
+
+      <!-- ═══════ CARD 4: Excesos y Objetivos ═══════ -->
+      @if (r.excesoGrasaKg !== undefined || r.grasaIdealPorcentaje !== undefined) {
+        <ion-card class="result-card animate-in" style="animation-delay:0.21s">
+          <div class="card-header-colored header-excesos">
+            <ion-icon name="fitness-outline"></ion-icon>
+            <span>Excesos y Objetivos</span>
+          </div>
+          <ion-card-content>
+
+            @if (r.grasaIdealPorcentaje !== undefined) {
+              <div class="data-row">
+                <span class="dr-label">% Grasa ideal (Lohman)</span>
+                <span class="dr-value">{{ r.grasaIdealPorcentaje }}%</span>
+              </div>
+            }
+
+            @if (r.excesoGrasaKg !== undefined) {
+              <div class="data-row">
+                <span class="dr-label">Exceso de grasa</span>
+                <span class="dr-value" [style.color]="r.excesoGrasaKg > 0 ? '#e74c3c' : '#2ecc71'">
+                  {{ r.excesoGrasaKg | number:'1.1-1' }} kg
+                </span>
+              </div>
+
+              <!-- Barra de exceso -->
+              <div class="exceso-bar-wrap">
+                <div class="exceso-bar-track">
+                  <div class="exceso-bar-fill" [style.width.%]="excesoBarraWidth()"></div>
+                </div>
+                <span class="exceso-bar-label">
+                  {{ excesoBarraWidth() }}% de la masa grasa actual es exceso
+                </span>
+              </div>
+            }
+
+            @if (r.excesoCalorico !== undefined && r.excesoCalorico > 0) {
+              <div class="data-row">
+                <span class="dr-label">Exceso calórico total</span>
+                <span class="dr-value">{{ r.excesoCalorico | number:'1.0-0' }} kcal</span>
+              </div>
+            }
+
+            @if (r.pesoAModificar !== undefined) {
+              <div class="data-row">
+                <span class="dr-label">Peso a modificar</span>
+                <span class="dr-value" [style.color]="r.pesoAModificar > 0 ? '#e74c3c' : '#2ecc71'">
+                  {{ r.pesoAModificar > 0 ? '+' : '' }}{{ r.pesoAModificar | number:'1.1-1' }} kg
+                </span>
+              </div>
+            }
+
+            @if (r.masaCorporalActiva !== undefined) {
+              <div class="data-row">
+                <span class="dr-label">Masa Corporal Activa</span>
+                <span class="dr-value">{{ r.masaCorporalActiva | number:'1.1-1' }} kg</span>
+              </div>
+            }
+
+            @if (r.tmb24hrs !== undefined) {
+              <div class="data-row">
+                <span class="dr-label">TMB 24 hrs (Mifflin)</span>
+                <span class="dr-value">{{ r.tmb24hrs | number:'1.0-0' }} kcal/día</span>
+              </div>
+            }
+
+          </ion-card-content>
+        </ion-card>
+      }
+
+      <!-- ═══════ CARD 5: Índices Corporales (expandido con AKS) ═══════ -->
+      <ion-card class="result-card animate-in" style="animation-delay:0.28s">
         <div class="card-header-colored header-imc">
           <ion-icon name="bar-chart-outline"></ion-icon>
           <span>Índices Corporales</span>
@@ -111,17 +309,35 @@
             <p class="no-data">Ingresa cintura y cadera en el paso de perímetros.</p>
           }
 
+          <!-- AKS — Masa Corporal Activa -->
+          @if (r.indiceAKS !== undefined) {
+            <div class="aks-section">
+              <div class="aks-row">
+                <span class="dr-label">Índice AKS (Kerr & Ross)</span>
+                <div class="dr-right">
+                  <span class="dr-value">{{ r.indiceAKS | number:'1.3-3' }}</span>
+                  <ion-badge [color]="aksColor()">{{ r.clasificacionAKS }}</ion-badge>
+                </div>
+              </div>
+              @if (r.masaCorporalActiva !== undefined) {
+                <div class="aks-row">
+                  <span class="dr-label">Masa Corporal Activa</span>
+                  <span class="dr-value">{{ r.masaCorporalActiva | number:'1.1-1' }} kg</span>
+                </div>
+              }
+            </div>
+          }
+
         </ion-card-content>
       </ion-card>
 
-      <!-- ═══════ CARD 3: Complexión y Peso Ideal ═══════ -->
-      <ion-card class="result-card animate-in" style="animation-delay:0.16s">
+      <!-- ═══════ CARD 6: Complexión y Peso Ideal ═══════ -->
+      <ion-card class="result-card animate-in" style="animation-delay:0.35s">
         <div class="card-header-colored header-peso">
           <ion-icon name="expand-outline"></ion-icon>
           <span>Complexión y Peso Ideal</span>
         </div>
         <ion-card-content>
-
           @if (r.complexion || r.pesoIdealMin) {
             @if (r.complexion) {
               <div class="data-row">
@@ -131,7 +347,7 @@
             }
             @if (r.pesoIdealMin && r.pesoIdealMax) {
               <div class="data-row">
-                <span class="dr-label">Rango peso ideal</span>
+                <span class="dr-label">Rango Hamwi</span>
                 <span class="dr-value">{{ r.pesoIdealMin | number:'1.1-1' }} – {{ r.pesoIdealMax | number:'1.1-1' }} kg</span>
               </div>
               <div class="data-row">
@@ -145,19 +361,17 @@
           } @else {
             <p class="no-data">Ingresa muñeca y estatura para calcular complexión.</p>
           }
-
         </ion-card-content>
       </ion-card>
 
-      <!-- ═══════ CARD 4: Somatotipo Heath-Carter ═══════ -->
+      <!-- ═══════ CARD 7: Somatotipo Heath-Carter ═══════ -->
       @if (r.endomorfia !== undefined) {
-        <ion-card class="result-card animate-in" style="animation-delay:0.24s">
+        <ion-card class="result-card animate-in" style="animation-delay:0.42s">
           <div class="card-header-colored header-soma">
             <ion-icon name="trophy-outline"></ion-icon>
             <span>Somatotipo Heath-Carter</span>
           </div>
           <ion-card-content>
-
             <div class="soma-values">
               <div class="soma-chip endo">
                 <span class="soma-label">Endomorfia</span>
@@ -174,11 +388,9 @@
                 <span class="soma-value">{{ (r.ectomorfia ?? 0) | number:'1.1-1' }}</span>
               </div>
             </div>
-
             @if (r.somatotipoDescripcion) {
               <div class="soma-desc">{{ r.somatotipoDescripcion }}</div>
             }
-
             @if (r.mesomorfia !== undefined) {
               <div class="soma-triangle-wrap">
                 <svg viewBox="0 0 100 90" class="soma-svg">
@@ -191,20 +403,18 @@
                 </svg>
               </div>
             }
-
           </ion-card-content>
         </ion-card>
       }
 
-      <!-- ═══════ CARD 5: Tests Físicos ═══════ -->
+      <!-- ═══════ CARD 8: Tests Físicos ═══════ -->
       @if (r.indiceRuffier !== undefined || r.vo2max !== undefined || r.rm_estimado !== undefined) {
-        <ion-card class="result-card animate-in" style="animation-delay:0.32s">
+        <ion-card class="result-card animate-in" style="animation-delay:0.49s">
           <div class="card-header-colored header-tests">
             <ion-icon name="flash-outline"></ion-icon>
             <span>Tests Físicos</span>
           </div>
           <ion-card-content>
-
             @if (r.indiceRuffier !== undefined) {
               <div class="test-block">
                 <div class="test-header">
@@ -217,7 +427,6 @@
                 </div>
               </div>
             }
-
             @if (r.vo2max !== undefined) {
               <div class="test-block">
                 <div class="test-header">
@@ -230,7 +439,6 @@
                 </div>
               </div>
             }
-
             @if (r.rm_estimado !== undefined) {
               <div class="test-block">
                 <div class="test-header">
@@ -238,9 +446,7 @@
                   <ion-badge color="primary">Estimado</ion-badge>
                 </div>
                 <div class="test-value-row">
-                  <span class="test-label">
-                    {{ inp.fitnessTests?.ejercicio_1rm || 'Ejercicio' }}
-                  </span>
+                  <span class="test-label">{{ inp.fitnessTests?.ejercicio_1rm || 'Ejercicio' }}</span>
                   <span class="test-value test-1rm">{{ r.rm_estimado | number:'1.1-1' }} kg</span>
                 </div>
                 @if (inp.fitnessTests?.repeticiones_1rm && inp.fitnessTests?.peso_1rm) {
@@ -250,14 +456,13 @@
                 }
               </div>
             }
-
           </ion-card-content>
         </ion-card>
       }
 
-      <!-- ═══════ CARD 6: Alertas ═══════ -->
+      <!-- ═══════ CARD 9: Alertas ═══════ -->
       @if (r.alertas.length > 0) {
-        <ion-card class="result-card animate-in" style="animation-delay:0.4s">
+        <ion-card class="result-card animate-in" style="animation-delay:0.56s">
           <div class="card-header-colored header-alertas">
             <ion-icon name="warning-outline"></ion-icon>
             <span>Alertas</span>
@@ -275,12 +480,10 @@
 
     </div><!-- /results-grid -->
 
-    <!-- Botón PDF -->
     <ion-button
-      expand="block"
-      color="success"
+      expand="block" color="success"
       class="export-btn animate-in"
-      style="animation-delay:0.48s"
+      style="animation-delay:0.63s"
       [disabled]="exportando()"
       (click)="exportarPDF()">
       <ion-icon name="document-outline" slot="start"></ion-icon>
@@ -288,7 +491,6 @@
     </ion-button>
 
     <div style="height: calc(env(safe-area-inset-bottom, 0px) + 80px)"></div>
-
   }
 </ion-content>
 

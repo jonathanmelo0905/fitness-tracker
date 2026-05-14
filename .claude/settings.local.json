@@ -11,7 +11,8 @@
       "Bash(node -e \"const j = require\\('jspdf'\\); console.log\\('jspdf ok'\\)\")",
       "Bash(node -e \"require\\('jspdf-autotable'\\); console.log\\('autotable ok'\\)\")",
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Asus\\\\Desktop\\\\fitness-tracker\\\\fitness-tracker\" -Directory)",
-      "Bash(Select-Object Name)"
+      "Bash(Select-Object Name)",
+      "Bash(npx tsc *)"
     ]
   }
 }

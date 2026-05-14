@@ -1,4 +1,4 @@
-import { Component, signal, computed, OnInit } from '@angular/core';
+import { Component, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
@@ -6,14 +6,14 @@ import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader,
   IonCardTitle, IonCardContent, IonItem, IonLabel, IonInput, IonSelect,
   IonSelectOption, IonButton, IonIcon, IonGrid, IonRow, IonCol,
-  IonToast, IonText,
+  IonToast, IonText, IonNote,
   IonAccordion, IonAccordionGroup, IonButtons,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
-  arrowBackOutline, checkmarkCircleOutline, checkmarkOutline, chevronForwardOutline, chevronBackOutline, bodyOutline,
-  barChartOutline, expandOutline, fitnessOutline, flashOutline,
-  warningOutline, informationCircleOutline,
+  arrowBackOutline, checkmarkCircleOutline, checkmarkOutline, chevronForwardOutline,
+  chevronBackOutline, bodyOutline, barChartOutline, expandOutline, fitnessOutline,
+  flashOutline, warningOutline, informationCircleOutline,
 } from 'ionicons/icons';
 import { PhysicalEvaluationService } from '../../core/services/physical-evaluation.service';
 import { PhysicalEvaluationInput, SkinfoldData, GirthData } from '../../shared/models/physical-evaluation.model';
@@ -28,7 +28,7 @@ import { PhysicalEvaluationInput, SkinfoldData, GirthData } from '../../shared/m
     IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader,
     IonCardTitle, IonCardContent, IonItem, IonLabel, IonInput, IonSelect,
     IonSelectOption, IonButton, IonIcon, IonGrid, IonRow, IonCol,
-    IonToast, IonText,
+    IonToast, IonText, IonNote,
     IonAccordion, IonAccordionGroup, IonButtons,
   ],
 })
@@ -40,17 +40,13 @@ export class PhysicalEvaluationPage {
 
   form = signal<PhysicalEvaluationInput>({
     nombre: '',
-    edad: 0,
-    peso: 0,
-    estatura: 0,
-    genero: 'Masculino',
+    edad: 0, peso: 0, estatura: 0, genero: 'Masculino',
     skinfolds:    { formula: 'jackson3' },
     girths:       {},
     boneDiameters:{},
     fitnessTests: {},
   });
 
-  // ── Live computed previews ──────────────────────────────────────────────────
   imcPreview = computed(() => {
     const f = this.form();
     if (!f.peso || !f.estatura) return null;
@@ -66,8 +62,10 @@ export class PhysicalEvaluationPage {
       else vals.push(s.triceps, s.suprailiaco, s.musloAnterior);
     } else if (s.formula === 'jackson7') {
       vals.push(s.pectoral, s.axilarMedio, s.triceps, s.subescapular, s.abdominal, s.suprailiaco, s.musloAnterior);
-    } else {
+    } else if (s.formula === 'durnin4') {
       vals.push(s.biceps, s.triceps, s.subescapular, s.suprailiaco);
+    } else if (s.formula === 'yuhasz') {
+      vals.push(s.subescapular, s.triceps, s.suprailiaco, s.abdominal, s.musloAnterior, s.pantorrilla);
     }
     if (vals.some(v => !v)) return null;
     return vals.reduce((a, b) => (a ?? 0) + (b ?? 0), 0) as number;
@@ -86,20 +84,18 @@ export class PhysicalEvaluationPage {
     return g.cintura / (f.estatura * 100);
   });
 
-  esMasculino = computed(() => this.form().genero === 'Masculino');
+  esMasculino   = computed(() => this.form().genero === 'Masculino');
   formulaActual = computed(() => this.form().skinfolds?.formula ?? 'jackson3');
 
   constructor(private service: PhysicalEvaluationService, private router: Router) {
     addIcons({
-      arrowBackOutline, checkmarkCircleOutline, checkmarkOutline, chevronForwardOutline, chevronBackOutline, bodyOutline,
-      barChartOutline, expandOutline, fitnessOutline, flashOutline,
-      warningOutline, informationCircleOutline,
+      arrowBackOutline, checkmarkCircleOutline, checkmarkOutline, chevronForwardOutline,
+      chevronBackOutline, bodyOutline, barChartOutline, expandOutline, fitnessOutline,
+      flashOutline, warningOutline, informationCircleOutline,
     });
   }
 
-  onPasoChange(event: CustomEvent) {
-    this.paso.set(event.detail.value);
-  }
+  onPasoChange(event: CustomEvent) { this.paso.set(event.detail.value); }
 
   siguientePaso() {
     const n = +this.paso();
@@ -120,8 +116,10 @@ export class PhysicalEvaluationPage {
           : !!(s?.triceps && s?.suprailiaco && s?.musloAnterior);
       } else if (formula === 'jackson7') {
         valid = !!(s?.pectoral && s?.axilarMedio && s?.triceps && s?.subescapular && s?.abdominal && s?.suprailiaco && s?.musloAnterior);
-      } else {
+      } else if (formula === 'durnin4') {
         valid = !!(s?.biceps && s?.triceps && s?.subescapular && s?.suprailiaco);
+      } else if (formula === 'yuhasz') {
+        valid = !!(s?.subescapular && s?.triceps && s?.suprailiaco && s?.abdominal && s?.musloAnterior && s?.pantorrilla);
       }
       if (!valid) {
         this.toastMessage.set('Completa todos los pliegues requeridos para continuar.');

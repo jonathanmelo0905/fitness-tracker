@@ -262,6 +262,15 @@ ion-card-title {
   }
 }
 
+// ─── Hint debajo del input de diámetros ──────────────────────────────────────
+.diam-hint {
+  display: block;
+  font-size: 11px;
+  color: var(--text-secondary);
+  padding: 4px 16px 8px;
+  line-height: 1.4;
+}
+
 // ─── Safe area ────────────────────────────────────────────────────────────────
 .safe-bottom-space {
   height: calc(env(safe-area-inset-bottom, 0px) + 80px);

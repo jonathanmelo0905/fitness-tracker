@@ -53,12 +53,15 @@
   span:first-of-type { flex: 1; }
 }
 
-.header-comp    { background: var(--gradient-body);       }
-.header-imc     { background: var(--gradient-refeeds);   }
-.header-peso    { background: var(--gradient-macros);     }
-.header-soma    { background: var(--gradient-somatotype); }
-.header-tests   { background: var(--gradient-fitness);   }
-.header-alertas { background: var(--gradient-alerts);    }
+.header-comp     { background: var(--gradient-body);       }
+.header-comp4c   { background: var(--gradient-body);       }
+.header-pesosref { background: var(--gradient-projection); }
+.header-excesos  { background: var(--gradient-nutrition);  }
+.header-imc      { background: var(--gradient-refeeds);   }
+.header-peso     { background: var(--gradient-macros);     }
+.header-soma     { background: var(--gradient-somatotype); }
+.header-tests    { background: var(--gradient-fitness);   }
+.header-alertas  { background: var(--gradient-alerts);    }
 
 .method-badge {
   font-size: 10px;
@@ -454,6 +457,174 @@
   &:last-child { border-bottom: none; }
 
   ion-icon { flex-shrink: 0; font-size: 16px; margin-top: 2px; }
+}
+
+// =============================================
+// COMPOSICIÓN 4 COMPONENTES
+// =============================================
+.comp4c-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+
+  .comp4c-cell {
+    background: var(--bg-panel);
+    border-radius: 12px;
+    padding: 12px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+
+    .comp4c-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-bottom: 4px;
+    }
+
+    .comp4c-num {
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+
+    .comp4c-unit {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .comp4c-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      text-align: center;
+      line-height: 1.4;
+      margin-top: 2px;
+
+      small { font-size: 10px; font-weight: 700; color: var(--text-primary); }
+    }
+  }
+}
+
+// ─── Donut SVG ────────────────────────────────────────────────────────────────
+.donut-layout {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.donut-wrap {
+  flex-shrink: 0;
+  width: 140px;
+  height: 140px;
+}
+
+.donut-svg { width: 100%; height: 100%; }
+
+.donut-bg-ring  { stroke: var(--bg-panel); }
+.donut-center-fill { fill: var(--bg-card); }
+
+.donut-segment { transition: stroke-dasharray 0.8s ease; }
+
+.donut-text-weight {
+  fill: var(--text-primary);
+  font-size: 13px;
+  font-weight: 900;
+  font-family: var(--ion-font-family, sans-serif);
+}
+
+.donut-text-label {
+  fill: var(--text-secondary);
+  font-size: 5.5px;
+  font-family: var(--ion-font-family, sans-serif);
+}
+
+// ─── Leyenda donut ────────────────────────────────────────────────────────────
+.donut-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  flex: 1;
+  min-width: 140px;
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+
+    .legend-dot  { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .legend-name { flex: 1; color: var(--text-secondary); }
+    .legend-pct  { font-weight: 700; color: var(--text-primary); min-width: 38px; text-align: right; }
+    .legend-kg   { color: var(--text-secondary); min-width: 50px; text-align: right; }
+  }
+}
+
+// =============================================
+// PESOS DE REFERENCIA
+// =============================================
+.ref-table { display: flex; flex-direction: column; gap: 8px; }
+
+.ref-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--bg-panel);
+  border-radius: 10px;
+
+  .ref-method { font-size: 12px; color: var(--text-secondary); flex: 1; }
+  .ref-range  { font-size: 14px; font-weight: 700; color: var(--text-primary); white-space: nowrap; }
+  .ref-diff-badge { font-size: 10px; flex-shrink: 0; }
+}
+
+// =============================================
+// EXCESOS Y OBJETIVOS
+// =============================================
+.exceso-bar-wrap {
+  margin: 10px 0 6px;
+}
+
+.exceso-bar-track {
+  height: 12px;
+  border-radius: 6px;
+  background: var(--bg-panel);
+  overflow: hidden;
+  margin-bottom: 4px;
+
+  .exceso-bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    background: #e74c3c;
+    transition: width 0.8s ease;
+  }
+}
+
+.exceso-bar-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+// ─── AKS expansion ────────────────────────────────────────────────────────────
+.aks-section {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--bg-border);
+}
+
+.aks-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+
+  .dr-label { font-size: 13px; color: var(--ion-color-medium); }
+  .dr-value { font-size: 15px; font-weight: 700; color: var(--ion-text-color, #f0f3f4); }
+  .dr-right { display: flex; align-items: center; gap: 8px; }
 }
 
 // =============================================

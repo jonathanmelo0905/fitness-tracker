@@ -8,7 +8,8 @@ export interface SkinfoldData {
   axilarMedio?: number;
   pantorrilla?: number;
   biceps?: number;
-  formula: 'jackson3' | 'jackson7' | 'durnin4';
+  supraespinal?: number;
+  formula: 'jackson3' | 'jackson7' | 'durnin4' | 'yuhasz';
 }
 
 export interface GirthData {
@@ -25,12 +26,16 @@ export interface GirthData {
   musloIzquierdo?: number;
   pantorrillaDerecha?: number;
   pantorrillaIzquierda?: number;
+  antebrazo?: number;
+  tobillo?: number;
+  pierna?: number;
 }
 
 export interface BoneDiameterData {
-  muneca?: number;
-  codo?: number;
-  rodilla?: number;
+  muneca?: number;                 // mantenido para compatibilidad
+  biepicondilarHumero?: number;    // ancho del codo (cm)
+  biestiloideo?: number;           // ancho de la muñeca (cm)
+  biepicondilarFemur?: number;     // ancho de la rodilla (cm)
   tobillo?: number;
 }
 
@@ -82,4 +87,32 @@ export interface PhysicalEvaluationResults {
   clasificacionVo2?: string;
   rm_estimado?: number;
   alertas: string[];
+
+  // Yuhasz (1974)
+  porcentajeGrasaYuhasz?: number;
+  sumaPlieguesYuhasz?: number;
+
+  // Composición 4 componentes — Drinkwater & Ross (1980)
+  pesoGrasaKg?: number;
+  pesoMuscularKg?: number;
+  pesoOseoKg?: number;
+  pesoResidualKg?: number;
+  porcentajeGrasa4C?: number;
+  porcentajeMuscular?: number;
+  porcentajeOseo?: number;
+  porcentajeResidual?: number;
+
+  // Pesos ideales
+  pesoIdealDikovics?: number;
+  pesoIdealLorents?: number;
+
+  // Índices adicionales
+  pesoAModificar?: number;
+  excesoGrasaKg?: number;
+  excesoCalorico?: number;
+  indiceAKS?: number;
+  clasificacionAKS?: string;
+  masaCorporalActiva?: number;
+  tmb24hrs?: number;
+  grasaIdealPorcentaje?: number;
 }
