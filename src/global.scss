@@ -38,7 +38,70 @@
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
 
-// Fondo oscuro uniforme en toda la app
+// Tema oscuro por defecto (ThemeService añade la clase; esto es el fallback inicial)
+body {
+  --bg-primary:    #0f1923;
+  --bg-card:       #1a2535;
+  --bg-panel:      #243040;
+  --bg-border:     #2e3f54;
+  --text-primary:  #ffffff;
+  --text-secondary:#7f8c8d;
+  --text-muted:    #4a5568;
+  --input-bg:      #1a2535;
+  --input-border:  #2e3f54;
+}
+
+// ─── Ionic overrides por tema ─────────────────────────────────────────────────
+.dark-theme, .light-theme {
+  --ion-background-color:   var(--bg-primary);
+  --ion-text-color:         var(--text-primary);
+  --ion-item-background:    var(--bg-card);
+  --ion-card-background:    var(--bg-card);
+  --ion-toolbar-background: var(--ion-color-primary);
+  --ion-toolbar-color:      #ffffff;
+  --ion-tab-bar-background: var(--bg-card);
+  --ion-border-color:       var(--bg-border);
+  --ion-input-background:   var(--input-bg);
+}
+
+.light-theme { color-scheme: light; }
+.dark-theme  { color-scheme: dark;  }
+
+// En light-theme, forzar colores de texto que Ionic infiere de los
+// color-steps del sistema (que pueden seguir siendo del tema oscuro del SO)
+.light-theme {
+  ion-card-title,
+  ion-card-subtitle,
+  ion-list-header ion-label,
+  ion-item ion-label h2,
+  ion-item ion-label {
+    --color: var(--text-primary);
+    color: var(--text-primary);
+  }
+
+  // Steps de color de Ionic para modo claro
+  --ion-color-step-50:  #f2f2f2;
+  --ion-color-step-100: #e6e6e6;
+  --ion-color-step-150: #d9d9d9;
+  --ion-color-step-200: #cccccc;
+  --ion-color-step-250: #bfbfbf;
+  --ion-color-step-300: #b3b3b3;
+  --ion-color-step-350: #a6a6a6;
+  --ion-color-step-400: #999999;
+  --ion-color-step-450: #8c8c8c;
+  --ion-color-step-500: #808080;
+  --ion-color-step-550: #737373;
+  --ion-color-step-600: #666666;
+  --ion-color-step-650: #595959;
+  --ion-color-step-700: #4d4d4d;
+  --ion-color-step-750: #404040;
+  --ion-color-step-800: #333333;
+  --ion-color-step-850: #262626;
+  --ion-color-step-900: #191919;
+  --ion-color-step-950: #0d0d0d;
+}
+
+// Fondo uniforme en toda la app
 ion-content {
   --background: var(--bg-primary);
 }

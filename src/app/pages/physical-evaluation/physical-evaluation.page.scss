@@ -274,7 +274,7 @@ ion-card-title {
 // ─── Desktop preview panel ────────────────────────────────────────────────────
 .preview-card {
   border-radius: 12px;
-  background: #1a2535;
+  background: var(--bg-card);
 
   ion-card-title { font-size: 14px; }
 }

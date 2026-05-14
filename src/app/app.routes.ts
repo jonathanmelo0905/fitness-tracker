@@ -22,6 +22,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/physical-evaluation-results/physical-evaluation-results.page').then(m => m.PhysicalEvaluationResultsPage),
   },
   {
+    path: 'settings',
+    loadComponent: () => import('./pages/settings/settings.page').then(m => m.SettingsPage),
+  },
+  {
     path: '',
     redirectTo: 'home',
     pathMatch: 'full',

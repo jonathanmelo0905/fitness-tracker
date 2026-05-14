@@ -9,13 +9,13 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
   margin-bottom: 16px;
   padding: 0;
-  --background: #1a2535;
-  background: #1a2535;
+  --background: var(--bg-card);
+  background: var(--bg-card);
 
   ion-card-content {
     padding: 16px;
-    --background: #1a2535;
-    background: #1a2535;
+    --background: var(--bg-card);
+    background: var(--bg-card);
   }
 
   &.animate-in {
@@ -182,7 +182,7 @@
   font-size: 13px;
   color: var(--ion-color-medium);
   padding-top: 10px;
-  border-top: 1px solid #2e3f54;
+  border-top: 1px solid var(--bg-border);
   margin-top: 4px;
 
   strong { color: var(--ion-text-color); }
@@ -198,7 +198,7 @@
 
   .cal-chip {
     flex: 1;
-    background: #243040;
+    background: var(--bg-panel);
     border-radius: 12px;
     padding: 12px 6px;
     text-align: center;
@@ -283,7 +283,7 @@
   align-items: center;
   gap: 0;
   margin-bottom: 16px;
-  background: #243040;
+  background: var(--bg-panel);
   border-radius: 12px;
   overflow: hidden;
 
@@ -314,12 +314,12 @@
   .proj-stat-divider {
     width: 1px;
     height: 48px;
-    background: #2e3f54;
+    background: var(--bg-border);
   }
 }
 
 .weekly-loss-section {
-  background: #243040;
+  background: var(--bg-panel);
   border-radius: 12px;
   padding: 14px;
 
@@ -434,7 +434,7 @@
 }
 
 .protein-detail {
-  background: #243040;
+  background: var(--bg-panel);
   border-radius: 12px;
   padding: 14px;
 
@@ -443,7 +443,7 @@
     color: var(--ion-color-medium);
     margin-top: 6px;
     padding-top: 6px;
-    border-top: 1px solid #2e3f54;
+    border-top: 1px solid var(--bg-border);
   }
 }
 
@@ -499,7 +499,7 @@
   align-items: center;
   font-size: 13px;
   color: var(--ion-color-medium);
-  background: #243040;
+  background: var(--bg-panel);
   border-radius: 10px;
   padding: 10px 14px;
   margin-bottom: 12px;

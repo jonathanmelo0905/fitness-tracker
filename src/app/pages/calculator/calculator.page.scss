@@ -13,7 +13,7 @@
 
 // Elementos internos de las cards en la calculadora
 ion-range {
-  --bar-background: #2e3f54;
+  --bar-background: var(--bg-border);
 }
 
 .macro-preview .macro-bar,

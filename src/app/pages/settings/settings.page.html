@@ -1,0 +1,76 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button fill="clear" (click)="irInicio()">
+        <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+        Inicio
+      </ion-button>
+    </ion-buttons>
+    <ion-title>
+      <ion-icon name="settings-outline" style="margin-right:6px;vertical-align:middle"></ion-icon>
+      Configuración
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="settings-wrapper">
+
+    <!-- SECCIÓN: Apariencia -->
+    <ion-list class="settings-list">
+      <ion-list-header class="section-header">
+        <ion-label>Apariencia</ion-label>
+      </ion-list-header>
+
+      <ion-item class="settings-item">
+        <ion-icon
+          [name]="themeService.isDarkTheme() ? 'moon-outline' : 'sunny-outline'"
+          slot="start"
+          class="item-icon">
+        </ion-icon>
+        <ion-label>
+          <h2>Tema de la aplicación</h2>
+          <p>{{ themeService.isDarkTheme() ? 'Oscuro' : 'Claro' }}</p>
+        </ion-label>
+        <ion-toggle
+          slot="end"
+          color="primary"
+          [checked]="themeService.isDarkTheme()"
+          (ionChange)="themeService.toggleTheme()">
+        </ion-toggle>
+      </ion-item>
+    </ion-list>
+
+    <!-- SECCIÓN: Acerca de -->
+    <ion-list class="settings-list">
+      <ion-list-header class="section-header">
+        <ion-label>Acerca de</ion-label>
+      </ion-list-header>
+
+      <ion-item class="settings-item">
+        <ion-icon name="fitness-outline" slot="start" class="item-icon"></ion-icon>
+        <ion-label>
+          <h2>Fitness Tracker</h2>
+          <p>Versión 1.1</p>
+        </ion-label>
+      </ion-item>
+
+      <ion-item class="settings-item">
+        <ion-icon name="code-outline" slot="start" class="item-icon"></ion-icon>
+        <ion-label>
+          <h2>Desarrollado por</h2>
+          <p>Jonathan Melo</p>
+        </ion-label>
+      </ion-item>
+
+      <ion-item class="settings-item" lines="none">
+        <ion-icon name="shield-checkmark-outline" slot="start" class="item-icon"></ion-icon>
+        <ion-label>
+          <h2>Herramienta profesional</h2>
+          <p>Para entrenadores personales y nutricionistas</p>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+
+  </div>
+</ion-content>

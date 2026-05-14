@@ -101,3 +101,29 @@ $mobile:       767px;
 $tablet:      1023px;
 $desktop:     1024px;
 $max-content: 1200px;
+
+// ─── Dark theme ───────────────────────────────────────────────────────────────
+.dark-theme {
+  --bg-primary:    #0f1923;
+  --bg-card:       #1a2535;
+  --bg-panel:      #243040;
+  --bg-border:     #2e3f54;
+  --text-primary:  #ffffff;
+  --text-secondary:#7f8c8d;
+  --text-muted:    #4a5568;
+  --input-bg:      #1a2535;
+  --input-border:  #2e3f54;
+}
+
+// ─── Light theme ──────────────────────────────────────────────────────────────
+.light-theme {
+  --bg-primary:    #f4f6f8;
+  --bg-card:       #ffffff;
+  --bg-panel:      #e8ecf0;
+  --bg-border:     #d0d7e0;
+  --text-primary:  #1a1a2e;
+  --text-secondary:#555555;
+  --text-muted:    #888888;
+  --input-bg:      #ffffff;
+  --input-border:  #d0d7e0;
+}
