@@ -1,0 +1,564 @@
+// fondo heredado de global.scss
+
+// =============================================
+// CARD BASE
+// =============================================
+.result-card {
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  margin-bottom: 16px;
+  padding: 0;
+  --background: #1a2535;
+  background: #1a2535;
+
+  ion-card-content {
+    padding: 16px;
+    --background: #1a2535;
+    background: #1a2535;
+  }
+
+  &.animate-in {
+    animation: fadeSlideUp 0.4s ease-out both;
+  }
+}
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// =============================================
+// HEADERS DE COLOR
+// =============================================
+.card-header-colored {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px;
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+
+  ion-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  span { flex: 1; }
+}
+
+.header-perfil {
+  background: linear-gradient(135deg, #1a6b3a, #2ecc71);
+}
+
+.header-calorias {
+  background: linear-gradient(135deg, #c0392b, #e67e22);
+}
+
+.header-proyeccion {
+  background: linear-gradient(135deg, #1a4a8a, #2980b9);
+}
+
+.header-macros {
+  background: linear-gradient(135deg, #5b3fa0, #8e44ad);
+}
+
+.header-refeed {
+  background: linear-gradient(135deg, #0f7b7b, #1abc9c);
+}
+
+.header-alertas {
+  background: linear-gradient(135deg, #b7770d, #f39c12);
+}
+
+.alert-count-badge {
+  background: rgba(255, 255, 255, 0.3);
+  color: white;
+  font-size: 12px;
+  border-radius: 10px;
+  padding: 2px 7px;
+}
+
+// =============================================
+// PERFIL CORPORAL
+// =============================================
+.metric-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+
+  .metric-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    .metric-label {
+      font-size: 11px;
+      color: var(--ion-color-medium);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .metric-value {
+      font-size: 42px;
+      font-weight: 900;
+      color: var(--ion-text-color);
+      line-height: 1;
+    }
+  }
+
+  .imc-badge {
+    font-size: 13px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-weight: 700;
+  }
+}
+
+.body-comp-section {
+  margin-bottom: 12px;
+
+  .comp-label-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    margin-bottom: 8px;
+
+    .fat-label, .lean-label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .fat-label { color: #e05a2b; }
+    .lean-label { color: var(--ion-color-primary); }
+  }
+
+  .body-comp-bar {
+    display: flex;
+    border-radius: 10px;
+    overflow: hidden;
+    height: 40px;
+
+    .fat-segment {
+      background: linear-gradient(90deg, #c0392b, #e05a2b);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 13px;
+      font-weight: 700;
+      min-width: 36px;
+    }
+
+    .lean-segment {
+      flex: 1;
+      background: linear-gradient(90deg, #1a6b3a, #2ecc71);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 13px;
+      font-weight: 700;
+    }
+  }
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+  &.dot-fat  { background: #e05a2b; }
+  &.dot-lean { background: var(--ion-color-primary); }
+}
+
+.sub-metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: var(--ion-color-medium);
+  padding-top: 10px;
+  border-top: 1px solid #2e3f54;
+  margin-top: 4px;
+
+  strong { color: var(--ion-text-color); }
+}
+
+// =============================================
+// CALORÍAS
+// =============================================
+.calories-grid {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+
+  .cal-chip {
+    flex: 1;
+    background: #243040;
+    border-radius: 12px;
+    padding: 12px 6px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+
+    .cal-label {
+      font-size: 10px;
+      color: var(--ion-color-medium);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .cal-number {
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--ion-text-color);
+      line-height: 1.1;
+    }
+
+    .cal-unit {
+      font-size: 10px;
+      color: var(--ion-color-medium);
+    }
+
+    &.cal-highlight {
+      background: linear-gradient(135deg, #c0392b, #e67e22);
+      .cal-label  { color: rgba(255,255,255,0.8); }
+      .cal-number { color: white; font-size: 24px; }
+      .cal-unit   { color: rgba(255,255,255,0.8); }
+    }
+  }
+}
+
+.ajuste-banner {
+  display: flex;
+  border-radius: 10px;
+  overflow: hidden;
+
+  .ajuste-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    gap: 2px;
+
+    .ajuste-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    strong { font-size: 16px; font-weight: 800; }
+  }
+
+  .ajuste-divider {
+    width: 1px;
+    background: rgba(255,255,255,0.3);
+    margin: 8px 0;
+  }
+
+  &.banner-deficit {
+    background: rgba(231, 76, 60, 0.12);
+    .ajuste-label { color: var(--ion-color-danger); }
+    strong { color: var(--ion-color-danger); }
+  }
+
+  &.banner-superavit {
+    background: rgba(46, 204, 113, 0.12);
+    .ajuste-label { color: var(--ion-color-success); }
+    strong { color: var(--ion-color-success); }
+  }
+}
+
+// =============================================
+// PROYECCIÓN
+// =============================================
+.projection-stats {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 16px;
+  background: #243040;
+  border-radius: 12px;
+  overflow: hidden;
+
+  .proj-stat {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 14px 8px;
+    gap: 4px;
+
+    .proj-stat-value {
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--ion-text-color);
+      line-height: 1;
+
+      &.primary-text { color: #2980b9; }
+    }
+
+    .proj-stat-unit {
+      font-size: 11px;
+      color: var(--ion-color-medium);
+      text-align: center;
+    }
+  }
+
+  .proj-stat-divider {
+    width: 1px;
+    height: 48px;
+    background: #2e3f54;
+  }
+}
+
+.weekly-loss-section {
+  background: #243040;
+  border-radius: 12px;
+  padding: 14px;
+
+  .weekly-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: var(--ion-text-color);
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+
+  .semaforo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 10px;
+
+    ion-icon { font-size: 20px; }
+
+    &.en-rango {
+      background: rgba(46, 204, 113, 0.15);
+      color: #27ae60;
+      border: 1px solid rgba(46, 204, 113, 0.3);
+      ion-icon { color: #27ae60; }
+    }
+
+    &.fuera-rango {
+      background: rgba(231, 76, 60, 0.12);
+      color: var(--ion-color-danger);
+      border: 1px solid rgba(231, 76, 60, 0.25);
+      ion-icon { color: var(--ion-color-danger); }
+    }
+  }
+
+  .range-info {
+    font-size: 12px;
+    color: var(--ion-color-medium);
+  }
+}
+
+// =============================================
+// MACROS
+// =============================================
+.macro-bar-result {
+  display: flex;
+  border-radius: 10px;
+  overflow: hidden;
+  height: 44px;
+  margin-bottom: 14px;
+
+  .mb {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+    min-width: 40px;
+
+    &.carbs    { background: #e67e22; }
+    &.proteins { background: #8e44ad; }
+    &.fats     { background: #7f8c8d; }
+  }
+}
+
+.macros-detail {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+
+  .macro-chip {
+    flex: 1;
+    border-radius: 12px;
+    padding: 12px 6px 10px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+
+    .macro-icon { font-size: 20px; line-height: 1; }
+
+    .macro-g {
+      font-size: 22px;
+      font-weight: 900;
+      color: white;
+      line-height: 1.1;
+    }
+
+    .macro-name {
+      font-size: 10px;
+      color: rgba(255,255,255,0.85);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .macro-pct {
+      font-size: 11px;
+      color: rgba(255,255,255,0.7);
+    }
+
+    &.carbs-chip    { background: linear-gradient(135deg, #d35400, #e67e22); }
+    &.proteins-chip { background: linear-gradient(135deg, #5b3fa0, #8e44ad); }
+    &.fats-chip     { background: linear-gradient(135deg, #5d6d7e, #7f8c8d); }
+  }
+}
+
+.protein-detail {
+  background: #243040;
+  border-radius: 12px;
+  padding: 14px;
+
+  .range-note {
+    font-size: 11px;
+    color: var(--ion-color-medium);
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid #2e3f54;
+  }
+}
+
+.prot-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: var(--ion-text-color);
+  padding: 5px 0;
+
+  span { color: var(--ion-color-medium); }
+  strong { color: var(--ion-text-color); }
+}
+
+// =============================================
+// REFEEDS
+// =============================================
+.refeed-highlight {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px 0 12px;
+
+  .refeed-days {
+    font-size: 56px;
+    font-weight: 900;
+    color: #0f7b7b;
+    line-height: 1;
+  }
+
+  .refeed-text {
+    display: flex;
+    flex-direction: column;
+
+    .refeed-label {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ion-text-color);
+    }
+
+    .refeed-sublabel {
+      font-size: 13px;
+      color: var(--ion-color-medium);
+    }
+  }
+}
+
+.refeed-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: var(--ion-color-medium);
+  background: #243040;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+
+  strong { color: var(--ion-text-color); font-size: 15px; }
+}
+
+.refeed-explanation {
+  font-size: 13px;
+  color: var(--ion-color-medium);
+  line-height: 1.6;
+  margin: 0;
+}
+
+// =============================================
+// ALERTAS
+// =============================================
+.alert-item {
+  --background: transparent;
+  --min-height: 44px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+
+  &::part(native) {
+    background: rgba(243, 156, 18, 0.08);
+    border-radius: 8px;
+    border: 1px solid rgba(243, 156, 18, 0.2);
+  }
+}
+
+.alert-icon {
+  color: #e67e22 !important;
+  font-size: 20px;
+}
+
+.alert-text {
+  font-size: 13px;
+  color: var(--ion-text-color) !important;
+  line-height: 1.4;
+}
+
+// =============================================
+// BOTÓN EXPORTAR PDF
+// =============================================
+.export-btn {
+  margin: 8px 0 4px;
+  --border-radius: 12px;
+  height: 48px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+// =============================================
+// UTILIDADES
+// =============================================
+.deficit-text  { color: var(--ion-color-danger); font-weight: 700; }
+.superavit-text{ color: var(--ion-color-success); font-weight: 700; }
+.verde         { color: #27ae60; font-weight: 700; }
+.rojo          { color: var(--ion-color-danger); font-weight: 700; }
+.warning-text  { color: var(--ion-color-warning); }
+.danger-text   { color: var(--ion-color-danger); font-weight: 700; }
+.primary-text  { color: var(--ion-color-primary); }

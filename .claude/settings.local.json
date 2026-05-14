@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Asus\\\\Desktop\\\\fitness-tracker\\\\fitness-tracker\" -Force)",
+      "Bash(mkdir -p \"c:\\\\Users\\\\Asus\\\\Desktop\\\\fitness-tracker\\\\fitness-tracker\\\\src\\\\app\\\\shared\\\\models\")",
+      "Bash(mkdir -p \"c:\\\\Users\\\\Asus\\\\Desktop\\\\fitness-tracker\\\\fitness-tracker\\\\src\\\\app\\\\core\\\\services\")",
+      "Bash(mkdir -p \"c:\\\\Users\\\\Asus\\\\Desktop\\\\fitness-tracker\\\\fitness-tracker\\\\src\\\\app\\\\pages\\\\calculator\")",
+      "Bash(mkdir -p \"c:\\\\Users\\\\Asus\\\\Desktop\\\\fitness-tracker\\\\fitness-tracker\\\\src\\\\app\\\\pages\\\\results\")",
+      "Bash(npx ng *)",
+      "Bash(npm install *)",
+      "Bash(node -e \"const j = require\\('jspdf'\\); console.log\\('jspdf ok'\\)\")",
+      "Bash(node -e \"require\\('jspdf-autotable'\\); console.log\\('autotable ok'\\)\")"
+    ]
+  }
+}

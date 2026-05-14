@@ -1,0 +1,309 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>
+      <ion-icon name="body-outline" style="margin-right:6px;vertical-align:middle"></ion-icon>
+      Resultados
+      @if (r.clientData.nombre) {
+        — {{ r.clientData.nombre }}
+      }
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding results-content">
+
+  @if (results()) {
+
+    <!-- CARD 1: Perfil Corporal — verde oscuro -->
+    <ion-card class="result-card animate-in" style="animation-delay:0s">
+      <div class="card-header-colored header-perfil">
+        <ion-icon name="body-outline"></ion-icon>
+        <span>Perfil Corporal</span>
+      </div>
+      <ion-card-content>
+
+        <div class="metric-row">
+          <div class="metric-main">
+            <span class="metric-label">Índice de Masa Corporal</span>
+            <span class="metric-value">{{ r.imc | number:'1.1-1' }}</span>
+          </div>
+          <ion-badge [color]="imcColor()" class="imc-badge">{{ r.clasificacionIMC }}</ion-badge>
+        </div>
+
+        <div class="body-comp-section">
+          <div class="comp-label-row">
+            <span class="fat-label">
+              <span class="dot dot-fat"></span>
+              Masa Grasa: <strong>{{ r.masaGrasa | number:'1.1-1' }} kg</strong>
+            </span>
+            <span class="lean-label">
+              <span class="dot dot-lean"></span>
+              MLG: <strong>{{ r.masaLibreGrasa | number:'1.1-1' }} kg</strong>
+            </span>
+          </div>
+          <div class="body-comp-bar">
+            <div class="fat-segment" [style.width.%]="r.clientData.grasaEstimada * 100">
+              <span>{{ (r.clientData.grasaEstimada * 100) | number:'1.0-0' }}%</span>
+            </div>
+            <div class="lean-segment">
+              <span>{{ (100 - r.clientData.grasaEstimada * 100) | number:'1.0-0' }}%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="sub-metric">
+          <span>Diferencia peso–estatura</span>
+          <strong [class.danger-text]="r.diferenciaPesoEstatura > 10">
+            {{ r.diferenciaPesoEstatura > 0 ? '+' : '' }}{{ r.diferenciaPesoEstatura | number:'1.1-1' }} kg
+          </strong>
+        </div>
+
+      </ion-card-content>
+    </ion-card>
+
+    <!-- CARD 2: Calorías — naranja -->
+    <ion-card class="result-card animate-in" style="animation-delay:0.1s">
+      <div class="card-header-colored header-calorias">
+        <ion-icon name="flame-outline"></ion-icon>
+        <span>Calorías</span>
+      </div>
+      <ion-card-content>
+
+        <div class="calories-grid">
+          <div class="cal-chip">
+            <span class="cal-label">TMB</span>
+            <span class="cal-number">{{ r.tmb | number:'1.0-0' }}</span>
+            <span class="cal-unit">kcal/día</span>
+          </div>
+          <div class="cal-chip">
+            <span class="cal-label">Mantenimiento</span>
+            <span class="cal-number">{{ r.caloriasMantenimiento | number:'1.0-0' }}</span>
+            <span class="cal-unit">kcal/día</span>
+          </div>
+          <div class="cal-chip cal-highlight">
+            <span class="cal-label">Objetivo</span>
+            <span class="cal-number">{{ r.caloriasAjustadas | number:'1.0-0' }}</span>
+            <span class="cal-unit">kcal/día</span>
+          </div>
+        </div>
+
+        <div class="ajuste-banner" [class.banner-deficit]="r.caloriasAjusteDiario < 0" [class.banner-superavit]="r.caloriasAjusteDiario > 0">
+          <div class="ajuste-item">
+            <span class="ajuste-label">Ajuste diario</span>
+            <strong>{{ r.caloriasAjusteDiario > 0 ? '+' : '' }}{{ r.caloriasAjusteDiario | number:'1.0-0' }} kcal</strong>
+          </div>
+          <div class="ajuste-divider"></div>
+          <div class="ajuste-item">
+            <span class="ajuste-label">Ajuste semanal</span>
+            <strong>{{ r.caloriasAjusteSemanal > 0 ? '+' : '' }}{{ r.caloriasAjusteSemanal | number:'1.0-0' }} kcal</strong>
+          </div>
+        </div>
+
+      </ion-card-content>
+    </ion-card>
+
+    <!-- CARD 3: Proyección — azul -->
+    @if (hayDeficit()) {
+      <ion-card class="result-card animate-in" style="animation-delay:0.2s">
+        <div class="card-header-colored header-proyeccion">
+          <ion-icon name="trending-down-outline"></ion-icon>
+          <span>Proyección de Pérdida</span>
+        </div>
+        <ion-card-content>
+
+          <div class="projection-stats">
+            <div class="proj-stat">
+              <span class="proj-stat-value primary-text">{{ r.kilosPorBajar | number:'1.1-1' }}</span>
+              <span class="proj-stat-unit">kg por bajar</span>
+            </div>
+            <div class="proj-stat-divider"></div>
+            <div class="proj-stat">
+              <span class="proj-stat-value">{{ (r.diasParaLlegarObjetivo / 7) | number:'1.0-0' }}</span>
+              <span class="proj-stat-unit">semanas (~{{ (r.diasParaLlegarObjetivo / 30.4) | number:'1.1-1' }} meses)</span>
+            </div>
+          </div>
+
+          <div class="weekly-loss-section">
+            <div class="weekly-header">
+              <span>Pérdida semanal según déficit</span>
+              <strong [class.verde]="perdidaEnRango()" [class.rojo]="!perdidaEnRango()">
+                {{ r.perdidaSemanalSegunDeficit | number:'1.2-2' }} kg/sem
+              </strong>
+            </div>
+
+            <div class="semaforo" [class.en-rango]="perdidaEnRango()" [class.fuera-rango]="!perdidaEnRango()">
+              <ion-icon [name]="perdidaEnRango() ? 'checkmark-circle-outline' : 'warning-outline'"></ion-icon>
+              @if (perdidaEnRango()) {
+                <span>Dentro del rango recomendado</span>
+              } @else {
+                <span>Fuera del rango recomendado</span>
+              }
+            </div>
+
+            <div class="range-info">
+              Rango: {{ r.reduccionSemanalMin | number:'1.2-2' }} – {{ r.reduccionSemanalMax | number:'1.2-2' }} kg/sem &nbsp;(0.5–1.0% del peso)
+            </div>
+          </div>
+
+        </ion-card-content>
+      </ion-card>
+    }
+
+    <!-- CARD 4: Macros — morado -->
+    <ion-card class="result-card animate-in" style="animation-delay:0.3s">
+      <div class="card-header-colored header-macros">
+        <ion-icon name="nutrition-outline"></ion-icon>
+        <span>Distribución de Macros</span>
+      </div>
+      <ion-card-content>
+
+        <div class="macro-bar-result">
+          <div class="mb carbs" [style.width.%]="r.clientData.distribucionCarbs * 100">
+            <span>C {{ (r.clientData.distribucionCarbs * 100) | number:'1.0-0' }}%</span>
+          </div>
+          <div class="mb proteins" [style.width.%]="r.clientData.distribucionProteinas * 100">
+            <span>P {{ (r.clientData.distribucionProteinas * 100) | number:'1.0-0' }}%</span>
+          </div>
+          <div class="mb fats" [style.width.%]="r.clientData.distribucionGrasas * 100">
+            <span>G {{ (r.clientData.distribucionGrasas * 100) | number:'1.0-0' }}%</span>
+          </div>
+        </div>
+
+        <div class="macros-detail">
+          <div class="macro-chip carbs-chip">
+            <span class="macro-icon">🍚</span>
+            <span class="macro-g">{{ r.gramosCarbs | number:'1.0-0' }}g</span>
+            <span class="macro-name">Carbos</span>
+            <span class="macro-pct">{{ (r.clientData.distribucionCarbs * 100) | number:'1.0-0' }}%</span>
+          </div>
+          <div class="macro-chip proteins-chip">
+            <span class="macro-icon">🥩</span>
+            <span class="macro-g">{{ r.gramosProteinas | number:'1.0-0' }}g</span>
+            <span class="macro-name">Proteínas</span>
+            <span class="macro-pct">{{ (r.clientData.distribucionProteinas * 100) | number:'1.0-0' }}%</span>
+          </div>
+          <div class="macro-chip fats-chip">
+            <span class="macro-icon">🥑</span>
+            <span class="macro-g">{{ r.gramosGrasas | number:'1.0-0' }}g</span>
+            <span class="macro-name">Grasas</span>
+            <span class="macro-pct">{{ (r.clientData.distribucionGrasas * 100) | number:'1.0-0' }}%</span>
+          </div>
+        </div>
+
+        <div class="protein-detail">
+          <div class="prot-row">
+            <span>Proteína / kg peso corporal</span>
+            <strong [class.warning-text]="r.proteinasPorKgPeso < 1.6">
+              {{ r.proteinasPorKgPeso | number:'1.2-2' }} g/kg
+            </strong>
+          </div>
+          <div class="prot-row">
+            <span>Proteína / kg masa libre de grasa</span>
+            <strong [class.warning-text]="r.proteinasPorKgMLG < 1.8">
+              {{ r.proteinasPorKgMLG | number:'1.2-2' }} g/kg
+              @if (r.proteinasPorKgMLG < 1.8) {
+                <ion-badge color="warning" style="margin-left:4px;font-size:10px">Bajo</ion-badge>
+              } @else {
+                <ion-badge color="success" style="margin-left:4px;font-size:10px">OK</ion-badge>
+              }
+            </strong>
+          </div>
+          <div class="range-note">Rango óptimo MLG: 1.8 – 3.0 g/kg</div>
+        </div>
+
+      </ion-card-content>
+    </ion-card>
+
+    <!-- CARD 5: Refeeds — verde azulado -->
+    @if (r.diasRefeed > 0) {
+      <ion-card class="result-card animate-in" style="animation-delay:0.4s">
+        <div class="card-header-colored header-refeed">
+          <ion-icon name="refresh-outline"></ion-icon>
+          <span>Refeeds Recomendados</span>
+        </div>
+        <ion-card-content>
+
+          <div class="refeed-highlight">
+            <span class="refeed-days">{{ r.diasRefeed }}</span>
+            <div class="refeed-text">
+              <span class="refeed-label">día{{ r.diasRefeed > 1 ? 's' : '' }} de refeed</span>
+              <span class="refeed-sublabel">por semana</span>
+            </div>
+          </div>
+
+          <div class="refeed-stat-row">
+            <span>Déficit promedio con refeed</span>
+            <strong>{{ r.deficitPromedioConRefeed | number:'1.1-1' }}%</strong>
+          </div>
+
+          <p class="refeed-explanation">
+            Un <strong>día de refeed</strong> consiste en volver a calorías de mantenimiento 1–2 días por semana.
+            Ayuda a mantener la leptina, preservar masa muscular y mejorar la adherencia al plan.
+          </p>
+
+        </ion-card-content>
+      </ion-card>
+    }
+
+    <!-- CARD 6: Alertas — ámbar -->
+    @if (r.alertas.length > 0) {
+      <ion-card class="result-card animate-in" style="animation-delay:0.5s">
+        <div class="card-header-colored header-alertas">
+          <ion-icon name="alert-circle-outline"></ion-icon>
+          <span>Alertas del Plan</span>
+          <ion-badge class="alert-count-badge">{{ r.alertas.length }}</ion-badge>
+        </div>
+        <ion-card-content>
+          <ion-list lines="none">
+            @for (alerta of r.alertas; track alerta) {
+              <ion-item class="alert-item">
+                <ion-icon name="warning-outline" slot="start" class="alert-icon"></ion-icon>
+                <ion-label class="ion-text-wrap alert-text">{{ alerta }}</ion-label>
+              </ion-item>
+            }
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+    }
+
+    <!-- Botón Exportar PDF -->
+    <ion-button
+      expand="block"
+      color="success"
+      fill="solid"
+      class="export-btn animate-in"
+      style="animation-delay:0.6s"
+      [disabled]="exportando()"
+      (click)="exportarPDF()">
+      <ion-icon name="document-outline" slot="start"></ion-icon>
+      {{ exportando() ? 'Generando PDF...' : 'Exportar PDF' }}
+    </ion-button>
+
+    <div style="height: 80px"></div>
+
+  }
+
+</ion-content>
+
+<ion-fab slot="fixed" vertical="bottom" horizontal="end">
+  <ion-fab-button color="primary" (click)="nuevoCalculo()">
+    <ion-icon name="add-outline"></ion-icon>
+  </ion-fab-button>
+</ion-fab>
+
+<ion-toast
+  [isOpen]="toastOpen()"
+  [message]="toastMsg()"
+  [color]="toastColor()"
+  duration="3000"
+  position="bottom"
+  (didDismiss)="toastOpen.set(false)">
+</ion-toast>
+
+<ion-alert
+  [isOpen]="showAlerts()"
+  header="Alertas del Plan"
+  [message]="r?.alertas?.join('<br><br>')"
+  [buttons]="alertButtons"
+  (didDismiss)="showAlerts.set(false)">
+</ion-alert>

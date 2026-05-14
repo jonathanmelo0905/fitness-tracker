@@ -1,0 +1,309 @@
+:host {
+  --step-active: var(--ion-color-primary);
+}
+
+// Elementos internos de las cards en la calculadora
+ion-range {
+  --bar-background: #2e3f54;
+}
+
+.macro-preview .macro-bar,
+.range-field ion-range {
+  --knob-background: white;
+}
+
+.steps-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 0 8px;
+  gap: 0;
+
+  .step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+
+    .step-number {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--ion-color-medium);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      transition: background 0.3s;
+    }
+
+    .step-label {
+      font-size: 11px;
+      color: var(--ion-color-medium);
+      transition: color 0.3s;
+    }
+
+    &.active .step-number {
+      background: var(--ion-color-primary);
+    }
+    &.active .step-label {
+      color: var(--ion-color-primary);
+      font-weight: 600;
+    }
+    &.done .step-number {
+      background: var(--ion-color-success);
+    }
+  }
+
+  .step-line {
+    flex: 1;
+    height: 2px;
+    background: var(--ion-color-medium);
+    max-width: 60px;
+    margin: 0 8px;
+    margin-bottom: 16px;
+    transition: background 0.3s;
+
+    &.done {
+      background: var(--ion-color-success);
+    }
+  }
+}
+
+.step-content {
+  &.animate-in {
+    animation: fadeSlideIn 0.3s ease-out;
+  }
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.range-field {
+  padding: 12px 0 0;
+
+  .range-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 4px;
+    margin-bottom: 2px;
+
+    .range-label-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+
+      .range-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ion-text-color);
+
+        small {
+          font-size: 11px;
+          font-weight: 400;
+          opacity: 0.7;
+        }
+      }
+
+      .range-subtitle {
+        font-size: 11px;
+        color: var(--ion-color-medium);
+      }
+    }
+
+    .range-value {
+      font-weight: 700;
+      font-size: 20px;
+      color: var(--ion-color-primary);
+      white-space: nowrap;
+      margin-left: 8px;
+
+      &.success { color: var(--ion-color-success); }
+      &.deficit { color: var(--ion-color-danger); }
+      &.superavit { color: var(--ion-color-success); }
+      &.carbs-text { color: #f0a500; }
+      &.proteins-text { color: var(--ion-color-tertiary); }
+      &.fats-text { color: var(--ion-color-medium); }
+    }
+  }
+}
+
+.macro-preview {
+  display: flex;
+  border-radius: 8px;
+  overflow: hidden;
+  height: 40px;
+  margin: 8px 0 12px;
+
+  .macro-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+    transition: width 0.3s ease;
+    min-width: 30px;
+
+    &.carbs { background: #f0a500; }
+    &.proteins { background: var(--ion-color-tertiary); }
+    &.fats { background: var(--ion-color-medium); }
+  }
+}
+
+.macro-warning {
+  text-align: center;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.carbs-text { color: #f0a500; }
+.proteins-text { color: var(--ion-color-tertiary); }
+.fats-text { color: var(--ion-color-medium); }
+
+// ─── Fila slider con flechas ─────────────────────────────────────────────────
+.range-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+
+  ion-range {
+    flex: 1;
+    padding: 0;
+  }
+
+  .arrow-btn {
+    --padding-start: 6px;
+    --padding-end: 6px;
+    --padding-top: 6px;
+    --padding-bottom: 6px;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    flex-shrink: 0;
+    color: var(--ion-color-medium);
+
+    ion-icon {
+      font-size: 18px;
+    }
+
+    &:not([disabled]):active {
+      color: var(--ion-color-primary);
+    }
+  }
+}
+
+// ─── Preview calorías objetivo ───────────────────────────────────────────────
+.kcal-preview {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 4px 4px 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+
+  .kcal-preview-label {
+    color: var(--ion-color-medium);
+  }
+
+  .kcal-preview-value {
+    font-weight: 800;
+    font-size: 15px;
+  }
+
+  .kcal-preview-sep {
+    color: var(--ion-color-medium);
+  }
+
+  .kcal-preview-mant {
+    font-size: 12px;
+    color: var(--ion-color-medium);
+  }
+
+  &.preview-deficit {
+    background: rgba(231, 76, 60, 0.10);
+    .kcal-preview-value { color: var(--ion-color-danger); }
+  }
+
+  &.preview-superavit {
+    background: rgba(46, 204, 113, 0.10);
+    .kcal-preview-value { color: var(--ion-color-success); }
+  }
+}
+
+// ─── Preview macros en gramos ─────────────────────────────────────────────────
+.macro-preview-inline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 2px 4px 4px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+
+  span:nth-child(even) { // separadores ·
+    color: var(--ion-color-medium);
+    font-weight: 400;
+  }
+
+  &.carbs-inline {
+    background: rgba(240, 165, 0, 0.10);
+    color: #e09500;
+  }
+
+  &.proteins-inline {
+    background: rgba(91, 106, 191, 0.12);
+    color: var(--ion-color-tertiary);
+  }
+
+  &.fats-inline {
+    background: rgba(127, 140, 141, 0.12);
+    color: var(--ion-color-medium);
+  }
+
+  .prot-kg-badge {
+    &.prot-low {
+      color: var(--ion-color-warning);
+      &::after { content: ' ⚠'; font-size: 11px; }
+    }
+  }
+}
+
+// ─── Nombre inválido ──────────────────────────────────────────────────────────
+ion-item.item-invalid {
+  --border-color: var(--ion-color-danger);
+  --highlight-color-focused: var(--ion-color-danger);
+}
+
+// ─── Espacio seguro inferior (barra de navegación Android) ────────────────────
+.safe-bottom-space {
+  height: calc(env(safe-area-inset-bottom, 0px) + 80px);
+}
+
+.action-btn {
+  margin-top: 16px;
+}
+
+ion-card {
+  margin-bottom: 16px;
+}
+
+ion-card-title {
+  font-size: 16px;
+  font-weight: 700;
+}

@@ -35,3 +35,26 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
+
+// Fondo oscuro uniforme en toda la app
+ion-content {
+  --background: #0f1923;
+}
+
+ion-card {
+  --background: #1a2535;
+  background: #1a2535;
+}
+
+ion-item {
+  --background: #1a2535;
+  --border-color: #2e3f54;
+}
+
+ion-select {
+  --placeholder-color: var(--ion-color-medium);
+}
+
+ion-toolbar {
+  --background: var(--ion-color-primary);
+}

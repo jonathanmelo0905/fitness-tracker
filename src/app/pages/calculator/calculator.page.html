@@ -1,0 +1,377 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>
+      <ion-icon name="calculator-outline" style="margin-right:6px;vertical-align:middle"></ion-icon>
+      Fitness Calculator
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <!-- Indicador de pasos -->
+  <div class="steps-indicator">
+    <div class="step" [class.active]="paso() === '1'" [class.done]="paso() === '2'">
+      <span class="step-number">1</span>
+      <span class="step-label">Datos del cliente</span>
+    </div>
+    <div class="step-line" [class.done]="paso() === '2'"></div>
+    <div class="step" [class.active]="paso() === '2'">
+      <span class="step-number">2</span>
+      <span class="step-label">Configuración</span>
+    </div>
+  </div>
+
+  <!-- ═══════════ PASO 1: Datos del cliente ═══════════ -->
+  @if (paso() === '1') {
+    <div class="step-content animate-in">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Datos del Cliente</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+
+          <!-- Nombre obligatorio -->
+          <ion-item [class.item-invalid]="!form().nombre?.trim()">
+            <ion-label position="stacked">
+              Nombre del cliente <ion-text color="danger">*</ion-text>
+            </ion-label>
+            <ion-input
+              type="text"
+              placeholder="Ej: Juan Pérez"
+              [value]="form().nombre"
+              (ionInput)="update({ nombre: $any($event.target).value })">
+            </ion-input>
+          </ion-item>
+
+          <ion-grid>
+            <ion-row>
+              <ion-col>
+                <ion-item>
+                  <ion-label position="stacked">Edad <ion-text color="danger">*</ion-text></ion-label>
+                  <ion-input
+                    type="number"
+                    placeholder="31"
+                    [value]="form().edad || ''"
+                    (ionInput)="update({ edad: +$any($event.target).value })">
+                  </ion-input>
+                </ion-item>
+              </ion-col>
+              <ion-col>
+                <ion-item>
+                  <ion-label position="stacked">Género <ion-text color="danger">*</ion-text></ion-label>
+                  <ion-select
+                    [value]="form().genero"
+                    (ionChange)="update({ genero: $any($event.detail.value) })">
+                    <ion-select-option value="Masculino">Masculino</ion-select-option>
+                    <ion-select-option value="Femenino">Femenino</ion-select-option>
+                  </ion-select>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col>
+                <ion-item>
+                  <ion-label position="stacked">Peso (kg) <ion-text color="danger">*</ion-text></ion-label>
+                  <ion-input
+                    type="number"
+                    placeholder="85"
+                    [value]="form().peso || ''"
+                    (ionInput)="update({ peso: +$any($event.target).value })">
+                  </ion-input>
+                </ion-item>
+              </ion-col>
+              <ion-col>
+                <ion-item>
+                  <ion-label position="stacked">Estatura (m) <ion-text color="danger">*</ion-text></ion-label>
+                  <ion-input
+                    type="number"
+                    placeholder="1.77"
+                    [value]="form().estatura || ''"
+                    (ionInput)="update({ estatura: +$any($event.target).value })">
+                  </ion-input>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+
+          <!-- % Grasa estimado -->
+          <div class="range-field">
+            <div class="range-label">
+              <div class="range-label-text">
+                <span class="range-title">% Grasa Corporal Actual</span>
+                <span class="range-subtitle">Grasa estimada del cliente hoy</span>
+              </div>
+              <span class="range-value">{{ grasaEstimadaPct() }}%</span>
+            </div>
+            <div class="range-row">
+              <ion-button fill="clear" size="small" class="arrow-btn" (click)="adjustGrasaEstimada(-1)">
+                <ion-icon name="remove-outline"></ion-icon>
+              </ion-button>
+              <ion-range
+                [min]="5" [max]="50" [step]="1"
+                [value]="grasaEstimadaPct()"
+                (ionChange)="onGrasaEstimadaChange($event)"
+                color="primary">
+              </ion-range>
+              <ion-button fill="clear" size="small" class="arrow-btn" (click)="adjustGrasaEstimada(1)">
+                <ion-icon name="add-outline"></ion-icon>
+              </ion-button>
+            </div>
+          </div>
+
+          <!-- % Grasa objetivo -->
+          <div class="range-field">
+            <div class="range-label">
+              <div class="range-label-text">
+                <span class="range-title">% Grasa Objetivo</span>
+                <span class="range-subtitle">Meta de grasa a alcanzar</span>
+              </div>
+              <span class="range-value success">{{ grasaObjetivoPct() }}%</span>
+            </div>
+            <div class="range-row">
+              <ion-button fill="clear" size="small" class="arrow-btn" (click)="adjustGrasaObjetivo(-1)">
+                <ion-icon name="remove-outline"></ion-icon>
+              </ion-button>
+              <ion-range
+                [min]="5" [max]="30" [step]="1"
+                [value]="grasaObjetivoPct()"
+                (ionChange)="onGrasaObjetivoChange($event)"
+                color="success">
+              </ion-range>
+              <ion-button fill="clear" size="small" class="arrow-btn" (click)="adjustGrasaObjetivo(1)">
+                <ion-icon name="add-outline"></ion-icon>
+              </ion-button>
+            </div>
+          </div>
+
+        </ion-card-content>
+      </ion-card>
+
+      <ion-button expand="block" (click)="siguientePaso()" class="action-btn">
+        Siguiente
+        <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+      </ion-button>
+    </div>
+  }
+
+  <!-- ═══════════ PASO 2: Configuración ═══════════ -->
+  @if (paso() === '2') {
+    <div class="step-content animate-in">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Nivel de Actividad y Calorías</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+
+          <ion-item>
+            <ion-label position="stacked">Nivel de Actividad</ion-label>
+            <ion-select
+              [value]="form().multiplicadorActividad"
+              (ionChange)="update({ multiplicadorActividad: +$event.detail.value })"
+              interface="alert"
+              okText="Confirmar"
+              cancelText="Cancelar">
+              @for (nivel of nivelesActividad; track nivel.value) {
+                <ion-select-option [value]="nivel.value">{{ nivel.label }}</ion-select-option>
+              }
+            </ion-select>
+          </ion-item>
+
+          <!-- Ajuste calórico -->
+          <div class="range-field">
+            <div class="range-label">
+              <div class="range-label-text">
+                <span class="range-title">Ajuste Calórico</span>
+                <span class="range-subtitle">Déficit (−) o superávit (+) respecto al mantenimiento</span>
+              </div>
+              <span class="range-value" [class.deficit]="form().ajusteCalorico < 0" [class.superavit]="form().ajusteCalorico > 0">
+                {{ ajusteCaloricoLabel() }}
+              </span>
+            </div>
+            <div class="range-row">
+              <ion-button fill="clear" size="small" class="arrow-btn" (click)="adjustAjusteCalorico(-1)">
+                <ion-icon name="remove-outline"></ion-icon>
+              </ion-button>
+              <ion-range
+                [min]="-40" [max]="40" [step]="1"
+                [value]="form().ajusteCalorico * 100"
+                (ionChange)="onAjusteCaloricoChange($event)"
+                [color]="form().ajusteCalorico < 0 ? 'danger' : 'success'">
+              </ion-range>
+              <ion-button fill="clear" size="small" class="arrow-btn" (click)="adjustAjusteCalorico(1)">
+                <ion-icon name="add-outline"></ion-icon>
+              </ion-button>
+            </div>
+            <!-- Preview calorías objetivo -->
+            @if (caloriasObjetivoPrev()) {
+              <div class="kcal-preview" [class.preview-deficit]="form().ajusteCalorico < 0" [class.preview-superavit]="form().ajusteCalorico > 0">
+                <span class="kcal-preview-label">Calorías objetivo:</span>
+                <span class="kcal-preview-value">{{ caloriasObjetivoPrev() | number:'1.0-0' }} kcal/día</span>
+                <span class="kcal-preview-sep">·</span>
+                <span class="kcal-preview-mant">Mant: {{ caloriasMantenimientoPrev() | number:'1.0-0' }}</span>
+              </div>
+            }
+          </div>
+
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Distribución de Macros</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+
+          <!-- Barra visual de macros (orden: P - C - G) -->
+          <div class="macro-preview">
+            <div class="macro-bar proteins" [style.width.%]="distribucionProteinasPct()">
+              <span>P {{ distribucionProteinasPct() }}%</span>
+            </div>
+            <div class="macro-bar carbs" [style.width.%]="distribucionCarbsPct()">
+              <span>C {{ distribucionCarbsPct() }}%</span>
+            </div>
+            <div class="macro-bar fats" [style.width.%]="distribucionGrasasPct()">
+              <span>G {{ distribucionGrasasPct() }}%</span>
+            </div>
+          </div>
+          @if (macroSuma() !== 100) {
+            <div class="macro-warning">
+              <ion-text color="danger">Los macros suman {{ macroSuma() }}% (deben ser 100%)</ion-text>
+            </div>
+          }
+
+          <!-- 1. Proteínas -->
+          <div class="range-field">
+            <div class="range-label">
+              <div class="range-label-text">
+                <span class="range-title proteins-text">Proteínas</span>
+                <span class="range-subtitle">Pollo, huevo, atún, whey, legumbres…</span>
+              </div>
+              <span class="range-value proteins-text">{{ distribucionProteinasPct() }}%</span>
+            </div>
+            <div class="range-row">
+              <ion-button fill="clear" size="small" class="arrow-btn" (click)="adjustProteinas(-1)">
+                <ion-icon name="remove-outline"></ion-icon>
+              </ion-button>
+              <ion-range [min]="10" [max]="50" [step]="1"
+                [value]="distribucionProteinasPct()"
+                (ionChange)="onProteinasChange($event)"
+                color="tertiary">
+              </ion-range>
+              <ion-button fill="clear" size="small" class="arrow-btn" (click)="adjustProteinas(1)">
+                <ion-icon name="add-outline"></ion-icon>
+              </ion-button>
+            </div>
+            @if (macrosPrev()) {
+              <div class="macro-preview-inline proteins-inline">
+                <span>≈ {{ macrosPrev()!.protG }}g/día</span>
+                <span>·</span>
+                <span class="prot-kg-badge" [class.prot-low]="+macrosPrev()!.protGKgMLG < 1.8">
+                  {{ macrosPrev()!.protGKg }} g/kg peso
+                </span>
+                <span>·</span>
+                <span class="prot-kg-badge" [class.prot-low]="+macrosPrev()!.protGKgMLG < 1.8">
+                  {{ macrosPrev()!.protGKgMLG }} g/kg MLG
+                </span>
+              </div>
+            }
+          </div>
+
+          <!-- 2. Carbohidratos -->
+          <div class="range-field">
+            <div class="range-label">
+              <div class="range-label-text">
+                <span class="range-title carbs-text">Carbohidratos</span>
+                <span class="range-subtitle">Arroz, avena, frutas, pan, pasta…</span>
+              </div>
+              <span class="range-value carbs-text">{{ distribucionCarbsPct() }}%</span>
+            </div>
+            <div class="range-row">
+              <ion-button fill="clear" size="small" class="arrow-btn" (click)="adjustCarbs(-1)">
+                <ion-icon name="remove-outline"></ion-icon>
+              </ion-button>
+              <ion-range [min]="10" [max]="70" [step]="1"
+                [value]="distribucionCarbsPct()"
+                (ionChange)="onCarbsChange($event)"
+                color="warning">
+              </ion-range>
+              <ion-button fill="clear" size="small" class="arrow-btn" (click)="adjustCarbs(1)">
+                <ion-icon name="add-outline"></ion-icon>
+              </ion-button>
+            </div>
+            @if (macrosPrev()) {
+              <div class="macro-preview-inline carbs-inline">
+                <span>≈ {{ macrosPrev()!.carbsG }}g/día</span>
+                <span>·</span>
+                <span>{{ macrosPrev()!.carbsGKg }} g/kg</span>
+              </div>
+            }
+          </div>
+
+          <!-- 3. Grasas (solo lectura) -->
+          <div class="range-field">
+            <div class="range-label">
+              <div class="range-label-text">
+                <span class="range-title fats-text">Grasas <small>(se ajusta automáticamente)</small></span>
+                <span class="range-subtitle">Aguacate, aceite, frutos secos, huevo…</span>
+              </div>
+              <span class="range-value fats-text">{{ distribucionGrasasPct() }}%</span>
+            </div>
+            <div class="range-row">
+              <ion-button fill="clear" size="small" class="arrow-btn" disabled="true">
+                <ion-icon name="remove-outline"></ion-icon>
+              </ion-button>
+              <ion-range [min]="0" [max]="60" [step]="1"
+                [value]="distribucionGrasasPct()"
+                disabled="true"
+                color="medium">
+              </ion-range>
+              <ion-button fill="clear" size="small" class="arrow-btn" disabled="true">
+                <ion-icon name="add-outline"></ion-icon>
+              </ion-button>
+            </div>
+            @if (macrosPrev()) {
+              <div class="macro-preview-inline fats-inline">
+                <span>≈ {{ macrosPrev()!.grasasG }}g/día</span>
+                <span>·</span>
+                <span>{{ macrosPrev()!.grasasGKg }} g/kg</span>
+              </div>
+            }
+          </div>
+
+        </ion-card-content>
+      </ion-card>
+
+      <ion-grid>
+        <ion-row>
+          <ion-col>
+            <ion-button expand="block" fill="outline" (click)="paso.set('1')">
+              <ion-icon name="chevron-back-outline" slot="start"></ion-icon>
+              Anterior
+            </ion-button>
+          </ion-col>
+          <ion-col>
+            <ion-button expand="block" (click)="calcular()" [disabled]="macroSuma() !== 100">
+              <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+              Calcular
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+
+      <!-- Espacio seguro para barra de navegación Android -->
+      <div class="safe-bottom-space"></div>
+    </div>
+  }
+
+</ion-content>
+
+<ion-toast
+  [isOpen]="showToast()"
+  [message]="toastMessage()"
+  duration="3000"
+  color="danger"
+  position="top"
+  (didDismiss)="showToast.set(false)">
+</ion-toast>

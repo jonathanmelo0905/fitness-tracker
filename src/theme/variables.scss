@@ -1,2 +1,67 @@
-// For information on how to create your own theme, please refer to:
-// https://ionicframework.com/docs/theming/
+// Fitness Tracker — Professional Dark Green Theme
+:root {
+  --ion-color-primary: #1a6b3a;
+  --ion-color-primary-rgb: 26, 107, 58;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #175e32;
+  --ion-color-primary-tint: #317a4e;
+
+  --ion-color-secondary: #2ecc71;
+  --ion-color-secondary-rgb: 46, 204, 113;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #28b463;
+  --ion-color-secondary-tint: #43d17f;
+
+  --ion-color-tertiary: #5b6abf;
+  --ion-color-tertiary-rgb: 91, 106, 191;
+  --ion-color-tertiary-contrast: #ffffff;
+  --ion-color-tertiary-contrast-rgb: 255, 255, 255;
+  --ion-color-tertiary-shade: #505da8;
+  --ion-color-tertiary-tint: #6b79c5;
+
+  --ion-color-success: #2ecc71;
+  --ion-color-success-rgb: 46, 204, 113;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-shade: #28b463;
+  --ion-color-success-tint: #43d17f;
+
+  --ion-color-warning: #f0a500;
+  --ion-color-warning-rgb: 240, 165, 0;
+  --ion-color-warning-contrast: #000000;
+  --ion-color-warning-contrast-rgb: 0, 0, 0;
+  --ion-color-warning-shade: #d39200;
+  --ion-color-warning-tint: #f2ae1a;
+
+  --ion-color-danger: #e74c3c;
+  --ion-color-danger-rgb: 231, 76, 60;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #cb4335;
+  --ion-color-danger-tint: #e95e50;
+
+  --ion-color-dark: #1a1a2e;
+  --ion-color-dark-rgb: 26, 26, 46;
+  --ion-color-dark-contrast: #ffffff;
+  --ion-color-dark-contrast-rgb: 255, 255, 255;
+  --ion-color-dark-shade: #161628;
+  --ion-color-dark-tint: #313143;
+
+  --ion-color-medium: #7f8c8d;
+  --ion-color-medium-rgb: 127, 140, 141;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-contrast-rgb: 255, 255, 255;
+  --ion-color-medium-shade: #6f7b7c;
+  --ion-color-medium-tint: #8c9899;
+
+  --ion-color-light: #f0f3f4;
+  --ion-color-light-rgb: 240, 243, 244;
+  --ion-color-light-contrast: #000000;
+  --ion-color-light-contrast-rgb: 0, 0, 0;
+  --ion-color-light-shade: #d3d6d7;
+  --ion-color-light-tint: #f2f5f5;
+
+  --ion-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
