@@ -1,3 +1,5 @@
+@use 'theme/utilities';
+
 /*
  * App Global CSS
  * ----------------------------------------------------------------------------
@@ -38,17 +40,17 @@
 
 // Fondo oscuro uniforme en toda la app
 ion-content {
-  --background: #0f1923;
+  --background: var(--bg-primary);
 }
 
 ion-card {
-  --background: #1a2535;
-  background: #1a2535;
+  --background: var(--bg-card);
+  background: var(--bg-card);
 }
 
 ion-item {
-  --background: #1a2535;
-  --border-color: #2e3f54;
+  --background: var(--bg-card);
+  --border-color: var(--bg-border);
 }
 
 ion-select {

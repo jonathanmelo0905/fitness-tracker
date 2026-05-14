@@ -1,0 +1,652 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button fill="clear" (click)="irInicio()">
+        <ion-icon name="arrow-back-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Evaluación Física</ion-title>
+  </ion-toolbar>
+
+  <!-- Segment navigation (5 pasos) -->
+  <ion-toolbar color="primary" style="--padding-bottom:0">
+    <ion-segment scrollable [value]="paso()" (ionChange)="onPasoChange($any($event))">
+      <ion-segment-button value="1">
+        <ion-label>Básicos</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="2">
+        <ion-label>Pliegues</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="3">
+        <ion-label>Perímetros</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="4">
+        <ion-label>Diámetros</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="5">
+        <ion-label>Tests</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="wizard-layout">
+
+    <!-- ══════════ PANEL IZQUIERDO: Formulario ══════════ -->
+    <div class="form-panel">
+
+      <!-- ═══════ PASO 1: Datos básicos ═══════ -->
+      @if (paso() === '1') {
+        <div class="step-content animate-in">
+          <ion-card>
+            <ion-card-header><ion-card-title>Datos del Cliente</ion-card-title></ion-card-header>
+            <ion-card-content>
+
+              <ion-item>
+                <ion-label position="stacked">Nombre (opcional)</ion-label>
+                <ion-input type="text" placeholder="Ej: Juan Pérez"
+                  [value]="form().nombre"
+                  (ionInput)="update({ nombre: $any($event.target).value })">
+                </ion-input>
+              </ion-item>
+
+              <ion-grid>
+                <ion-row>
+                  <ion-col size="12" size-md="6">
+                    <ion-item>
+                      <ion-label position="stacked">Edad <ion-text color="danger">*</ion-text></ion-label>
+                      <ion-input type="number" placeholder="30"
+                        [value]="form().edad || ''"
+                        (ionInput)="update({ edad: +$any($event.target).value })">
+                      </ion-input>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col size="12" size-md="6">
+                    <ion-item>
+                      <ion-label position="stacked">Género <ion-text color="danger">*</ion-text></ion-label>
+                      <ion-select [value]="form().genero"
+                        (ionChange)="update({ genero: $any($event.detail.value) })">
+                        <ion-select-option value="Masculino">Masculino</ion-select-option>
+                        <ion-select-option value="Femenino">Femenino</ion-select-option>
+                      </ion-select>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col size="12" size-md="6">
+                    <ion-item>
+                      <ion-label position="stacked">Peso (kg) <ion-text color="danger">*</ion-text></ion-label>
+                      <ion-input type="number" placeholder="80"
+                        [value]="form().peso || ''"
+                        (ionInput)="update({ peso: +$any($event.target).value })">
+                      </ion-input>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col size="12" size-md="6">
+                    <ion-item>
+                      <ion-label position="stacked">Estatura (m) <ion-text color="danger">*</ion-text></ion-label>
+                      <ion-input type="number" placeholder="1.75"
+                        [value]="form().estatura || ''"
+                        (ionInput)="update({ estatura: +$any($event.target).value })">
+                      </ion-input>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+
+              @if (imcPreview()) {
+                <div class="inline-preview">
+                  <span class="ip-label">IMC en tiempo real:</span>
+                  <span class="ip-value">{{ imcPreview() | number:'1.1-1' }} kg/m²</span>
+                </div>
+              }
+
+            </ion-card-content>
+          </ion-card>
+        </div>
+      }
+
+      <!-- ═══════ PASO 2: Pliegues cutáneos ═══════ -->
+      @if (paso() === '2') {
+        <div class="step-content animate-in">
+          <ion-card>
+            <ion-card-header><ion-card-title>Fórmula</ion-card-title></ion-card-header>
+            <ion-card-content>
+              <ion-item>
+                <ion-label position="stacked">Método de cálculo</ion-label>
+                <ion-select [value]="formulaActual()"
+                  (ionChange)="updateSkinfolds({ formula: $any($event.detail.value) })"
+                  interface="alert">
+                  <ion-select-option value="jackson3">Jackson-Pollock 3 pliegues</ion-select-option>
+                  <ion-select-option value="jackson7">Jackson-Pollock 7 pliegues</ion-select-option>
+                  <ion-select-option value="durnin4">Durnin-Womersley 4 pliegues</ion-select-option>
+                </ion-select>
+              </ion-item>
+            </ion-card-content>
+          </ion-card>
+
+          <ion-card>
+            <ion-card-header><ion-card-title>Pliegues Cutáneos (mm)</ion-card-title></ion-card-header>
+            <ion-card-content>
+
+              <!-- Jackson 3 — Hombre: pectoral + abdominal + musloAnterior -->
+              @if (formulaActual() === 'jackson3' && esMasculino()) {
+                <div class="field-hint">Pectoral · Abdominal · Muslo anterior</div>
+                <ion-grid>
+                  <ion-row>
+                    <ion-col size="12" size-md="4">
+                      <ion-item>
+                        <ion-label position="stacked">Pectoral</ion-label>
+                        <ion-input type="number" placeholder="14"
+                          [value]="form().skinfolds?.pectoral || ''"
+                          (ionInput)="updateSkinfolds({ pectoral: numVal($event) })">
+                        </ion-input>
+                      </ion-item>
+                    </ion-col>
+                    <ion-col size="12" size-md="4">
+                      <ion-item>
+                        <ion-label position="stacked">Abdominal</ion-label>
+                        <ion-input type="number" placeholder="20"
+                          [value]="form().skinfolds?.abdominal || ''"
+                          (ionInput)="updateSkinfolds({ abdominal: numVal($event) })">
+                        </ion-input>
+                      </ion-item>
+                    </ion-col>
+                    <ion-col size="12" size-md="4">
+                      <ion-item>
+                        <ion-label position="stacked">Muslo anterior</ion-label>
+                        <ion-input type="number" placeholder="18"
+                          [value]="form().skinfolds?.musloAnterior || ''"
+                          (ionInput)="updateSkinfolds({ musloAnterior: numVal($event) })">
+                        </ion-input>
+                      </ion-item>
+                    </ion-col>
+                  </ion-row>
+                </ion-grid>
+              }
+
+              <!-- Jackson 3 — Mujer: triceps + suprailiaco + musloAnterior -->
+              @if (formulaActual() === 'jackson3' && !esMasculino()) {
+                <div class="field-hint">Tríceps · Suprailiaco · Muslo anterior</div>
+                <ion-grid>
+                  <ion-row>
+                    <ion-col size="12" size-md="4">
+                      <ion-item>
+                        <ion-label position="stacked">Tríceps</ion-label>
+                        <ion-input type="number" placeholder="18"
+                          [value]="form().skinfolds?.triceps || ''"
+                          (ionInput)="updateSkinfolds({ triceps: numVal($event) })">
+                        </ion-input>
+                      </ion-item>
+                    </ion-col>
+                    <ion-col size="12" size-md="4">
+                      <ion-item>
+                        <ion-label position="stacked">Suprailiaco</ion-label>
+                        <ion-input type="number" placeholder="15"
+                          [value]="form().skinfolds?.suprailiaco || ''"
+                          (ionInput)="updateSkinfolds({ suprailiaco: numVal($event) })">
+                        </ion-input>
+                      </ion-item>
+                    </ion-col>
+                    <ion-col size="12" size-md="4">
+                      <ion-item>
+                        <ion-label position="stacked">Muslo anterior</ion-label>
+                        <ion-input type="number" placeholder="22"
+                          [value]="form().skinfolds?.musloAnterior || ''"
+                          (ionInput)="updateSkinfolds({ musloAnterior: numVal($event) })">
+                        </ion-input>
+                      </ion-item>
+                    </ion-col>
+                  </ion-row>
+                </ion-grid>
+              }
+
+              <!-- Jackson 7 pliegues -->
+              @if (formulaActual() === 'jackson7') {
+                <div class="field-hint">Pectoral · Axilar medio · Tríceps · Subescapular · Abdominal · Suprailiaco · Muslo anterior</div>
+                <ion-grid>
+                  <ion-row>
+                    <ion-col size="12" size-md="4"><ion-item>
+                      <ion-label position="stacked">Pectoral</ion-label>
+                      <ion-input type="number" placeholder="14" [value]="form().skinfolds?.pectoral || ''"
+                        (ionInput)="updateSkinfolds({ pectoral: numVal($event) })"></ion-input>
+                    </ion-item></ion-col>
+                    <ion-col size="12" size-md="4"><ion-item>
+                      <ion-label position="stacked">Axilar medio</ion-label>
+                      <ion-input type="number" placeholder="12" [value]="form().skinfolds?.axilarMedio || ''"
+                        (ionInput)="updateSkinfolds({ axilarMedio: numVal($event) })"></ion-input>
+                    </ion-item></ion-col>
+                    <ion-col size="12" size-md="4"><ion-item>
+                      <ion-label position="stacked">Tríceps</ion-label>
+                      <ion-input type="number" placeholder="15" [value]="form().skinfolds?.triceps || ''"
+                        (ionInput)="updateSkinfolds({ triceps: numVal($event) })"></ion-input>
+                    </ion-item></ion-col>
+                  </ion-row>
+                  <ion-row>
+                    <ion-col size="12" size-md="4"><ion-item>
+                      <ion-label position="stacked">Subescapular</ion-label>
+                      <ion-input type="number" placeholder="12" [value]="form().skinfolds?.subescapular || ''"
+                        (ionInput)="updateSkinfolds({ subescapular: numVal($event) })"></ion-input>
+                    </ion-item></ion-col>
+                    <ion-col size="12" size-md="4"><ion-item>
+                      <ion-label position="stacked">Abdominal</ion-label>
+                      <ion-input type="number" placeholder="20" [value]="form().skinfolds?.abdominal || ''"
+                        (ionInput)="updateSkinfolds({ abdominal: numVal($event) })"></ion-input>
+                    </ion-item></ion-col>
+                    <ion-col size="12" size-md="4"><ion-item>
+                      <ion-label position="stacked">Suprailiaco</ion-label>
+                      <ion-input type="number" placeholder="16" [value]="form().skinfolds?.suprailiaco || ''"
+                        (ionInput)="updateSkinfolds({ suprailiaco: numVal($event) })"></ion-input>
+                    </ion-item></ion-col>
+                  </ion-row>
+                  <ion-row>
+                    <ion-col size="12" size-md="4"><ion-item>
+                      <ion-label position="stacked">Muslo anterior</ion-label>
+                      <ion-input type="number" placeholder="18" [value]="form().skinfolds?.musloAnterior || ''"
+                        (ionInput)="updateSkinfolds({ musloAnterior: numVal($event) })"></ion-input>
+                    </ion-item></ion-col>
+                  </ion-row>
+                </ion-grid>
+              }
+
+              <!-- Durnin 4 pliegues -->
+              @if (formulaActual() === 'durnin4') {
+                <div class="field-hint">Bíceps · Tríceps · Subescapular · Suprailiaco</div>
+                <ion-grid>
+                  <ion-row>
+                    <ion-col size="12" size-md="6"><ion-item>
+                      <ion-label position="stacked">Bíceps</ion-label>
+                      <ion-input type="number" placeholder="8" [value]="form().skinfolds?.biceps || ''"
+                        (ionInput)="updateSkinfolds({ biceps: numVal($event) })"></ion-input>
+                    </ion-item></ion-col>
+                    <ion-col size="12" size-md="6"><ion-item>
+                      <ion-label position="stacked">Tríceps</ion-label>
+                      <ion-input type="number" placeholder="14" [value]="form().skinfolds?.triceps || ''"
+                        (ionInput)="updateSkinfolds({ triceps: numVal($event) })"></ion-input>
+                    </ion-item></ion-col>
+                  </ion-row>
+                  <ion-row>
+                    <ion-col size="12" size-md="6"><ion-item>
+                      <ion-label position="stacked">Subescapular</ion-label>
+                      <ion-input type="number" placeholder="12" [value]="form().skinfolds?.subescapular || ''"
+                        (ionInput)="updateSkinfolds({ subescapular: numVal($event) })"></ion-input>
+                    </ion-item></ion-col>
+                    <ion-col size="12" size-md="6"><ion-item>
+                      <ion-label position="stacked">Suprailiaco</ion-label>
+                      <ion-input type="number" placeholder="16" [value]="form().skinfolds?.suprailiaco || ''"
+                        (ionInput)="updateSkinfolds({ suprailiaco: numVal($event) })"></ion-input>
+                    </ion-item></ion-col>
+                  </ion-row>
+                </ion-grid>
+              }
+
+              <!-- Pliegues adicionales para somatotipo -->
+              <div class="optional-section">
+                <div class="optional-label">Pliegues adicionales (somatotipo)</div>
+                <ion-grid>
+                  <ion-row>
+                    @if (formulaActual() !== 'jackson3' || !esMasculino()) {
+                      <ion-col size="12" size-md="6"><ion-item>
+                        <ion-label position="stacked">Tríceps</ion-label>
+                        <ion-input type="number" [value]="form().skinfolds?.triceps || ''"
+                          (ionInput)="updateSkinfolds({ triceps: numVal($event) })"></ion-input>
+                      </ion-item></ion-col>
+                    }
+                    @if (formulaActual() === 'jackson3') {
+                      <ion-col size="12" size-md="6"><ion-item>
+                        <ion-label position="stacked">Subescapular</ion-label>
+                        <ion-input type="number" [value]="form().skinfolds?.subescapular || ''"
+                          (ionInput)="updateSkinfolds({ subescapular: numVal($event) })"></ion-input>
+                      </ion-item></ion-col>
+                    }
+                    @if (formulaActual() !== 'jackson3' || esMasculino()) {
+                      <ion-col size="12" size-md="6"><ion-item>
+                        <ion-label position="stacked">Suprailiaco</ion-label>
+                        <ion-input type="number" [value]="form().skinfolds?.suprailiaco || ''"
+                          (ionInput)="updateSkinfolds({ suprailiaco: numVal($event) })"></ion-input>
+                      </ion-item></ion-col>
+                    }
+                    <ion-col size="12" size-md="6"><ion-item>
+                      <ion-label position="stacked">Pantorrilla</ion-label>
+                      <ion-input type="number" [value]="form().skinfolds?.pantorrilla || ''"
+                        (ionInput)="updateSkinfolds({ pantorrilla: numVal($event) })"></ion-input>
+                    </ion-item></ion-col>
+                  </ion-row>
+                </ion-grid>
+              </div>
+
+              @if (sumaPlieguesPreview() !== null) {
+                <div class="inline-preview">
+                  <span class="ip-label">Suma de pliegues:</span>
+                  <span class="ip-value">{{ sumaPlieguesPreview() | number:'1.1-1' }} mm</span>
+                </div>
+              }
+
+            </ion-card-content>
+          </ion-card>
+        </div>
+      }
+
+      <!-- ═══════ PASO 3: Perímetros ═══════ -->
+      @if (paso() === '3') {
+        <div class="step-content animate-in">
+          <ion-card>
+            <ion-card-header><ion-card-title>Tronco (cm)</ion-card-title></ion-card-header>
+            <ion-card-content>
+              <ion-grid>
+                <ion-row>
+                  <ion-col size="12" size-md="6"><ion-item>
+                    <ion-label position="stacked">Cuello</ion-label>
+                    <ion-input type="number" placeholder="38" [value]="form().girths?.cuello || ''"
+                      (ionInput)="updateGirths({ cuello: numVal($event) })"></ion-input>
+                  </ion-item></ion-col>
+                  <ion-col size="12" size-md="6"><ion-item>
+                    <ion-label position="stacked">Hombros</ion-label>
+                    <ion-input type="number" placeholder="115" [value]="form().girths?.hombros || ''"
+                      (ionInput)="updateGirths({ hombros: numVal($event) })"></ion-input>
+                  </ion-item></ion-col>
+                  <ion-col size="12" size-md="6"><ion-item>
+                    <ion-label position="stacked">Pecho</ion-label>
+                    <ion-input type="number" placeholder="98" [value]="form().girths?.pecho || ''"
+                      (ionInput)="updateGirths({ pecho: numVal($event) })"></ion-input>
+                  </ion-item></ion-col>
+                  <ion-col size="12" size-md="6"><ion-item>
+                    <ion-label position="stacked">Cintura</ion-label>
+                    <ion-input type="number" placeholder="82" [value]="form().girths?.cintura || ''"
+                      (ionInput)="updateGirths({ cintura: numVal($event) })"></ion-input>
+                  </ion-item></ion-col>
+                  <ion-col size="12" size-md="6"><ion-item>
+                    <ion-label position="stacked">Cadera</ion-label>
+                    <ion-input type="number" placeholder="95" [value]="form().girths?.cadera || ''"
+                      (ionInput)="updateGirths({ cadera: numVal($event) })"></ion-input>
+                  </ion-item></ion-col>
+                  <ion-col size="12" size-md="6"><ion-item>
+                    <ion-label position="stacked">Abdomen</ion-label>
+                    <ion-input type="number" placeholder="88" [value]="form().girths?.abdomen || ''"
+                      (ionInput)="updateGirths({ abdomen: numVal($event) })"></ion-input>
+                  </ion-item></ion-col>
+                </ion-row>
+              </ion-grid>
+            </ion-card-content>
+          </ion-card>
+
+          <ion-card>
+            <ion-card-header><ion-card-title>Brazos (cm)</ion-card-title></ion-card-header>
+            <ion-card-content>
+              <ion-grid>
+                <ion-row>
+                  <ion-col size="12" size-md="4"><ion-item>
+                    <ion-label position="stacked">Brazo derecho</ion-label>
+                    <ion-input type="number" placeholder="34" [value]="form().girths?.brazoDerecho || ''"
+                      (ionInput)="updateGirths({ brazoDerecho: numVal($event) })"></ion-input>
+                  </ion-item></ion-col>
+                  <ion-col size="12" size-md="4"><ion-item>
+                    <ion-label position="stacked">Brazo izquierdo</ion-label>
+                    <ion-input type="number" placeholder="34" [value]="form().girths?.brazoIzquierdo || ''"
+                      (ionInput)="updateGirths({ brazoIzquierdo: numVal($event) })"></ion-input>
+                  </ion-item></ion-col>
+                  <ion-col size="12" size-md="4"><ion-item>
+                    <ion-label position="stacked">Brazo contraído</ion-label>
+                    <ion-input type="number" placeholder="36" [value]="form().girths?.brazoContraido || ''"
+                      (ionInput)="updateGirths({ brazoContraido: numVal($event) })"></ion-input>
+                  </ion-item></ion-col>
+                </ion-row>
+              </ion-grid>
+            </ion-card-content>
+          </ion-card>
+
+          <ion-card>
+            <ion-card-header><ion-card-title>Piernas (cm)</ion-card-title></ion-card-header>
+            <ion-card-content>
+              <ion-grid>
+                <ion-row>
+                  <ion-col size="12" size-md="6"><ion-item>
+                    <ion-label position="stacked">Muslo derecho</ion-label>
+                    <ion-input type="number" placeholder="58" [value]="form().girths?.musloDerecho || ''"
+                      (ionInput)="updateGirths({ musloDerecho: numVal($event) })"></ion-input>
+                  </ion-item></ion-col>
+                  <ion-col size="12" size-md="6"><ion-item>
+                    <ion-label position="stacked">Muslo izquierdo</ion-label>
+                    <ion-input type="number" placeholder="57" [value]="form().girths?.musloIzquierdo || ''"
+                      (ionInput)="updateGirths({ musloIzquierdo: numVal($event) })"></ion-input>
+                  </ion-item></ion-col>
+                  <ion-col size="12" size-md="6"><ion-item>
+                    <ion-label position="stacked">Pantorrilla derecha</ion-label>
+                    <ion-input type="number" placeholder="38" [value]="form().girths?.pantorrillaDerecha || ''"
+                      (ionInput)="updateGirths({ pantorrillaDerecha: numVal($event) })"></ion-input>
+                  </ion-item></ion-col>
+                  <ion-col size="12" size-md="6"><ion-item>
+                    <ion-label position="stacked">Pantorrilla izquierda</ion-label>
+                    <ion-input type="number" placeholder="38" [value]="form().girths?.pantorrillaIzquierda || ''"
+                      (ionInput)="updateGirths({ pantorrillaIzquierda: numVal($event) })"></ion-input>
+                  </ion-item></ion-col>
+                </ion-row>
+              </ion-grid>
+            </ion-card-content>
+          </ion-card>
+
+          <!-- ICC / ICE en tiempo real -->
+          @if (iccPreview() !== null || icePreview() !== null) {
+            <div class="realtime-indices">
+              @if (iccPreview() !== null) {
+                <div class="index-chip" [class.ok]="(iccPreview() ?? 0) < (esMasculino() ? 0.9 : 0.8)"
+                     [class.warn]="(iccPreview() ?? 0) >= (esMasculino() ? 0.9 : 0.8)">
+                  <span class="idx-label">ICC</span>
+                  <span class="idx-value">{{ iccPreview() | number:'1.2-2' }}</span>
+                </div>
+              }
+              @if (icePreview() !== null) {
+                <div class="index-chip" [class.ok]="(icePreview() ?? 0) < 0.5"
+                     [class.warn]="(icePreview() ?? 0) >= 0.5 && (icePreview() ?? 0) < 0.6"
+                     [class.danger]="(icePreview() ?? 0) >= 0.6">
+                  <span class="idx-label">ICE</span>
+                  <span class="idx-value">{{ icePreview() | number:'1.2-2' }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ═══════ PASO 4: Diámetros Óseos ═══════ -->
+      @if (paso() === '4') {
+        <div class="step-content animate-in">
+          <ion-card>
+            <ion-card-header><ion-card-title>Diámetros Óseos (cm) — Opcional</ion-card-title></ion-card-header>
+            <ion-card-content>
+              <div class="field-hint">Necesarios para el cálculo de la mesomorfia (somatotipo).</div>
+              <ion-grid>
+                <ion-row>
+                  <ion-col size="12" size-md="6"><ion-item>
+                    <ion-label position="stacked">Muñeca (biestiloideo)</ion-label>
+                    <ion-input type="number" placeholder="5.8" [value]="form().boneDiameters?.muneca || ''"
+                      (ionInput)="updateDiameters({ muneca: numVal($event) })"></ion-input>
+                  </ion-item></ion-col>
+                  <ion-col size="12" size-md="6"><ion-item>
+                    <ion-label position="stacked">Codo (biepicondíleo h.)</ion-label>
+                    <ion-input type="number" placeholder="7.0" [value]="form().boneDiameters?.codo || ''"
+                      (ionInput)="updateDiameters({ codo: numVal($event) })"></ion-input>
+                  </ion-item></ion-col>
+                  <ion-col size="12" size-md="6"><ion-item>
+                    <ion-label position="stacked">Rodilla (biepicondíleo f.)</ion-label>
+                    <ion-input type="number" placeholder="9.5" [value]="form().boneDiameters?.rodilla || ''"
+                      (ionInput)="updateDiameters({ rodilla: numVal($event) })"></ion-input>
+                  </ion-item></ion-col>
+                  <ion-col size="12" size-md="6"><ion-item>
+                    <ion-label position="stacked">Tobillo (bimaleolar)</ion-label>
+                    <ion-input type="number" placeholder="7.2" [value]="form().boneDiameters?.tobillo || ''"
+                      (ionInput)="updateDiameters({ tobillo: numVal($event) })"></ion-input>
+                  </ion-item></ion-col>
+                </ion-row>
+              </ion-grid>
+            </ion-card-content>
+          </ion-card>
+        </div>
+      }
+
+      <!-- ═══════ PASO 5: Tests físicos ═══════ -->
+      @if (paso() === '5') {
+        <div class="step-content animate-in">
+          <ion-accordion-group>
+
+            <!-- Test Ruffier -->
+            <ion-accordion value="ruffier">
+              <ion-item slot="header" color="medium">
+                <ion-icon name="flash-outline" slot="start"></ion-icon>
+                <ion-label>Test de Ruffier</ion-label>
+              </ion-item>
+              <div slot="content" class="accordion-content">
+                <div class="field-hint">30 sentadillas en 45 s. FC en reposo → post-ejercicio → 1 min de recuperación.</div>
+                <ion-grid>
+                  <ion-row>
+                    <ion-col size="12" size-md="4"><ion-item>
+                      <ion-label position="stacked">FC reposo (ppm)</ion-label>
+                      <ion-input type="number" placeholder="65" [value]="form().fitnessTests?.fc_reposo || ''"
+                        (ionInput)="updateTests({ fc_reposo: numVal($event) })"></ion-input>
+                    </ion-item></ion-col>
+                    <ion-col size="12" size-md="4"><ion-item>
+                      <ion-label position="stacked">FC post-ejercicio</ion-label>
+                      <ion-input type="number" placeholder="110" [value]="form().fitnessTests?.fc_post_ejercicio || ''"
+                        (ionInput)="updateTests({ fc_post_ejercicio: numVal($event) })"></ion-input>
+                    </ion-item></ion-col>
+                    <ion-col size="12" size-md="4"><ion-item>
+                      <ion-label position="stacked">FC recuperación (1 min)</ion-label>
+                      <ion-input type="number" placeholder="80" [value]="form().fitnessTests?.fc_recuperacion || ''"
+                        (ionInput)="updateTests({ fc_recuperacion: numVal($event) })"></ion-input>
+                    </ion-item></ion-col>
+                  </ion-row>
+                </ion-grid>
+              </div>
+            </ion-accordion>
+
+            <!-- Test Rockport VO2max -->
+            <ion-accordion value="rockport">
+              <ion-item slot="header" color="medium">
+                <ion-icon name="fitness-outline" slot="start"></ion-icon>
+                <ion-label>Test Rockport (VO₂máx)</ion-label>
+              </ion-item>
+              <div slot="content" class="accordion-content">
+                <div class="field-hint">Caminar 1 milla (1.609 km) al máximo. Registra tiempo y FC al finalizar.</div>
+                <ion-grid>
+                  <ion-row>
+                    <ion-col size="12" size-md="4"><ion-item>
+                      <ion-label position="stacked">Tiempo — minutos</ion-label>
+                      <ion-input type="number" placeholder="14" [value]="form().fitnessTests?.tiempo_milla_min || ''"
+                        (ionInput)="updateTests({ tiempo_milla_min: numVal($event) })"></ion-input>
+                    </ion-item></ion-col>
+                    <ion-col size="12" size-md="4"><ion-item>
+                      <ion-label position="stacked">Tiempo — segundos</ion-label>
+                      <ion-input type="number" placeholder="30" [value]="form().fitnessTests?.tiempo_milla_seg || ''"
+                        (ionInput)="updateTests({ tiempo_milla_seg: numVal($event) })"></ion-input>
+                    </ion-item></ion-col>
+                    <ion-col size="12" size-md="4"><ion-item>
+                      <ion-label position="stacked">FC final (ppm)</ion-label>
+                      <ion-input type="number" placeholder="150" [value]="form().fitnessTests?.fc_final_rockport || ''"
+                        (ionInput)="updateTests({ fc_final_rockport: numVal($event) })"></ion-input>
+                    </ion-item></ion-col>
+                  </ion-row>
+                </ion-grid>
+              </div>
+            </ion-accordion>
+
+            <!-- 1RM Epley -->
+            <ion-accordion value="rm">
+              <ion-item slot="header" color="medium">
+                <ion-icon name="bar-chart-outline" slot="start"></ion-icon>
+                <ion-label>1RM Estimado (Epley)</ion-label>
+              </ion-item>
+              <div slot="content" class="accordion-content">
+                <div class="field-hint">Levanta un peso submáximo (2-10 reps) para estimar el máximo.</div>
+                <ion-grid>
+                  <ion-row>
+                    <ion-col size="12" size-md="4"><ion-item>
+                      <ion-label position="stacked">Ejercicio</ion-label>
+                      <ion-input type="text" placeholder="Press banca"
+                        [value]="form().fitnessTests?.ejercicio_1rm || ''"
+                        (ionInput)="updateTests({ ejercicio_1rm: strVal($event) })"></ion-input>
+                    </ion-item></ion-col>
+                    <ion-col size="12" size-md="4"><ion-item>
+                      <ion-label position="stacked">Peso (kg)</ion-label>
+                      <ion-input type="number" placeholder="80" [value]="form().fitnessTests?.peso_1rm || ''"
+                        (ionInput)="updateTests({ peso_1rm: numVal($event) })"></ion-input>
+                    </ion-item></ion-col>
+                    <ion-col size="12" size-md="4"><ion-item>
+                      <ion-label position="stacked">Repeticiones (2-10)</ion-label>
+                      <ion-input type="number" placeholder="8" [value]="form().fitnessTests?.repeticiones_1rm || ''"
+                        (ionInput)="updateTests({ repeticiones_1rm: numVal($event) })"></ion-input>
+                    </ion-item></ion-col>
+                  </ion-row>
+                </ion-grid>
+              </div>
+            </ion-accordion>
+
+          </ion-accordion-group>
+        </div>
+      }
+
+      <!-- Botón Calcular (siempre visible en el panel de formulario) -->
+      <ion-button expand="block" color="success" class="calcular-btn" (click)="calcular()">
+        <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+        Calcular
+      </ion-button>
+      <div class="safe-bottom-space"></div>
+
+    </div><!-- /form-panel -->
+
+    <!-- ══════════ PANEL DERECHO: Preview en tiempo real (solo desktop) ══════════ -->
+    <div class="preview-panel">
+      <ion-card class="preview-card">
+        <ion-card-header><ion-card-title>Vista previa</ion-card-title></ion-card-header>
+        <ion-card-content>
+
+          @if (imcPreview()) {
+            <div class="prev-row">
+              <span class="prev-label">IMC</span>
+              <strong class="prev-value">{{ imcPreview() | number:'1.1-1' }}</strong>
+            </div>
+          } @else {
+            <div class="prev-empty">Completa edad, peso y estatura para ver la vista previa.</div>
+          }
+
+          @if (sumaPlieguesPreview() !== null) {
+            <div class="prev-row">
+              <span class="prev-label">Suma pliegues</span>
+              <strong class="prev-value">{{ sumaPlieguesPreview() | number:'1.1-1' }} mm</strong>
+            </div>
+          }
+
+          @if (iccPreview() !== null) {
+            <div class="prev-row">
+              <span class="prev-label">ICC</span>
+              <strong class="prev-value">{{ iccPreview() | number:'1.2-2' }}</strong>
+            </div>
+          }
+
+          @if (icePreview() !== null) {
+            <div class="prev-row">
+              <span class="prev-label">ICE</span>
+              <strong class="prev-value">{{ icePreview() | number:'1.2-2' }}</strong>
+            </div>
+          }
+
+          <ion-button expand="block" color="success" size="small" class="preview-calc-btn" (click)="calcular()">
+            <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+            Calcular
+          </ion-button>
+
+        </ion-card-content>
+      </ion-card>
+    </div><!-- /preview-panel -->
+
+  </div><!-- /wizard-layout -->
+</ion-content>
+
+<ion-toast
+  [isOpen]="showToast()"
+  [message]="toastMessage()"
+  duration="3000"
+  color="danger"
+  position="top"
+  (didDismiss)="showToast.set(false)">
+</ion-toast>

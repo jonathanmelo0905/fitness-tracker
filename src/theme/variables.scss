@@ -64,4 +64,40 @@
   --ion-color-light-tint: #f2f5f5;
 
   --ion-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  // ─── Background layers ─────────────────────────────────────────────────────
+  --bg-primary: #0f1923;
+  --bg-card:    #1a2535;
+  --bg-panel:   #243040;
+  --bg-border:  #2e3f54;
+
+  // ─── Gradients (valores oficiales Design System v1.0) ──────────────────────
+  --gradient-nutrition:  linear-gradient(135deg, #c0392b, #e67e22);
+  --gradient-body:       linear-gradient(135deg, #1a6b3a, #2ecc71);
+  --gradient-projection: linear-gradient(135deg, #1a4a8a, #2980b9);
+  --gradient-macros:     linear-gradient(135deg, #5b3fa0, #8e44ad);
+  --gradient-refeeds:    linear-gradient(135deg, #0f7b7b, #1abc9c);
+  --gradient-alerts:     linear-gradient(135deg, #b7770d, #f39c12);
+  --gradient-fitness:    linear-gradient(135deg, #c0392b, #e67e22);
+  --gradient-somatotype: linear-gradient(135deg, #5b3fa0, #8e44ad);
+
+  // ─── Macronutrient colors ──────────────────────────────────────────────────
+  --color-carbs:   #e67e22;
+  --color-protein: #8e44ad;
+  --color-fat:     #7f8c8d;
+
+  // ─── Spacing scale ─────────────────────────────────────────────────────────
+  --space-xs:   4px;
+  --space-sm:   8px;
+  --space-md:  16px;
+  --space-lg:  24px;
+  --space-xl:  32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
 }
+
+// ─── Responsive breakpoints ───────────────────────────────────────────────────
+$mobile:       767px;
+$tablet:      1023px;
+$desktop:     1024px;
+$max-content: 1200px;

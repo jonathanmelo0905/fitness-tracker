@@ -1,0 +1,467 @@
+@use '../../../theme/variables' as v;
+
+// ─── Responsive grid ──────────────────────────────────────────────────────────
+.results-grid {
+  @media (min-width: v.$desktop) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 16px;
+    align-items: start;
+  }
+}
+
+// =============================================
+// CARD BASE
+// =============================================
+.result-card {
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  margin-bottom: 16px;
+  --background: var(--bg-card);
+  background: var(--bg-card);
+
+  ion-card-content {
+    padding: 16px;
+    --background: var(--bg-card);
+    background: var(--bg-card);
+  }
+
+  &.animate-in {
+    animation: fadeSlideUp 0.4s ease-out both;
+  }
+}
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// =============================================
+// COLORED HEADERS
+// =============================================
+.card-header-colored {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px;
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+
+  ion-icon { font-size: 20px; flex-shrink: 0; }
+  span:first-of-type { flex: 1; }
+}
+
+.header-comp    { background: var(--gradient-body);       }
+.header-imc     { background: var(--gradient-refeeds);   }
+.header-peso    { background: var(--gradient-macros);     }
+.header-soma    { background: var(--gradient-somatotype); }
+.header-tests   { background: var(--gradient-fitness);   }
+.header-alertas { background: var(--gradient-alerts);    }
+
+.method-badge {
+  font-size: 10px;
+  background: rgba(255,255,255,0.25);
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+// =============================================
+// COMPOSICIÓN CORPORAL
+// =============================================
+.main-metric-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
+
+  .big-metric {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+
+    .big-label {
+      font-size: 10px;
+      color: var(--ion-color-medium);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .big-value {
+      font-size: 44px;
+      font-weight: 900;
+      color: var(--ion-text-color);
+      line-height: 1;
+
+      small {
+        font-size: 22px;
+        font-weight: 700;
+        vertical-align: super;
+      }
+    }
+
+    .clasif-badge {
+      font-size: 12px;
+      padding: 4px 10px;
+    }
+  }
+
+  .mass-chips {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+
+    .mass-chip {
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+
+      .mc-label {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        color: rgba(255,255,255,0.8);
+      }
+
+      .mc-value {
+        font-size: 17px;
+        font-weight: 800;
+        color: white;
+      }
+
+      &.fat  { background: var(--gradient-fitness); }
+      &.lean { background: var(--gradient-body);   }
+    }
+  }
+}
+
+.comp-bar-wrap {
+  margin-top: 4px;
+}
+
+.comp-bar {
+  display: flex;
+  border-radius: 10px;
+  overflow: hidden;
+  height: 38px;
+
+  .cb-fat {
+    background: var(--gradient-fitness);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    min-width: 40px;
+    transition: width 0.3s;
+  }
+
+  .cb-lean {
+    flex: 1;
+    background: var(--gradient-body);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+  }
+}
+
+// =============================================
+// IMC E ÍNDICES
+// =============================================
+.indices-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.index-chip {
+  background: var(--bg-panel);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .ic-label {
+    font-size: 12px;
+    color: var(--ion-color-medium);
+    flex: 1;
+  }
+
+  .ic-value {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--ion-text-color);
+    min-width: 52px;
+    text-align: right;
+  }
+
+  .ic-badge {
+    min-width: 80px;
+    text-align: center;
+    font-size: 11px;
+  }
+}
+
+.ideal-weight-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-panel);
+  border-radius: 12px;
+  padding: 12px 14px;
+
+  .iw-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    .iw-label {
+      font-size: 11px;
+      color: var(--ion-color-medium);
+    }
+
+    .iw-value {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--ion-text-color);
+    }
+  }
+
+  .iw-diff {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--ion-color-medium);
+
+    &.green { color: var(--ion-color-success); }
+    &.red   { color: var(--ion-color-danger);  }
+  }
+}
+
+// =============================================
+// SOMATOTIPO
+// =============================================
+.soma-values {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+
+  .soma-chip {
+    flex: 1;
+    border-radius: 12px;
+    padding: 10px 6px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+
+    .soma-label {
+      font-size: 10px;
+      color: rgba(255,255,255,0.8);
+      text-transform: uppercase;
+    }
+
+    .soma-value {
+      font-size: 22px;
+      font-weight: 900;
+      color: white;
+    }
+
+    &.endo { background: var(--gradient-fitness);    }
+    &.meso { background: var(--gradient-body);       }
+    &.ecto { background: var(--gradient-projection); }
+  }
+}
+
+.soma-desc {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ion-color-primary);
+  margin-bottom: 12px;
+  padding: 8px;
+  background: rgba(var(--ion-color-primary-rgb), 0.12);
+  border-radius: 8px;
+}
+
+.soma-triangle-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0;
+
+  .soma-svg {
+    width: 140px;
+    height: 126px;
+
+    .soma-svg-label {
+      fill: var(--ion-color-medium);
+      font-size: 8px;
+      font-family: 'helvetica', sans-serif;
+    }
+  }
+}
+
+// =============================================
+// PERÍMETROS
+// =============================================
+.perim-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.perim-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--bg-border);
+
+  &:last-child { border-bottom: none; }
+
+  span   { color: var(--ion-color-medium); }
+  strong { color: var(--ion-text-color); font-size: 14px; }
+}
+
+// =============================================
+// TESTS FÍSICOS
+// =============================================
+.test-block {
+  background: var(--bg-panel);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+
+  .test-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+
+    .test-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ion-text-color);
+    }
+  }
+
+  .test-value-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+
+    .test-label { color: var(--ion-color-medium); }
+    .test-value {
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--ion-text-color);
+
+      &.test-1rm { color: var(--ion-color-primary); }
+    }
+  }
+
+  .test-note {
+    font-size: 11px;
+    color: var(--ion-color-medium);
+    margin-top: 4px;
+  }
+}
+
+// =============================================
+// DATA ROW (generic key-value)
+// =============================================
+.data-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(var(--ion-color-light-rgb), 0.06);
+
+  &:last-of-type { border-bottom: none; }
+
+  .dr-label {
+    font-size: 13px;
+    color: var(--ion-color-medium);
+  }
+
+  .dr-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .dr-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ion-text-color, #f0f3f4);
+  }
+
+  .dr-badge { font-size: 11px; }
+}
+
+// ─── Ideal weight difference ──────────────────────────────────────────────────
+.ideal-diff {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  background: rgba(var(--ion-color-medium-rgb), 0.1);
+  color: var(--ion-color-medium);
+
+  &.success { background: rgba(var(--ion-color-success-rgb), 0.12); color: var(--ion-color-success); }
+  &.warning { background: rgba(var(--ion-color-warning-rgb), 0.12); color: var(--ion-color-warning); }
+  &.danger  { background: rgba(var(--ion-color-danger-rgb),  0.12); color: var(--ion-color-danger);  }
+}
+
+// ─── No data placeholder ──────────────────────────────────────────────────────
+.no-data {
+  font-size: 13px;
+  color: var(--ion-color-medium);
+  text-align: center;
+  padding: 8px 0;
+  line-height: 1.5;
+  margin: 0;
+}
+
+// ─── Alert items ──────────────────────────────────────────────────────────────
+.alert-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(var(--ion-color-light-rgb), 0.06);
+  font-size: 13px;
+  color: var(--ion-text-color);
+  line-height: 1.5;
+
+  &:last-child { border-bottom: none; }
+
+  ion-icon { flex-shrink: 0; font-size: 16px; margin-top: 2px; }
+}
+
+// =============================================
+// EXPORT BUTTON
+// =============================================
+.export-btn {
+  margin: 8px 0 4px;
+  --border-radius: 12px;
+  height: 48px;
+  font-weight: 700;
+}

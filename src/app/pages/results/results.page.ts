@@ -4,13 +4,13 @@ import { DecimalPipe } from '@angular/common';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonCard,
   IonCardContent, IonItem, IonLabel, IonIcon,
-  IonBadge, IonFab, IonFabButton, IonList, IonAlert, IonButton, IonToast,
+  IonBadge, IonFab, IonFabButton, IonList, IonAlert, IonButton, IonButtons, IonToast,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
   addOutline, warningOutline, bodyOutline, flameOutline,
   trendingDownOutline, nutritionOutline, refreshOutline, alertCircleOutline,
-  checkmarkCircleOutline, documentOutline,
+  checkmarkCircleOutline, documentOutline, arrowBackOutline,
 } from 'ionicons/icons';
 import { FitnessResults } from '../../shared/models/client.model';
 import { PdfExportService } from '../../core/services/pdf-export.service';
@@ -24,7 +24,7 @@ import { PdfExportService } from '../../core/services/pdf-export.service';
     DecimalPipe,
     IonHeader, IonToolbar, IonTitle, IonContent, IonCard,
     IonCardContent, IonItem, IonLabel, IonIcon,
-    IonBadge, IonFab, IonFabButton, IonList, IonAlert, IonButton, IonToast,
+    IonBadge, IonFab, IonFabButton, IonList, IonAlert, IonButton, IonButtons, IonToast,
   ],
 })
 export class ResultsPage implements OnInit {
@@ -42,7 +42,7 @@ export class ResultsPage implements OnInit {
     addIcons({
       addOutline, warningOutline, bodyOutline, flameOutline,
       trendingDownOutline, nutritionOutline, refreshOutline,
-      alertCircleOutline, checkmarkCircleOutline, documentOutline,
+      alertCircleOutline, checkmarkCircleOutline, documentOutline, arrowBackOutline,
     });
   }
 
@@ -108,7 +108,6 @@ export class ResultsPage implements OnInit {
 
   alertButtons = [{ text: 'Entendido', role: 'confirm' }];
 
-  nuevoCalculo() {
-    this.router.navigate(['/calculator']);
-  }
+  nuevoCalculo() { this.router.navigate(['/calculator']); }
+  irInicio()     { this.router.navigate(['/home']); }
 }

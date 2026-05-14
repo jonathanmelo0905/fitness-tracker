@@ -5,6 +5,7 @@ import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { ClientData, FitnessResults } from '../../shared/models/client.model';
+import { PhysicalEvaluationInput, PhysicalEvaluationResults } from '../../shared/models/physical-evaluation.model';
 
 // ─── Constantes de diseño ───────────────────────────────────────────────────
 const COLOR_VERDE  = [26,  107, 58]  as [number, number, number];
@@ -350,6 +351,158 @@ export class PdfExportService {
       document.body.removeChild(enlace);
       URL.revokeObjectURL(url);
     }
+  }
+
+  // ─── Reporte Evaluación Física ─────────────────────────────────────────────
+  async generarReporteEvaluacionFisica(
+    inp: PhysicalEvaluationInput,
+    r: PhysicalEvaluationResults,
+  ): Promise<void> {
+    const doc   = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const fecha = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
+    const ancho = doc.internal.pageSize.getWidth();
+    const COLOR_AZUL: [number, number, number] = [26, 74, 138];
+    const imc      = inp.estatura > 0 ? inp.peso / (inp.estatura * inp.estatura) : 0;
+    const imcClasif = imc < 18.5 ? 'Bajo peso' : imc < 25 ? 'Normal' : imc < 30 ? 'Sobrepeso' : 'Obesidad';
+    const pGrasa   = r.porcentajeGrasaPliegues ?? r.porcentajeGrasaPerimetros;
+
+    // Encabezado
+    doc.setFillColor(...COLOR_AZUL);
+    doc.rect(0, 0, ancho, 28, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.setTextColor(...COLOR_BLANCO);
+    doc.text('EVALUACIÓN FÍSICA AVANZADA', ancho / 2, 12, { align: 'center' });
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    const sub = inp.nombre ? `${inp.nombre}  ·  ${fecha}` : `Fecha: ${fecha}`;
+    doc.text(sub, ancho / 2, 21, { align: 'center' });
+    doc.setDrawColor(...COLOR_AZUL);
+    doc.setLineWidth(0.5);
+    doc.line(MARGEN, 32, ancho - MARGEN, 32);
+
+    // Sección 1: Datos básicos
+    const y1 = 38;
+    this.titulo(doc, '1. Datos del Evaluado', y1);
+    autoTable(doc, {
+      startY: y1 + 8, margin: { left: MARGEN, right: MARGEN },
+      head: [['Campo', 'Valor']],
+      body: [
+        ['Nombre',   inp.nombre ?? '—'],
+        ['Edad',     `${inp.edad} años`],
+        ['Peso',     `${inp.peso} kg`],
+        ['Estatura', `${inp.estatura} m`],
+        ['Género',   inp.genero],
+        ['Fórmula',  r.formulaUsada ?? '—'],
+      ],
+      ...this.estilos(),
+    });
+
+    // Sección 2: Composición corporal
+    const y2 = finalY(doc) + 10;
+    this.titulo(doc, '2. Composición Corporal', y2);
+    const bodyComp: string[][] = [
+      ['IMC', `${imc.toFixed(1)}`, imcClasif],
+    ];
+    if (pGrasa !== undefined) bodyComp.push(['% Grasa Corporal', `${pGrasa.toFixed(1)}%`, '']);
+    if (r.masaGrasaKg !== undefined) bodyComp.push(['Masa Grasa', `${r.masaGrasaKg.toFixed(1)} kg`, '']);
+    if (r.masaLibreGrasaKg !== undefined) bodyComp.push(['Masa Libre de Grasa', `${r.masaLibreGrasaKg.toFixed(1)} kg`, '']);
+    autoTable(doc, {
+      startY: y2 + 8, margin: { left: MARGEN, right: MARGEN },
+      head: [['Indicador', 'Valor', 'Clasificación']],
+      body: bodyComp,
+      ...this.estilos(),
+    });
+
+    // Sección 3: Índices corporales
+    if (r.indiceCinturaCadera !== undefined || r.indiceCinturaEstatura !== undefined || r.pesoIdealMin !== undefined) {
+      const y3 = finalY(doc) + 10;
+      this.titulo(doc, '3. Índices Corporales y Peso Ideal', y3);
+      const bodyIdx: string[][] = [];
+      if (r.indiceCinturaCadera !== undefined)
+        bodyIdx.push(['ICC (Cintura/Cadera)', r.indiceCinturaCadera.toFixed(2), r.clasificacionICCadera ?? '']);
+      if (r.indiceCinturaEstatura !== undefined)
+        bodyIdx.push(['ICE (Cintura/Estatura)', r.indiceCinturaEstatura.toFixed(2), r.riesgoCardiovascular ?? '']);
+      if (r.complexion !== undefined)
+        bodyIdx.push(['Complexión ósea', r.complexion, '']);
+      if (r.pesoIdealMin !== undefined && r.pesoIdealMax !== undefined) {
+        bodyIdx.push([
+          'Rango peso ideal',
+          `${r.pesoIdealMin.toFixed(1)} – ${r.pesoIdealMax.toFixed(1)} kg`,
+          inp.peso >= r.pesoIdealMin && inp.peso <= r.pesoIdealMax ? 'Dentro del rango' : 'Fuera del rango',
+        ]);
+      }
+      autoTable(doc, {
+        startY: y3 + 8, margin: { left: MARGEN, right: MARGEN },
+        head: [['Indicador', 'Valor', 'Clasificación']],
+        body: bodyIdx,
+        ...this.estilos(),
+      });
+    }
+
+    // Sección 4: Somatotipo
+    if (r.endomorfia !== undefined) {
+      const y4 = finalY(doc) + 10;
+      this.titulo(doc, '4. Somatotipo Heath-Carter', y4);
+      const bodySoma: string[][] = [
+        ['Endomorfia', r.endomorfia.toFixed(1)],
+        ['Mesomorfia', (r.mesomorfia ?? 0).toFixed(1)],
+        ['Ectomorfia',  (r.ectomorfia ?? 0).toFixed(1)],
+      ];
+      if (r.somatotipoDescripcion) bodySoma.push(['Descripción', r.somatotipoDescripcion]);
+      autoTable(doc, {
+        startY: y4 + 8, margin: { left: MARGEN, right: MARGEN },
+        head: [['Componente', 'Valor']],
+        body: bodySoma,
+        ...this.estilos(),
+      });
+    }
+
+    // Sección 5: Tests físicos
+    if (r.indiceRuffier !== undefined || r.vo2max !== undefined || r.rm_estimado !== undefined) {
+      const y5 = finalY(doc) + 10;
+      this.titulo(doc, '5. Tests Físicos', y5);
+      const bodyTests: string[][] = [];
+      if (r.indiceRuffier !== undefined)
+        bodyTests.push(['Índice Ruffier', r.indiceRuffier.toFixed(1), r.clasificacionRuffier ?? '']);
+      if (r.vo2max !== undefined)
+        bodyTests.push(['VO₂máx Rockport', `${r.vo2max.toFixed(1)} ml/kg/min`, r.clasificacionVo2 ?? '']);
+      if (r.rm_estimado !== undefined) {
+        const ej   = inp.fitnessTests?.ejercicio_1rm ?? 'Ejercicio';
+        const nota = inp.fitnessTests?.repeticiones_1rm && inp.fitnessTests?.peso_1rm
+          ? `${inp.fitnessTests.repeticiones_1rm} reps × ${inp.fitnessTests.peso_1rm} kg`
+          : '';
+        bodyTests.push([`1RM Epley (${ej})`, `${r.rm_estimado.toFixed(1)} kg`, nota]);
+      }
+      autoTable(doc, {
+        startY: y5 + 8, margin: { left: MARGEN, right: MARGEN },
+        head: [['Test', 'Resultado', 'Clasificación']],
+        body: bodyTests,
+        ...this.estilos(),
+      });
+    }
+
+    // Sección 6: Alertas
+    if (r.alertas.length > 0) {
+      const y6   = finalY(doc) + 10;
+      const aw   = doc.internal.pageSize.getWidth() - MARGEN * 2 - 6;
+      this.titulo(doc, '6. Alertas', y6);
+      let posY = y6 + 10;
+      doc.setFontSize(9.5);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(180, 60, 0);
+      for (const alerta of r.alertas) {
+        const lineas = doc.splitTextToSize(`⚠  ${alerta}`, aw);
+        doc.text(lineas, MARGEN + 4, posY);
+        posY += lineas.length * 5 + 3;
+      }
+    }
+
+    this.dibujarPiePaginas(doc, fecha);
+    const nombre = inp.nombre
+      ? `evaluacion-${inp.nombre.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}-${new Date().toISOString().slice(0, 10)}.pdf`
+      : `evaluacion-fisica-${new Date().toISOString().slice(0, 10)}.pdf`;
+    await this.guardarODescargar(doc, nombre);
   }
 
   private nombreArchivo(data: ClientData): string {

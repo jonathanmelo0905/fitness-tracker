@@ -1,0 +1,80 @@
+// ─── Fitness Tracker — Shared utility classes ─────────────────────────────────
+
+// ─── Card ─────────────────────────────────────────────────────────────────────
+.ft-card {
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  margin-bottom: 16px;
+  --background: var(--bg-card);
+  background: var(--bg-card);
+
+  ion-card-content {
+    padding: 16px;
+    --background: var(--bg-card);
+    background: var(--bg-card);
+  }
+}
+
+.ft-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px;
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+
+  ion-icon         { font-size: 20px; flex-shrink: 0; }
+  span:first-of-type { flex: 1; }
+}
+
+// ─── Gradient utility classes ─────────────────────────────────────────────────
+.ft-gradient-nutrition  { background: var(--gradient-nutrition);  }
+.ft-gradient-body       { background: var(--gradient-body);       }
+.ft-gradient-projection { background: var(--gradient-projection); }
+.ft-gradient-macros     { background: var(--gradient-macros);     }
+.ft-gradient-refeeds    { background: var(--gradient-refeeds);    }
+.ft-gradient-alerts     { background: var(--gradient-alerts);     }
+.ft-gradient-fitness    { background: var(--gradient-fitness);    }
+.ft-gradient-somatotype { background: var(--gradient-somatotype); }
+
+// ─── Typography ───────────────────────────────────────────────────────────────
+.ft-number-display {
+  font-size: 44px;
+  font-weight: 900;
+  color: var(--ion-text-color);
+  line-height: 1;
+}
+
+.ft-label-secondary {
+  font-size: 11px;
+  color: var(--ion-color-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+// ─── Badges ───────────────────────────────────────────────────────────────────
+.ft-badge-success { --color: var(--ion-color-success); }
+.ft-badge-warning { --color: var(--ion-color-warning); }
+.ft-badge-danger  { --color: var(--ion-color-danger);  }
+
+// ─── Progress bar ─────────────────────────────────────────────────────────────
+.ft-progress-bar {
+  display: flex;
+  border-radius: 10px;
+  overflow: hidden;
+  height: 38px;
+}
+
+// ─── Layout ───────────────────────────────────────────────────────────────────
+.ft-page-content {
+  --background: var(--bg-primary);
+}
+
+.ft-actions-row {
+  display: flex;
+  gap: var(--space-md);
+  padding: var(--space-md) 0 var(--space-xs);
+  justify-content: flex-end;
+}

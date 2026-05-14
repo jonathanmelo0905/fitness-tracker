@@ -1,0 +1,213 @@
+@use '../../../theme/variables' as v;
+
+// ─── Layout ───────────────────────────────────────────────────────────────────
+.wizard-layout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.form-panel {
+  flex: 1;
+  min-width: 0;
+}
+
+.preview-panel {
+  display: none;
+
+  @media (min-width: v.$desktop) {
+    display: block;
+    width: 300px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 16px;
+  }
+}
+
+// ─── Step animation ───────────────────────────────────────────────────────────
+.step-content {
+  &.animate-in {
+    animation: fadeSlideIn 0.25s ease-out;
+  }
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ─── Cards ────────────────────────────────────────────────────────────────────
+ion-card {
+  margin-bottom: 16px;
+  border-radius: 12px;
+}
+
+ion-card-title {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+// ─── Field hints ──────────────────────────────────────────────────────────────
+.field-hint {
+  font-size: 12px;
+  color: var(--ion-color-medium);
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  background: rgba(var(--ion-color-medium-rgb), 0.1);
+  border-left: 3px solid var(--ion-color-medium);
+  border-radius: 0 6px 6px 0;
+  line-height: 1.5;
+}
+
+// ─── Optional section ─────────────────────────────────────────────────────────
+.optional-section {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(var(--ion-color-light-rgb), 0.08);
+}
+
+.optional-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--ion-color-medium);
+  margin-bottom: 8px;
+}
+
+// ─── Inline preview (inside form steps) ───────────────────────────────────────
+.inline-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: rgba(var(--ion-color-secondary-rgb), 0.1);
+  border: 1px solid rgba(var(--ion-color-secondary-rgb), 0.3);
+  border-radius: 8px;
+
+  .ip-label {
+    font-size: 13px;
+    color: var(--ion-color-medium);
+  }
+
+  .ip-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ion-color-secondary);
+  }
+}
+
+// ─── Realtime indices chips (ICC / ICE) ───────────────────────────────────────
+.realtime-indices {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 12px 0 4px;
+}
+
+.index-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: rgba(var(--ion-color-medium-rgb), 0.15);
+  border: 1px solid rgba(var(--ion-color-medium-rgb), 0.3);
+  transition: background 0.2s, border-color 0.2s;
+
+  .idx-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--ion-color-medium);
+  }
+
+  .idx-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ion-text-color, #f0f3f4);
+  }
+
+  &.ok {
+    background: rgba(var(--ion-color-success-rgb), 0.12);
+    border-color: rgba(var(--ion-color-success-rgb), 0.4);
+
+    .idx-label { color: var(--ion-color-success); }
+    .idx-value { color: var(--ion-color-success); }
+  }
+
+  &.warn {
+    background: rgba(var(--ion-color-warning-rgb), 0.12);
+    border-color: rgba(var(--ion-color-warning-rgb), 0.4);
+
+    .idx-label { color: var(--ion-color-warning); }
+    .idx-value { color: var(--ion-color-warning); }
+  }
+
+  &.danger {
+    background: rgba(var(--ion-color-danger-rgb), 0.12);
+    border-color: rgba(var(--ion-color-danger-rgb), 0.4);
+
+    .idx-label { color: var(--ion-color-danger); }
+    .idx-value { color: var(--ion-color-danger); }
+  }
+}
+
+// ─── Accordion content ────────────────────────────────────────────────────────
+.accordion-content {
+  padding: 12px 16px 16px;
+  background: var(--bg-card);
+}
+
+// ─── Calculate button ─────────────────────────────────────────────────────────
+.calcular-btn {
+  margin: 20px 0 0;
+}
+
+// ─── Safe area ────────────────────────────────────────────────────────────────
+.safe-bottom-space {
+  height: calc(env(safe-area-inset-bottom, 0px) + 80px);
+}
+
+// ─── Desktop preview panel ────────────────────────────────────────────────────
+.preview-card {
+  border-radius: 12px;
+  background: #1a2535;
+
+  ion-card-title { font-size: 14px; }
+}
+
+.prev-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+
+  &:last-of-type { border-bottom: none; }
+}
+
+.prev-label {
+  font-size: 13px;
+  color: var(--ion-color-medium);
+}
+
+.prev-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ion-color-secondary);
+}
+
+.prev-empty {
+  font-size: 12px;
+  color: var(--ion-color-medium);
+  text-align: center;
+  padding: 8px 0 12px;
+  line-height: 1.5;
+}
+
+.preview-calc-btn {
+  margin-top: 16px;
+}

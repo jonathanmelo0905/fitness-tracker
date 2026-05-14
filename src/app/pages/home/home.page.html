@@ -1,0 +1,52 @@
+<ion-content [fullscreen]="true" class="home-content">
+  <div class="home-wrapper">
+
+    <!-- Hero -->
+    <div class="hero-section">
+      <div class="hero-logo">
+        <ion-icon name="fitness-outline"></ion-icon>
+      </div>
+      <h1 class="hero-title">Fitness Tracker</h1>
+      <p class="hero-subtitle">¿Qué deseas hacer hoy?</p>
+    </div>
+
+    <!-- Tool cards -->
+    <div class="tools-grid">
+
+      <!-- Calculadora Nutricional -->
+      <div class="tool-card card-nutrition" (click)="irCalculadora()">
+        <div class="card-content">
+          <div class="card-icon-wrap">
+            <ion-icon name="nutrition-outline"></ion-icon>
+          </div>
+          <div class="card-text">
+            <h2>Calculadora Nutricional</h2>
+            <p>Calcula calorías, macros y plan nutricional personalizado para tu cliente</p>
+          </div>
+          <div class="card-arrow">
+            <ion-icon name="arrow-forward-outline"></ion-icon>
+          </div>
+        </div>
+      </div>
+
+      <!-- Evaluación Física -->
+      <div class="tool-card card-physical" (click)="irEvaluacion()">
+        <div class="card-content">
+          <div class="card-icon-wrap">
+            <ion-icon name="body-outline"></ion-icon>
+          </div>
+          <div class="card-text">
+            <h2>Evaluación Física</h2>
+            <p>Mide composición corporal, pliegues, perímetros, somatotipo y condición física</p>
+          </div>
+          <div class="card-arrow">
+            <ion-icon name="arrow-forward-outline"></ion-icon>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <p class="home-footer">Fitness Tracker Pro · Para entrenadores</p>
+  </div>
+</ion-content>

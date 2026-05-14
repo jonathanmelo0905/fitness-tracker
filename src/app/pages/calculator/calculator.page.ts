@@ -5,13 +5,13 @@ import { DecimalPipe } from '@angular/common';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader,
   IonCardTitle, IonCardContent, IonItem, IonLabel, IonInput, IonSelect,
-  IonSelectOption, IonRange, IonButton, IonIcon, IonSegment, IonSegmentButton,
-  IonToast, IonText, IonNote, IonGrid, IonRow, IonCol,
+  IonSelectOption, IonRange, IonButton, IonIcon,
+  IonToast, IonText, IonGrid, IonRow, IonCol, IonButtons,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
   calculatorOutline, chevronForwardOutline, chevronBackOutline,
-  checkmarkCircleOutline, addOutline, removeOutline,
+  checkmarkCircleOutline, addOutline, removeOutline, arrowBackOutline,
 } from 'ionicons/icons';
 import { FitnessCalculatorService } from '../../core/services/fitness-calculator.service';
 import { ClientData } from '../../shared/models/client.model';
@@ -25,8 +25,8 @@ import { ClientData } from '../../shared/models/client.model';
     FormsModule, DecimalPipe,
     IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader,
     IonCardTitle, IonCardContent, IonItem, IonLabel, IonInput, IonSelect,
-    IonSelectOption, IonRange, IonButton, IonIcon, IonSegment, IonSegmentButton,
-    IonToast, IonText, IonNote, IonGrid, IonRow, IonCol,
+    IonSelectOption, IonRange, IonButton, IonIcon,
+    IonToast, IonText, IonGrid, IonRow, IonCol, IonButtons,
   ],
 })
 export class CalculatorPage implements OnInit {
@@ -115,7 +115,7 @@ export class CalculatorPage implements OnInit {
   ];
 
   constructor(private calculator: FitnessCalculatorService, private router: Router) {
-    addIcons({ calculatorOutline, chevronForwardOutline, chevronBackOutline, checkmarkCircleOutline, addOutline, removeOutline });
+    addIcons({ calculatorOutline, chevronForwardOutline, chevronBackOutline, checkmarkCircleOutline, addOutline, removeOutline, arrowBackOutline });
   }
 
   ngOnInit() {
@@ -204,4 +204,6 @@ export class CalculatorPage implements OnInit {
     const results = this.calculator.calcular(this.form());
     this.router.navigate(['/results'], { state: { results } });
   }
+
+  irInicio() { this.router.navigate(['/home']); }
 }

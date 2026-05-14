@@ -1,0 +1,141 @@
+@use '../../../theme/variables' as v;
+
+.home-content {
+  --background: var(--bg-primary);
+}
+
+.home-wrapper {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px 32px;
+  box-sizing: border-box;
+}
+
+// ─── Hero ─────────────────────────────────────────────────────────────────────
+.hero-section {
+  text-align: center;
+  margin-bottom: 48px;
+
+  .hero-logo {
+    ion-icon {
+      font-size: 88px;
+      color: var(--ion-color-primary);
+      display: block;
+      margin: 0 auto 16px;
+    }
+  }
+
+  .hero-title {
+    font-size: 38px;
+    font-weight: 900;
+    color: var(--ion-text-color, #f0f3f4);
+    margin: 0 0 10px;
+    letter-spacing: -0.5px;
+  }
+
+  .hero-subtitle {
+    font-size: 17px;
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+// ─── Tool cards grid ──────────────────────────────────────────────────────────
+.tools-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 860px;
+
+  @media (min-width: v.$tablet + 1) {
+    flex-direction: row;
+  }
+}
+
+.tool-card {
+  flex: 1;
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+    }
+  }
+
+  &.card-nutrition {
+    background: var(--gradient-nutrition);
+  }
+
+  &.card-physical {
+    background: var(--gradient-body);
+  }
+
+  .card-content {
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 200px;
+
+    @media (min-width: v.$tablet + 1) {
+      min-height: 240px;
+    }
+  }
+
+  .card-icon-wrap {
+    ion-icon {
+      font-size: 52px;
+      color: rgba(255, 255, 255, 0.92);
+    }
+  }
+
+  .card-text {
+    flex: 1;
+
+    h2 {
+      font-size: 22px;
+      font-weight: 800;
+      color: white;
+      margin: 0 0 8px;
+    }
+
+    p {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.55;
+      margin: 0;
+    }
+  }
+
+  .card-arrow {
+    display: flex;
+    justify-content: flex-end;
+
+    ion-icon {
+      font-size: 26px;
+      color: rgba(255, 255, 255, 0.65);
+    }
+  }
+}
+
+// ─── Footer ───────────────────────────────────────────────────────────────────
+.home-footer {
+  margin-top: 40px;
+  font-size: 12px;
+  color: var(--ion-color-medium);
+  opacity: 0.6;
+  text-align: center;
+}
