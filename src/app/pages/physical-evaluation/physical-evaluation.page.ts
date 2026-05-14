@@ -6,12 +6,12 @@ import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader,
   IonCardTitle, IonCardContent, IonItem, IonLabel, IonInput, IonSelect,
   IonSelectOption, IonButton, IonIcon, IonGrid, IonRow, IonCol,
-  IonToast, IonText, IonSegment, IonSegmentButton,
+  IonToast, IonText,
   IonAccordion, IonAccordionGroup, IonButtons,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
-  arrowBackOutline, checkmarkCircleOutline, bodyOutline,
+  arrowBackOutline, checkmarkCircleOutline, checkmarkOutline, chevronForwardOutline, chevronBackOutline, bodyOutline,
   barChartOutline, expandOutline, fitnessOutline, flashOutline,
   warningOutline, informationCircleOutline,
 } from 'ionicons/icons';
@@ -28,12 +28,13 @@ import { PhysicalEvaluationInput, SkinfoldData, GirthData } from '../../shared/m
     IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader,
     IonCardTitle, IonCardContent, IonItem, IonLabel, IonInput, IonSelect,
     IonSelectOption, IonButton, IonIcon, IonGrid, IonRow, IonCol,
-    IonToast, IonText, IonSegment, IonSegmentButton,
+    IonToast, IonText,
     IonAccordion, IonAccordionGroup, IonButtons,
   ],
 })
 export class PhysicalEvaluationPage {
   paso         = signal<string>('1');
+  maxPaso      = signal<string>('1');
   showToast    = signal(false);
   toastMessage = signal('');
 
@@ -90,7 +91,7 @@ export class PhysicalEvaluationPage {
 
   constructor(private service: PhysicalEvaluationService, private router: Router) {
     addIcons({
-      arrowBackOutline, checkmarkCircleOutline, bodyOutline,
+      arrowBackOutline, checkmarkCircleOutline, checkmarkOutline, chevronForwardOutline, chevronBackOutline, bodyOutline,
       barChartOutline, expandOutline, fitnessOutline, flashOutline,
       warningOutline, informationCircleOutline,
     });
@@ -98,6 +99,43 @@ export class PhysicalEvaluationPage {
 
   onPasoChange(event: CustomEvent) {
     this.paso.set(event.detail.value);
+  }
+
+  siguientePaso() {
+    const n = +this.paso();
+    if (n === 1) {
+      const f = this.form();
+      if (!f.edad || !f.peso || !f.estatura) {
+        this.toastMessage.set('Completa edad, peso y estatura para continuar.');
+        this.showToast.set(true);
+        return;
+      }
+    } else if (n === 2) {
+      const s = this.form().skinfolds;
+      const formula = s?.formula ?? 'jackson3';
+      let valid = false;
+      if (formula === 'jackson3') {
+        valid = this.form().genero === 'Masculino'
+          ? !!(s?.pectoral && s?.abdominal && s?.musloAnterior)
+          : !!(s?.triceps && s?.suprailiaco && s?.musloAnterior);
+      } else if (formula === 'jackson7') {
+        valid = !!(s?.pectoral && s?.axilarMedio && s?.triceps && s?.subescapular && s?.abdominal && s?.suprailiaco && s?.musloAnterior);
+      } else {
+        valid = !!(s?.biceps && s?.triceps && s?.subescapular && s?.suprailiaco);
+      }
+      if (!valid) {
+        this.toastMessage.set('Completa todos los pliegues requeridos para continuar.');
+        this.showToast.set(true);
+        return;
+      }
+    }
+    const next = String(n + 1);
+    this.paso.set(next);
+    if (next > this.maxPaso()) this.maxPaso.set(next);
+  }
+
+  navigateTo(n: string) {
+    if (n <= this.maxPaso()) this.paso.set(n);
   }
 
   update(partial: Partial<PhysicalEvaluationInput>) {

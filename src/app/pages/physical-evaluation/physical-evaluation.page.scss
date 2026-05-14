@@ -161,14 +161,114 @@ ion-card-title {
   background: var(--bg-card);
 }
 
-// ─── Calculate button ─────────────────────────────────────────────────────────
+// ─── Navigation buttons ───────────────────────────────────────────────────────
+.next-btn {
+  margin-top: 16px;
+}
+
+.nav-row {
+  margin-top: 16px;
+  padding: 0;
+}
+
 .calcular-btn {
   margin: 20px 0 0;
+}
+
+// ─── Steps wizard indicator ───────────────────────────────────────────────────
+.steps-indicator {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 12px 0 16px;
+
+  .step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+
+    .step-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: transparent;
+      border: 2px solid var(--ion-color-medium);
+      color: var(--ion-color-medium);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      transition: background 0.3s, border-color 0.3s, color 0.3s;
+      flex-shrink: 0;
+
+      ion-icon { font-size: 16px; }
+    }
+
+    .step-label {
+      font-size: 11px;
+      color: var(--ion-color-medium);
+      transition: color 0.3s;
+      white-space: nowrap;
+
+      // Mobile/tablet: hide all labels by default
+      @media (max-width: #{v.$tablet}) {
+        display: none;
+      }
+    }
+
+    // Always show active step label
+    &.active .step-label { display: block; }
+
+    &.locked {
+      opacity: 0.35;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    &.active {
+      .step-circle {
+        background: var(--ion-color-primary);
+        border-color: var(--ion-color-primary);
+        color: white;
+      }
+      .step-label {
+        color: var(--ion-color-primary);
+        font-weight: 600;
+      }
+    }
+
+    &.done {
+      .step-circle {
+        background: var(--ion-color-secondary);
+        border-color: var(--ion-color-secondary);
+        color: white;
+      }
+      .step-label { color: var(--ion-color-secondary); }
+    }
+  }
+
+  .step-line {
+    flex: 1;
+    height: 2px;
+    background: var(--ion-color-medium);
+    margin: 0 4px;
+    margin-top: 15px;
+    transition: background 0.3s;
+
+    &.done { background: var(--ion-color-secondary); }
+  }
 }
 
 // ─── Safe area ────────────────────────────────────────────────────────────────
 .safe-bottom-space {
   height: calc(env(safe-area-inset-bottom, 0px) + 80px);
+
+  @media (min-width: v.$desktop) {
+    height: 16px;
+  }
 }
 
 // ─── Desktop preview panel ────────────────────────────────────────────────────

@@ -40,8 +40,8 @@ export class CalculatorPage implements OnInit {
     peso: 0,
     estatura: 0,
     genero: 'Masculino',
-    grasaEstimada: 0.25,
-    grasaObjetivo: 0.12,
+    grasaEstimada: 0,
+    grasaObjetivo: 0,
     multiplicadorActividad: 1.55,
     ajusteCalorico: -0.25,
     distribucionCarbs: 0.40,
@@ -184,6 +184,11 @@ export class CalculatorPage implements OnInit {
     }
     if (!f.edad || !f.peso || !f.estatura) {
       this.toastMessage.set('Por favor completa todos los campos requeridos.');
+      this.showToast.set(true);
+      return;
+    }
+    if (!f.grasaEstimada || !f.grasaObjetivo) {
+      this.toastMessage.set('Indica el % de grasa actual y el % de grasa objetivo.');
       this.showToast.set(true);
       return;
     }

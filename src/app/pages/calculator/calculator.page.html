@@ -13,6 +13,7 @@
 </ion-header>
 
 <ion-content class="ion-padding">
+  <div class="form-wrapper">
 
   <!-- Indicador de pasos -->
   <div class="steps-indicator">
@@ -107,7 +108,7 @@
                 <span class="range-title">% Grasa Corporal Actual</span>
                 <span class="range-subtitle">Grasa estimada del cliente hoy</span>
               </div>
-              <span class="range-value">{{ grasaEstimadaPct() }}%</span>
+              <span class="range-value">{{ grasaEstimadaPct() > 0 ? grasaEstimadaPct() + '%' : '--' }}</span>
             </div>
             <div class="range-row">
               <ion-button fill="clear" size="small" class="arrow-btn" (click)="adjustGrasaEstimada(-1)">
@@ -132,7 +133,7 @@
                 <span class="range-title">% Grasa Objetivo</span>
                 <span class="range-subtitle">Meta de grasa a alcanzar</span>
               </div>
-              <span class="range-value success">{{ grasaObjetivoPct() }}%</span>
+              <span class="range-value success">{{ grasaObjetivoPct() > 0 ? grasaObjetivoPct() + '%' : '--' }}</span>
             </div>
             <div class="range-row">
               <ion-button fill="clear" size="small" class="arrow-btn" (click)="adjustGrasaObjetivo(-1)">
@@ -370,6 +371,7 @@
     </div>
   }
 
+  </div><!-- /form-wrapper -->
 </ion-content>
 
 <ion-toast

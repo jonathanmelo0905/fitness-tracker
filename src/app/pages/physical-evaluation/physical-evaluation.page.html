@@ -8,26 +8,6 @@
     <ion-title>Evaluación Física</ion-title>
   </ion-toolbar>
 
-  <!-- Segment navigation (5 pasos) -->
-  <ion-toolbar color="primary" style="--padding-bottom:0">
-    <ion-segment scrollable [value]="paso()" (ionChange)="onPasoChange($any($event))">
-      <ion-segment-button value="1">
-        <ion-label>Básicos</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="2">
-        <ion-label>Pliegues</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="3">
-        <ion-label>Perímetros</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="4">
-        <ion-label>Diámetros</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="5">
-        <ion-label>Tests</ion-label>
-      </ion-segment-button>
-    </ion-segment>
-  </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
@@ -35,6 +15,68 @@
 
     <!-- ══════════ PANEL IZQUIERDO: Formulario ══════════ -->
     <div class="form-panel">
+
+      <!-- Wizard de pasos -->
+      <div class="steps-indicator">
+
+        <div class="step" [class.active]="paso() === '1'" [class.done]="maxPaso() > '1'" (click)="navigateTo('1')">
+          <div class="step-circle">
+            @if (maxPaso() > '1') {
+              <ion-icon name="checkmark-outline"></ion-icon>
+            } @else {
+              1
+            }
+          </div>
+          <span class="step-label">Básicos</span>
+        </div>
+
+        <div class="step-line" [class.done]="maxPaso() > '1'"></div>
+
+        <div class="step" [class.active]="paso() === '2'" [class.done]="maxPaso() > '2'" [class.locked]="maxPaso() < '2'" (click)="navigateTo('2')">
+          <div class="step-circle">
+            @if (maxPaso() > '2') {
+              <ion-icon name="checkmark-outline"></ion-icon>
+            } @else {
+              2
+            }
+          </div>
+          <span class="step-label">Pliegues</span>
+        </div>
+
+        <div class="step-line" [class.done]="maxPaso() > '2'"></div>
+
+        <div class="step" [class.active]="paso() === '3'" [class.done]="maxPaso() > '3'" [class.locked]="maxPaso() < '3'" (click)="navigateTo('3')">
+          <div class="step-circle">
+            @if (maxPaso() > '3') {
+              <ion-icon name="checkmark-outline"></ion-icon>
+            } @else {
+              3
+            }
+          </div>
+          <span class="step-label">Perímetros</span>
+        </div>
+
+        <div class="step-line" [class.done]="maxPaso() > '3'"></div>
+
+        <div class="step" [class.active]="paso() === '4'" [class.done]="maxPaso() > '4'" [class.locked]="maxPaso() < '4'" (click)="navigateTo('4')">
+          <div class="step-circle">
+            @if (maxPaso() > '4') {
+              <ion-icon name="checkmark-outline"></ion-icon>
+            } @else {
+              4
+            }
+          </div>
+          <span class="step-label">Diámetros</span>
+        </div>
+
+        <div class="step-line" [class.done]="maxPaso() > '4'"></div>
+
+        <div class="step" [class.active]="paso() === '5'" [class.locked]="maxPaso() < '5'" (click)="navigateTo('5')">
+          <div class="step-circle">5</div>
+          <span class="step-label">Tests</span>
+        </div>
+
+      </div>
 
       <!-- ═══════ PASO 1: Datos básicos ═══════ -->
       @if (paso() === '1') {
@@ -104,6 +146,9 @@
 
             </ion-card-content>
           </ion-card>
+          <ion-button expand="block" class="next-btn" (click)="siguientePaso()">
+            Siguiente <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+          </ion-button>
         </div>
       }
 
@@ -289,27 +334,27 @@
                     @if (formulaActual() !== 'jackson3' || !esMasculino()) {
                       <ion-col size="12" size-md="6"><ion-item>
                         <ion-label position="stacked">Tríceps</ion-label>
-                        <ion-input type="number" [value]="form().skinfolds?.triceps || ''"
+                        <ion-input type="number" placeholder="15" [value]="form().skinfolds?.triceps || ''"
                           (ionInput)="updateSkinfolds({ triceps: numVal($event) })"></ion-input>
                       </ion-item></ion-col>
                     }
                     @if (formulaActual() === 'jackson3') {
                       <ion-col size="12" size-md="6"><ion-item>
                         <ion-label position="stacked">Subescapular</ion-label>
-                        <ion-input type="number" [value]="form().skinfolds?.subescapular || ''"
+                        <ion-input type="number" placeholder="12" [value]="form().skinfolds?.subescapular || ''"
                           (ionInput)="updateSkinfolds({ subescapular: numVal($event) })"></ion-input>
                       </ion-item></ion-col>
                     }
                     @if (formulaActual() !== 'jackson3' || esMasculino()) {
                       <ion-col size="12" size-md="6"><ion-item>
                         <ion-label position="stacked">Suprailiaco</ion-label>
-                        <ion-input type="number" [value]="form().skinfolds?.suprailiaco || ''"
+                        <ion-input type="number" placeholder="16" [value]="form().skinfolds?.suprailiaco || ''"
                           (ionInput)="updateSkinfolds({ suprailiaco: numVal($event) })"></ion-input>
                       </ion-item></ion-col>
                     }
                     <ion-col size="12" size-md="6"><ion-item>
                       <ion-label position="stacked">Pantorrilla</ion-label>
-                      <ion-input type="number" [value]="form().skinfolds?.pantorrilla || ''"
+                      <ion-input type="number" placeholder="14" [value]="form().skinfolds?.pantorrilla || ''"
                         (ionInput)="updateSkinfolds({ pantorrilla: numVal($event) })"></ion-input>
                     </ion-item></ion-col>
                   </ion-row>
@@ -325,6 +370,21 @@
 
             </ion-card-content>
           </ion-card>
+          <ion-grid class="nav-row">
+            <ion-row>
+              <ion-col>
+                <ion-button expand="block" fill="outline" (click)="navigateTo('1')">
+                  <ion-icon name="chevron-back-outline" slot="start"></ion-icon>
+                  Volver
+                </ion-button>
+              </ion-col>
+              <ion-col>
+                <ion-button expand="block" (click)="siguientePaso()">
+                  Siguiente <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+                </ion-button>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
         </div>
       }
 
@@ -446,6 +506,21 @@
               }
             </div>
           }
+          <ion-grid class="nav-row">
+            <ion-row>
+              <ion-col>
+                <ion-button expand="block" fill="outline" (click)="navigateTo('2')">
+                  <ion-icon name="chevron-back-outline" slot="start"></ion-icon>
+                  Volver
+                </ion-button>
+              </ion-col>
+              <ion-col>
+                <ion-button expand="block" (click)="siguientePaso()">
+                  Siguiente <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+                </ion-button>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
         </div>
       }
 
@@ -482,6 +557,21 @@
               </ion-grid>
             </ion-card-content>
           </ion-card>
+          <ion-grid class="nav-row">
+            <ion-row>
+              <ion-col>
+                <ion-button expand="block" fill="outline" (click)="navigateTo('3')">
+                  <ion-icon name="chevron-back-outline" slot="start"></ion-icon>
+                  Volver
+                </ion-button>
+              </ion-col>
+              <ion-col>
+                <ion-button expand="block" (click)="siguientePaso()">
+                  Siguiente <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+                </ion-button>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
         </div>
       }
 
@@ -582,15 +672,26 @@
             </ion-accordion>
 
           </ion-accordion-group>
+
+          <ion-grid class="nav-row">
+            <ion-row>
+              <ion-col>
+                <ion-button expand="block" fill="outline" (click)="navigateTo('4')">
+                  <ion-icon name="chevron-back-outline" slot="start"></ion-icon>
+                  Volver
+                </ion-button>
+              </ion-col>
+              <ion-col>
+                <ion-button expand="block" color="success" (click)="calcular()">
+                  <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+                  Calcular
+                </ion-button>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+          <div class="safe-bottom-space"></div>
         </div>
       }
-
-      <!-- Botón Calcular (siempre visible en el panel de formulario) -->
-      <ion-button expand="block" color="success" class="calcular-btn" (click)="calcular()">
-        <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
-        Calcular
-      </ion-button>
-      <div class="safe-bottom-space"></div>
 
     </div><!-- /form-panel -->
 
@@ -630,10 +731,12 @@
             </div>
           }
 
-          <ion-button expand="block" color="success" size="small" class="preview-calc-btn" (click)="calcular()">
-            <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
-            Calcular
-          </ion-button>
+          @if (paso() === '5') {
+            <ion-button expand="block" color="success" size="small" class="preview-calc-btn" (click)="calcular()">
+              <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+              Calcular
+            </ion-button>
+          }
 
         </ion-card-content>
       </ion-card>

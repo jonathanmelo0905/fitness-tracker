@@ -1,5 +1,14 @@
+@use '../../../theme/variables' as v;
+
 :host {
   --step-active: var(--ion-color-primary);
+}
+
+.form-wrapper {
+  @media (min-width: v.$desktop) {
+    max-width: 900px;
+    margin: 0 auto;
+  }
 }
 
 // Elementos internos de las cards en la calculadora
