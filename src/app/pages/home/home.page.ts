@@ -7,13 +7,14 @@ import { addIcons } from 'ionicons';
 import {
   nutritionOutline, bodyOutline, arrowForwardOutline, fitnessOutline, settingsOutline,
 } from 'ionicons/icons';
+import { PwaInstallComponent } from '../../shared/components/pwa-install/pwa-install.component';
 
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
   standalone: true,
-  imports: [IonContent, IonIcon, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton],
+  imports: [IonContent, IonIcon, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, PwaInstallComponent],
 })
 export class HomePage {
   constructor(private router: Router) {
