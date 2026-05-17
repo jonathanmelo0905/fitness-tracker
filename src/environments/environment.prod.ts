@@ -1,3 +1,5 @@
 export const environment = {
-  production: true
+  production: true,
+  appName: 'NutriEval',
+  appVersion: '1.1',
 };
