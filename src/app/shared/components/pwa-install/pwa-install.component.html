@@ -1,0 +1,37 @@
+@if (mode() === 'android') {
+  <div class="pwa-banner" role="banner">
+    <div class="pwa-banner__text">
+      <strong>NutriEval</strong>
+      <span>Acceso rápido sin abrir el navegador</span>
+    </div>
+    <div class="pwa-banner__actions">
+      <ion-button color="primary" size="small" (click)="install()">
+        Instalar app
+      </ion-button>
+      <button class="pwa-btn-close" (click)="dismiss()" aria-label="Cerrar">
+        <ion-icon name="close-outline" aria-hidden="true" />
+      </button>
+    </div>
+  </div>
+}
+
+@if (mode() === 'ios') {
+  <div class="pwa-overlay" (click)="dismiss()"></div>
+  <div class="pwa-modal" role="dialog" aria-modal="true" aria-label="Instalar NutriEval">
+    <button class="pwa-btn-close pwa-modal__close" (click)="dismiss()" aria-label="Cerrar">
+      <ion-icon name="close-outline" aria-hidden="true" />
+    </button>
+    <p class="pwa-modal__title">Instalar NutriEval</p>
+    <ol class="pwa-modal__steps">
+      <li>
+        <ion-icon name="share-outline" aria-hidden="true" />
+        Toca <strong>Compartir</strong> en la barra del navegador
+      </li>
+      <li>
+        <ion-icon name="add-circle-outline" aria-hidden="true" />
+        Selecciona <strong>"Añadir a pantalla de inicio"</strong>
+      </li>
+      <li>Toca <strong>Añadir</strong> para confirmar</li>
+    </ol>
+  </div>
+}

@@ -1,0 +1,50 @@
+.pwa-banner {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-card);
+  border-top: 1px solid var(--bg-border);
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.2);
+  &__text {
+    display: flex;
+    flex-direction: column;
+    font-size: 13px;
+    color: var(--text-secondary);
+    strong { color: var(--text-primary); font-size: 15px; }
+  }
+  &__actions { display: flex; align-items: center; gap: var(--space-xs); }
+}
+.pwa-btn-close {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 22px;
+  padding: var(--space-xs);
+}
+.pwa-overlay { position: fixed; inset: 0; z-index: 9998; background: rgba(0, 0, 0, 0.5); }
+.pwa-modal {
+  position: fixed;
+  bottom: var(--space-xl);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  width: min(90vw, 360px);
+  background: var(--bg-card);
+  border: 1px solid var(--bg-border);
+  border-radius: 16px;
+  padding: var(--space-lg);
+  &__close { position: absolute; top: var(--space-sm); right: var(--space-sm); }
+  &__title { margin: 0 0 var(--space-md); color: var(--text-primary); font-size: 17px; font-weight: 600; }
+  &__steps {
+    margin: 0; padding-left: var(--space-lg);
+    color: var(--text-secondary); line-height: 2;
+    strong { color: var(--text-primary); }
+    ion-icon { vertical-align: middle; margin-right: var(--space-xs); }
+  }
+}
