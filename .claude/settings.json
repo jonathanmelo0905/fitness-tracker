@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-Content \"c:\\\\Users\\\\Asus\\\\Desktop\\\\Proyecto-app\\\\fitness-tracker\\\\angular.json\")",
+      "Bash(Select-String '\"projects\"' -A 5)",
+      "PowerShell(nvm list)",
+      "PowerShell(nvm install 22.12.0 2>&1)",
+      "PowerShell(Get-Command nvm)",
+      "PowerShell(& \"C:\\\\Users\\\\Asus\\\\AppData\\\\Roaming\\\\nvm\\\\nvm.exe\" list)",
+      "PowerShell(& \"C:\\\\Users\\\\Asus\\\\AppData\\\\Roaming\\\\nvm\\\\nvm.exe\" list 2>&1)"
+    ]
+  }
+}
