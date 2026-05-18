@@ -1,7 +1,103 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>Clientes</ion-title>
+  <ion-toolbar color="primary">
+    <ion-title>Mis Clientes</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content></ion-content>
+<ion-content>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <ion-grid>
+      <ion-row>
+        <ion-col>
+          <div class="stat-card">
+            <div class="stat-num">{{ stats().total }}</div>
+            <div class="stat-label">Total</div>
+          </div>
+        </ion-col>
+        <ion-col>
+          <div class="stat-card">
+            <div class="stat-num green">{{ stats().activos }}</div>
+            <div class="stat-label">Activos</div>
+          </div>
+        </ion-col>
+        <ion-col>
+          <div class="stat-card">
+            <div class="stat-num purple">{{ stats().nuevos }}</div>
+            <div class="stat-label">Este mes</div>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <!-- Search -->
+  <ion-searchbar
+    placeholder="Buscar por nombre o email…"
+    [debounce]="200"
+    (ionInput)="query.set($any($event).detail.value ?? '')"
+  ></ion-searchbar>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="spinner-wrap">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+  }
+
+  <!-- Error -->
+  @if (error() && !loading()) {
+    <div class="ft-error-banner" role="alert" style="margin:0 16px 12px">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  <!-- Lista -->
+  @if (!loading() && !error()) {
+    <ion-list>
+      @for (c of filtrados(); track c.id) {
+        <ion-item button detail="false" (click)="irDetalle(c.id)">
+          <div slot="start" class="initials" [class.f]="c.genero === 'Femenino'">
+            {{ initials(c) }}
+          </div>
+          <ion-label>
+            <div class="nombre">{{ c.nombre }} {{ c.apellido }}</div>
+            <div class="email">{{ c.email }}</div>
+          </ion-label>
+          <ion-badge slot="end" [color]="c.activo ? 'success' : 'medium'">
+            {{ c.activo ? 'Activo' : 'Inactivo' }}
+          </ion-badge>
+        </ion-item>
+      }
+    </ion-list>
+
+    <!-- Estado vacío -->
+    @if (filtrados().length === 0) {
+      <div class="empty">
+        <ion-icon name="person-outline" class="empty-icon"></ion-icon>
+        <p class="empty-text">
+          @if (query()) {
+            Sin resultados para "{{ query() }}"
+          } @else {
+            Aún no tienes clientes registrados.
+          }
+        </p>
+        @if (!query()) {
+          <ion-button fill="outline" color="secondary" (click)="irNuevo()">
+            Registrar primer cliente
+          </ion-button>
+        }
+      </div>
+    }
+  }
+
+</ion-content>
+
+<!-- FAB -->
+<ion-fab vertical="bottom" horizontal="end" slot="fixed">
+  <ion-fab-button color="secondary" (click)="irNuevo()">
+    <ion-icon name="add-outline"></ion-icon>
+  </ion-fab-button>
+</ion-fab>
