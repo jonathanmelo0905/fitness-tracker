@@ -411,3 +411,49 @@ Tab Bar entrenador agrega Tab 5:
 /superadmin             Panel administrativo NutriEval
 Subdominio por entrenador  → white-label (dominio + colores propios)
 ```
+
+---
+
+## 12. Especificaciones de Pantalla
+
+### Tab 1 — /clientes · Sistema de Onboarding de Clientes
+
+> Se implementa en Fase 5, en la pantalla `/clientes/:id`.
+
+#### Checklist de onboarding (sugerido, no obligatorio)
+
+| # | Paso | Campo backend | Obligatorio al crear |
+|---|---|---|---|
+| 1 | Datos básicos | `nombre`, `apellido`, `email`, `fecha_nacimiento`, `sexo` | ✅ Sí |
+| 2 | Medidas iniciales | `peso_inicial`, `altura` | No |
+| 3 | Fotos iniciales | `fotos_iniciales` (Cloudinary) | No |
+| 4 | Evaluación nutricional o física | evaluación creada en `/clientes/:id/evaluaciones` | No |
+| 5 | Primera sesión agendada | sesión creada en `/agenda` | No |
+| 6 | PAR-Q completado | `parq_completado: boolean` | No |
+| 7 | Consentimiento firmado | `consentimiento_aceptado: boolean` | No |
+
+**Porcentaje de completado:** se calcula en el frontend contando cuántos campos del objeto `Cliente` devuelto por el backend están presentes/verdaderos. No requiere endpoint adicional.
+
+```typescript
+// Ejemplo de cálculo (ClienteDetallePage o ClienteService)
+function calcularOnboarding(c: Cliente): { completados: number; total: number } {
+  const pasos = [
+    !!(c.nombre && c.apellido && c.email),   // datos básicos
+    !!(c.peso_inicial && c.altura),           // medidas
+    !!(c.fotos_iniciales?.length),            // fotos
+    !!(c.evaluaciones?.length),               // evaluación
+    !!(c.sesiones?.length),                   // sesión agendada
+    !!c.parq_completado,                      // PAR-Q
+    !!c.consentimiento_aceptado,              // consentimiento
+  ];
+  return { completados: pasos.filter(Boolean).length, total: pasos.length };
+}
+```
+
+#### Reglas de UX (no negociables)
+
+- **Lista /clientes:** badge sutil en la tarjeta del cliente mostrando pasos pendientes (ej. `3/7`). Solo visible si hay pasos sin completar. No usar color rojo — usar `--text-muted` o `--ion-color-warning`.
+- **Detalle /clientes/:id:** banner no invasivo en la parte superior con los pasos faltantes y acceso directo a cada uno. Colapsa cuando el onboarding está completo.
+- **Sin modales bloqueantes:** el entrenador puede navegar y usar todas las funciones del cliente aunque el onboarding esté incompleto.
+- **Sin notificaciones push:** el recordatorio es solo visual dentro de la pantalla, nunca una notificación del sistema.
+- **Sin impedir avanzar:** crear un cliente solo requiere datos básicos (paso 1). El resto es opcional y se completa en `/clientes/:id`.
