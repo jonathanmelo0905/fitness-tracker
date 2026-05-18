@@ -1,0 +1,316 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button fill="clear" (click)="cancelar()">
+        <ion-icon name="chevron-back-outline" slot="start"></ion-icon>
+        Cancelar
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Nuevo cliente</ion-title>
+    <ion-buttons slot="end">
+      <span class="paso-counter">Paso {{ paso() + 1 }} / {{ pasos.length }}</span>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="page-wrap">
+
+    <!-- ── Stepper ────────────────────────────────────────────────────── -->
+    <div class="stepper">
+      @for (p of pasos; track i; let i = $index) {
+        <div class="step" [class.active]="paso() === i" [class.done]="paso() > i">
+          <div class="step-circle">
+            @if (paso() > i) {
+              <ion-icon name="checkmark-outline"></ion-icon>
+            } @else {
+              {{ i + 1 }}
+            }
+          </div>
+          <span class="step-label">{{ p.titulo }}</span>
+        </div>
+        @if (i < pasos.length - 1) {
+          <div class="step-line" [class.done]="paso() > i"></div>
+        }
+      }
+    </div>
+
+    <!-- ── Guía de onboarding ─────────────────────────────────────────── -->
+    <div class="guide-banner">
+      <ion-icon name="information-circle-outline"></ion-icon>
+      <div class="guide-body">
+        <strong>Este formulario cubre los pasos:</strong>
+        <div class="guide-chips">
+          @for (item of onboardingCubre; track item.num) {
+            <span class="chip chip-ok">{{ item.num }}. {{ item.label }}</span>
+          }
+          @for (item of onboardingDespues; track item.num) {
+            <span class="chip chip-pend">{{ item.num }}. {{ item.label }}</span>
+          }
+        </div>
+        <p class="guide-note">Los chips grises se completan en el perfil del cliente.</p>
+      </div>
+    </div>
+
+    <!-- ── Error de servidor ──────────────────────────────────────────── -->
+    @if (serverError()) {
+      <div class="ft-error-banner" role="alert">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+        <span>{{ serverError() }}</span>
+      </div>
+    }
+
+    <!-- ══════════════════════ PASO 1 — Datos personales ══════════════════════ -->
+    @if (paso() === 0) {
+      <form [formGroup]="paso1" class="form-section" novalidate>
+        <h2 class="section-title">
+          <ion-icon name="person-outline"></ion-icon>
+          Datos personales
+        </h2>
+        <p class="section-desc">Información obligatoria para identificar al cliente en el sistema.</p>
+
+        <ion-grid class="ion-no-padding">
+          <ion-row>
+            <ion-col size="12" size-md="6">
+              <div class="field" [class.invalid]="isInvalid(paso1, 'nombre')">
+                <label class="field-label">Nombre <span class="req">*</span></label>
+                <input class="form-input" type="text" formControlName="nombre" placeholder="Ana" autocomplete="given-name">
+                @if (isInvalid(paso1, 'nombre')) {
+                  <span class="field-error">Mínimo 2 caracteres.</span>
+                }
+              </div>
+            </ion-col>
+            <ion-col size="12" size-md="6">
+              <div class="field" [class.invalid]="isInvalid(paso1, 'apellido')">
+                <label class="field-label">Apellido <span class="req">*</span></label>
+                <input class="form-input" type="text" formControlName="apellido" placeholder="Morales" autocomplete="family-name">
+                @if (isInvalid(paso1, 'apellido')) {
+                  <span class="field-error">Mínimo 2 caracteres.</span>
+                }
+              </div>
+            </ion-col>
+          </ion-row>
+
+          <ion-row>
+            <ion-col size="12" size-md="8">
+              <div class="field" [class.invalid]="isInvalid(paso1, 'email')">
+                <label class="field-label">Email <span class="req">*</span></label>
+                <input class="form-input" type="email" formControlName="email" placeholder="ana@email.com" autocomplete="off">
+                @if (isInvalid(paso1, 'email')) {
+                  <span class="field-error">Introduce un email válido.</span>
+                }
+              </div>
+            </ion-col>
+            <ion-col size="12" size-md="4">
+              <div class="field">
+                <label class="field-label">Teléfono <span class="opt">Opcional</span></label>
+                <input class="form-input" type="tel" formControlName="telefono" placeholder="+57 300 000 0000">
+              </div>
+            </ion-col>
+          </ion-row>
+
+          <ion-row>
+            <ion-col size="12" size-md="6">
+              <div class="field" [class.invalid]="isInvalid(paso1, 'fechaNacimiento')">
+                <label class="field-label">Fecha de nacimiento <span class="req">*</span></label>
+                <input class="form-input" type="date" formControlName="fechaNacimiento">
+                @if (isInvalid(paso1, 'fechaNacimiento')) {
+                  <span class="field-error">Selecciona una fecha.</span>
+                }
+              </div>
+            </ion-col>
+            <ion-col size="12" size-md="6">
+              <div class="field" [class.invalid]="isInvalid(paso1, 'genero')">
+                <label class="field-label">Género <span class="req">*</span></label>
+                <select class="form-input form-select" formControlName="genero">
+                  <option value="" disabled>Seleccionar…</option>
+                  <option value="Masculino">Masculino</option>
+                  <option value="Femenino">Femenino</option>
+                </select>
+                @if (isInvalid(paso1, 'genero')) {
+                  <span class="field-error">Selecciona un género.</span>
+                }
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </form>
+    }
+
+    <!-- ══════════════════════ PASO 2 — Condición física ══════════════════════ -->
+    @if (paso() === 1) {
+      <form [formGroup]="paso2" class="form-section" novalidate>
+        <h2 class="section-title">
+          <ion-icon name="barbell-outline"></ion-icon>
+          Condición física
+        </h2>
+        <p class="section-desc">Datos de línea base para medir progreso. Todos son opcionales pero recomendados.</p>
+
+        <ion-grid class="ion-no-padding">
+          <ion-row>
+            <ion-col size="6">
+              <div class="field">
+                <label class="field-label">Peso inicial <span class="unit">kg</span></label>
+                <input class="form-input" type="number" formControlName="pesoInicial"
+                  placeholder="70" min="20" max="300" step="0.1">
+              </div>
+            </ion-col>
+            <ion-col size="6">
+              <div class="field">
+                <label class="field-label">Altura <span class="unit">cm</span></label>
+                <input class="form-input" type="number" formControlName="altura"
+                  placeholder="170" min="100" max="250" step="0.5">
+              </div>
+            </ion-col>
+          </ion-row>
+
+          <ion-row>
+            <ion-col size="12">
+              <div class="field" [class.invalid]="isInvalid(paso2, 'nivelActividad')">
+                <label class="field-label">Nivel de actividad <span class="req">*</span></label>
+                <select class="form-input form-select" formControlName="nivelActividad">
+                  <option value="sedentario">Sedentario — sin ejercicio</option>
+                  <option value="ligero">Ligero — 1 a 2 días por semana</option>
+                  <option value="moderado">Moderado — 3 a 5 días por semana</option>
+                  <option value="activo">Activo — 6 a 7 días por semana</option>
+                  <option value="muy_activo">Muy activo — doble sesión diaria</option>
+                </select>
+              </div>
+            </ion-col>
+          </ion-row>
+
+          <ion-row>
+            <ion-col size="12">
+              <div class="field">
+                <label class="field-label">Objetivos del cliente <span class="opt">Opcional</span></label>
+                <textarea class="form-input form-textarea" formControlName="objetivos" rows="3"
+                  placeholder="Ej. Reducción de grasa corporal, aumento de masa muscular, mejora de resistencia…"></textarea>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </form>
+    }
+
+    <!-- ══════════════════════ PASO 3 — Historial de salud ════════════════════ -->
+    @if (paso() === 2) {
+      <form [formGroup]="paso3" class="form-section" novalidate>
+        <h2 class="section-title">
+          <ion-icon name="medkit-outline"></ion-icon>
+          Historial de salud
+        </h2>
+        <p class="section-desc">Información médica relevante para adaptar el plan de entrenamiento. Todos los campos son opcionales.</p>
+
+        <div class="field">
+          <label class="field-label">Condiciones médicas <span class="opt">Opcional</span></label>
+          <textarea class="form-input form-textarea" formControlName="condicionesMedicas" rows="2"
+            placeholder="Ej. Diabetes tipo 2, hipertensión, hipotiroidismo…"></textarea>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Medicamentos actuales <span class="opt">Opcional</span></label>
+          <textarea class="form-input form-textarea" formControlName="medicamentos" rows="2"
+            placeholder="Ej. Metformina 500mg, Losartán 50mg…"></textarea>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Lesiones o limitaciones físicas <span class="opt">Opcional</span></label>
+          <textarea class="form-input form-textarea" formControlName="lesiones" rows="2"
+            placeholder="Ej. Tendinitis rotuliana en rodilla derecha, lumbalgia crónica…"></textarea>
+        </div>
+
+        <div class="health-note">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          Esta información es confidencial y solo la ve el entrenador asignado.
+        </div>
+      </form>
+    }
+
+    <!-- ══════════════════════ PASO 4 — PAR-Q y consentimiento ═══════════════ -->
+    @if (paso() === 3) {
+      <form [formGroup]="paso4" class="form-section" novalidate>
+        <h2 class="section-title">
+          <ion-icon name="document-text-outline"></ion-icon>
+          PAR-Q y consentimiento
+        </h2>
+        <p class="section-desc">Cuestionario de aptitud física y autorización del cliente. Ambos son opcionales y se pueden completar después.</p>
+
+        <!-- PAR-Q -->
+        <div class="consent-card">
+          <h3 class="consent-title">PAR-Q — Physical Activity Readiness Questionnaire</h3>
+          <p class="consent-desc">El cliente respondió NO a todas las siguientes preguntas:</p>
+          <ul class="parq-list">
+            <li>¿Le ha dicho su médico que tiene un problema cardíaco?</li>
+            <li>¿Siente dolor en el pecho cuando hace actividad física?</li>
+            <li>¿Ha sentido dolor en el pecho en el último mes (en reposo)?</li>
+            <li>¿Pierde el equilibrio por mareos o ha perdido el conocimiento?</li>
+            <li>¿Tiene algún problema óseo o articular que empeore con el ejercicio?</li>
+            <li>¿Su médico le receta actualmente medicamentos para la presión?</li>
+            <li>¿Hay alguna razón física por la que no debería hacer ejercicio?</li>
+          </ul>
+          <button type="button" class="toggle-row" (click)="paso4.get('parqAprobado')!.setValue(!paso4.value.parqAprobado)">
+            <span class="check-box" [class.checked]="paso4.value.parqAprobado">
+              @if (paso4.value.parqAprobado) {
+                <ion-icon name="checkmark-outline"></ion-icon>
+              }
+            </span>
+            <span>El cliente respondió <strong>NO</strong> a todas las preguntas (PAR-Q aprobado)</span>
+          </button>
+        </div>
+
+        <!-- Consentimiento -->
+        <div class="consent-card">
+          <h3 class="consent-title">Consentimiento informado</h3>
+          <p class="consent-desc">
+            El cliente declara conocer los riesgos asociados a la actividad física y autoriza
+            al entrenador a diseñar y supervisar su programa de entrenamiento y nutrición.
+            Esta información será tratada con estricta confidencialidad.
+          </p>
+          <button type="button" class="toggle-row" (click)="paso4.get('consentimientoFirmado')!.setValue(!paso4.value.consentimientoFirmado)">
+            <span class="check-box" [class.checked]="paso4.value.consentimientoFirmado">
+              @if (paso4.value.consentimientoFirmado) {
+                <ion-icon name="checkmark-outline"></ion-icon>
+              }
+            </span>
+            <span>El cliente acepta el consentimiento informado</span>
+          </button>
+        </div>
+
+        <div class="health-note">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          Puedes omitir ambos y completarlos más tarde en el perfil del cliente.
+        </div>
+      </form>
+    }
+
+    <!-- ── Navegación ────────────────────────────────────────────────── -->
+    <div class="nav-row">
+      @if (paso() > 0) {
+        <button class="btn-nav btn-prev" (click)="anterior()">
+          <ion-icon name="chevron-back-outline"></ion-icon>
+          Anterior
+        </button>
+      } @else {
+        <div></div>
+      }
+
+      @if (paso() < pasos.length - 1) {
+        <button class="btn-nav btn-next" (click)="siguiente()">
+          Siguiente
+          <ion-icon name="chevron-forward-outline"></ion-icon>
+        </button>
+      } @else {
+        <button class="btn-nav btn-crear" [disabled]="submitting()" (click)="crear()">
+          @if (submitting()) {
+            <ion-spinner name="crescent" style="width:16px;height:16px;color:white"></ion-spinner>
+            Creando…
+          } @else {
+            <ion-icon name="add-outline"></ion-icon>
+            Crear cliente
+          }
+        </button>
+      }
+    </div>
+
+  </div>
+</ion-content>

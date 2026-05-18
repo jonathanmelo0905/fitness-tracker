@@ -26,6 +26,13 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/physical-evaluation-results/physical-evaluation-results.page').then(m => m.PhysicalEvaluationResultsPage),
   },
 
+  // ── Client registration (outside tabs, requires auth) ───────────────────
+  {
+    path: 'clientes/nuevo',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/cliente-registro/cliente-registro.page').then(m => m.ClienteRegistroPage),
+  },
+
   // ── Tab shell ────────────────────────────────────────────────────────────
   {
     path: '',
