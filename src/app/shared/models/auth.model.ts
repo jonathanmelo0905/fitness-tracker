@@ -5,31 +5,38 @@ export interface LoginRequest {
   password: string;
 }
 
-// Shape returned by the backend API
+// Nested user object inside the backend data envelope
+export interface UsuarioInfo {
+  id:       number;
+  tenantId: string;
+  nombre:   string;
+  email:    string;
+  plan:     string;
+}
+
+// Exact shape returned by the backend API
 export interface ApiLoginResponse {
   success: boolean;
-  message: string;
   data: {
-    token:  string;
-    rol:    string;   // backend uses "rol" (Spanish)
-    userId: number;
-    nombre: string;
-    email:  string;
+    accessToken:  string;
+    refreshToken: string;
+    tipo:         string;   // "entrenador" | "cliente" | "superadmin"
+    usuario:      UsuarioInfo;
   };
 }
 
 // Normalized internal shape used throughout the app
 export interface LoginResponse {
-  token:  string;
-  role:   UserRole;
-  nombre: string;
+  token:   string;
+  role:    UserRole;
+  usuario: UsuarioInfo;
 }
 
 export interface JwtPayload {
   sub:   string;
   email: string;
-  rol?:  UserRole;   // backend claim name
-  role?: UserRole;   // fallback if backend changes to English
+  tipo?: UserRole;   // backend claim name
+  role?: UserRole;   // fallback
   exp:   number;
   iat:   number;
 }

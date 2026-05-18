@@ -7,8 +7,8 @@ const TOKEN_KEY = 'nutrieval-token';
 function getUserRole(token: string): UserRole | null {
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
-    // Backend uses "rol" (Spanish); fall back to "role" if ever normalized
-    return (payload.rol ?? payload.role) as UserRole ?? null;
+    // Backend JWT claim is "tipo"; fall back to "role" if ever changed
+    return (payload.tipo ?? payload.role) as UserRole ?? null;
   } catch {
     return null;
   }
