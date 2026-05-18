@@ -1,7 +1,7 @@
 @use '../../../theme/variables' as v;
 
 ion-content  { --background: var(--bg-primary) }
-ion-toolbar  { --background: var(--gradient-body) }
+ion-toolbar  { --background: var(--gradient-body); --ion-toolbar-color: var(--ion-color-primary-contrast) }
 
 .logout-btn {
   --color: var(--ion-color-primary-contrast);

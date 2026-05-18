@@ -58,11 +58,14 @@ body {
   --ion-item-background:    var(--bg-card);
   --ion-card-background:    var(--bg-card);
   --ion-toolbar-background: var(--ion-color-primary);
-  --ion-toolbar-color:      #ffffff;
   --ion-tab-bar-background: var(--bg-card);
   --ion-border-color:       var(--bg-border);
   --ion-input-background:   var(--input-bg);
 }
+// Toolbars con fondo primario (color sólido/degradado oscuro) → icono blanco
+.dark-theme  { --ion-toolbar-color: #ffffff; }
+// Toolbars que overridean su fondo a --bg-card (claro en light) → icono del tema
+.light-theme { --ion-toolbar-color: var(--text-primary); }
 
 .light-theme { color-scheme: light; }
 .dark-theme  { color-scheme: dark;  }
