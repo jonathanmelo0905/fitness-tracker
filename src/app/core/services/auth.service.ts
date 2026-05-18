@@ -1,9 +1,9 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap } from 'rxjs';
+import { Observable, map, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { LoginRequest, LoginResponse, JwtPayload, UserRole } from '../../shared/models/auth.model';
+import { ApiLoginResponse, LoginRequest, LoginResponse, JwtPayload, UserRole } from '../../shared/models/auth.model';
 
 const TOKEN_KEY = 'nutrieval-token';
 const USER_KEY = 'nutrieval-user';
@@ -20,12 +20,17 @@ export class AuthService {
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
     return this.http
-      .post<LoginResponse>(`${environment.apiUrl}/auth/login`, credentials)
+      .post<ApiLoginResponse>(`${environment.apiUrl}/auth/login`, credentials)
       .pipe(
-        tap(res => {
-          localStorage.setItem(TOKEN_KEY, res.token);
-          localStorage.setItem(USER_KEY, JSON.stringify(res));
-          this._currentUser.set(res);
+        map(res => ({
+          token:  res.data.token,
+          role:   res.data.rol as UserRole,
+          nombre: res.data.nombre,
+        } satisfies LoginResponse)),
+        tap(normalized => {
+          localStorage.setItem(TOKEN_KEY, normalized.token);
+          localStorage.setItem(USER_KEY, JSON.stringify(normalized));
+          this._currentUser.set(normalized);
         })
       );
   }

@@ -7,7 +7,8 @@ const TOKEN_KEY = 'nutrieval-token';
 function getUserRole(token: string): UserRole | null {
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
-    return (payload.role as UserRole) ?? null;
+    // Backend uses "rol" (Spanish); fall back to "role" if ever normalized
+    return (payload.rol ?? payload.role) as UserRole ?? null;
   } catch {
     return null;
   }
