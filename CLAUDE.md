@@ -1,4 +1,4 @@
-# CLAUDE.md — NutriEval
+# CLAUDE.md — NutriEval (Frontend)
 
 ---
 
@@ -9,10 +9,23 @@
 - Si una tarea es ambigua, haz una sola pregunta de clarificación antes de proceder
 - Al terminar una tarea, indica qué cambió y si hay algo que deba actualizarse en este archivo
 
-### Fase actual: **Fase 4 — PWA**
-- Solo implementar código relacionado con PWA, manifest, service worker y Firebase Hosting
-- No implementar código de Fase 5 (Backend) ni posteriores aunque parezca conveniente
-- Al completar un ítem de la Fase 4, marcarlo como `[x]` en la sección 8
+### Fase actual: **Fase 5 — Backend + conexión API**
+- Solo implementar código relacionado con autenticación JWT y conexión al API
+- No implementar código de fases posteriores aunque parezca conveniente
+- Al completar un ítem, marcarlo como `[x]` en la sección 8
+
+### Versión de producto actual: **v1.0 MVP**
+Funcionalidades del frontend en esta versión:
+- Herramientas: calculadora nutricional + evaluación física (ya existe ✅)
+- Login entrenador + login cliente
+- Panel de clientes del entrenador
+- Registro completo de cliente (datos personales, salud, hábitos, PAR-Q, consentimiento)
+- Historial de evaluaciones por cliente
+- Medidas corporales con gráficas de progreso
+- Fotos de evolución (subida a Cloudinary)
+- Agenda simple del entrenador
+- Vista próxima sesión para el cliente
+- Configuración: redes sociales del entrenador
 
 ### Identidad de la app
 - **Nombre completo:** NutriEval
@@ -20,29 +33,31 @@
 - **Versión actual:** 1.1
 - **Theme color:** `#1a6b3a`
 - **Background color:** `#0f1923`
-- El nombre viene de `environment.ts` → `environment.appName` para usarlo en componentes
-- En `manifest.webmanifest` e `index.html` va hardcodeado (son archivos estáticos)
+- **Cloudinary cloud name:** `dnj3zphoj`
+- Credenciales sensibles NUNCA en código — solo en variables de entorno `.env`
 
-### Reglas de código (permanentes — no cambian entre fases)
-- **NUNCA** valores HEX directamente en `.scss` de componentes — siempre `var(--nombre-variable)`
+### Reglas de código (permanentes)
+- **NUNCA** valores HEX directamente en `.scss` — siempre `var(--nombre-variable)`
 - **NUNCA** NgModule — solo Standalone Components
 - **NUNCA** CSS grid/flex propio para layout — usar `IonGrid + IonRow + IonCol`
 - **SIEMPRE** variables SCSS en media queries: `@media (min-width: #{$desktop})`
-- **SIEMPRE** comentar cada fórmula matemática con su fuente bibliográfica
-- **SIEMPRE** verificar si existe clase en `utilities.scss` antes de crear estilo nuevo
+- **SIEMPRE** comentar cada fórmula matemática con fuente bibliográfica
+- **SIEMPRE** verificar `utilities.scss` antes de crear estilo nuevo
 - Archivos `.scss` de componentes: máximo 50 líneas
-- Lógica de negocio solo en servicios — las páginas solo llaman servicios y muestran datos
-- Estado reactivo con Angular Signals (`signal`, `computed`) — no con BehaviorSubject
+- Lógica de negocio solo en servicios — páginas solo llaman servicios y muestran datos
+- Estado reactivo con Angular Signals (`signal`, `computed`)
 - Datos entre páginas via `NavigationExtras state`
-- Commits en formato Conventional Commits: `feat(modulo): descripción`
+- Llamadas HTTP via servicios dedicados usando `HttpClient`
+- JWT guardado en `localStorage` key: `nutrieval-token`
+- Commits: Conventional Commits → `feat(modulo): descripción`
 
 ---
 
 ## 1. Descripción General
 
 **Nombre:** NutriEval
-**Propósito:** Plataforma digital profesional para entrenadores personales y nutricionistas que digitaliza el proceso completo de evaluación física, cálculo nutricional y seguimiento de clientes.
-**Público objetivo:** Entrenadores personales independientes, entrenadores en gimnasios, nutricionistas deportivos y estudiantes avanzados de nutrición.
+**Propósito:** Plataforma SaaS profesional para entrenadores personales y nutricionistas. Combina CRM de clientes, historia clínica deportiva, seguimiento de progreso, nutrición, rutinas, agenda y analítica.
+**Público objetivo:** Entrenadores personales independientes, entrenadores en gimnasios, nutricionistas deportivos.
 **Repositorio:** https://github.com/jonathanmelo0905/fitness-tracker
 **Versión actual:** 1.1
 
@@ -61,24 +76,15 @@
 | jsPDF + jspdf-autotable | Latest | Generación de PDFs en cliente |
 | @capacitor/filesystem | Latest | Guardar archivos en Android |
 | @capacitor/share | Latest | Compartir archivos nativamente |
-| @angular/pwa | Latest | Service worker + manifest (Fase 4) |
-| Firebase Hosting | — | Despliegue web (Fase 4) |
+| @angular/pwa | Latest | Service worker + manifest ✅ |
+| HttpClient | Angular | Llamadas al backend API REST |
 
-### Backend (Fase 5 — pendiente)
-| Tecnología | Uso |
-|---|---|
-| ASP.NET Core Web API (.NET 8) | API REST |
-| Entity Framework Core 8 | ORM |
-| SQL Server / PostgreSQL | Base de datos |
-| ASP.NET Identity + JWT | Autenticación |
-
-### Infraestructura
+### Servicios externos
 | Servicio | Uso |
 |---|---|
-| Firebase Hosting | Despliegue del frontend web |
-| Azure App Service | Backend .NET (Fase 5) |
-| Azure SQL / Supabase | Base de datos (Fase 5) |
-| Azure Blob Storage | PDFs y fotos de clientes (Fase 5) |
+| Cloudinary | Fotos de progreso (cloud: dnj3zphoj) |
+| Firebase Hosting | Deploy temporal pruebas PWA ✅ |
+| Railway | Producción final frontend + backend |
 
 ---
 
@@ -90,60 +96,84 @@
 src/
 ├── app/
 │   ├── core/
-│   │   └── services/
-│   │       ├── fitness-calculator.service.ts
-│   │       ├── physical-evaluation.service.ts
-│   │       ├── pdf-export.service.ts
-│   │       └── theme.service.ts
+│   │   ├── services/
+│   │   │   ├── fitness-calculator.service.ts    ✅
+│   │   │   ├── physical-evaluation.service.ts   ✅
+│   │   │   ├── pdf-export.service.ts            ✅
+│   │   │   ├── theme.service.ts                 ✅
+│   │   │   ├── auth.service.ts                  ← Fase 5
+│   │   │   ├── cliente.service.ts               ← Fase 5
+│   │   │   ├── evaluacion.service.ts            ← Fase 5
+│   │   │   ├── medidas.service.ts               ← Fase 5
+│   │   │   ├── fotos.service.ts                 ← Fase 5
+│   │   │   └── sesion.service.ts                ← Fase 5
+│   │   ├── guards/
+│   │   │   ├── auth.guard.ts                    ← Fase 5
+│   │   │   └── role.guard.ts                    ← Fase 5
+│   │   └── interceptors/
+│   │       └── jwt.interceptor.ts               ← Fase 5
 │   ├── shared/
 │   │   ├── models/
-│   │   │   ├── client.model.ts
-│   │   │   └── physical-evaluation.model.ts
+│   │   │   ├── client.model.ts                  ✅
+│   │   │   ├── physical-evaluation.model.ts     ✅
+│   │   │   ├── cliente.model.ts                 ← Fase 5
+│   │   │   ├── evaluacion.model.ts              ← Fase 5
+│   │   │   ├── sesion.model.ts                  ← Fase 5
+│   │   │   └── auth.model.ts                    ← Fase 5
 │   │   └── components/
-│   │       └── pwa-install/                   ← Fase 4
-│   │           ├── pwa-install.component.ts
-│   │           ├── pwa-install.component.html
-│   │           └── pwa-install.component.scss
+│   │       ├── pwa-install/                     ✅
+│   │       ├── progress-chart/                  ← v2.0
+│   │       ├── photo-comparator/                ← v2.0
+│   │       └── kpi-card/                        ← v3.0
 │   └── pages/
-│       ├── home/
-│       ├── calculator/
-│       ├── results/
-│       ├── physical-evaluation/
-│       ├── physical-evaluation-results/
-│       └── settings/
-├── assets/
-│   ├── icon/
-│   │   ├── favicon.png
-│   │   └── icons/                             ← íconos PWA Fase 4
-│   └── shapes.svg
+│       ├── home/                                ✅
+│       ├── calculator/                          ✅
+│       ├── results/                             ✅
+│       ├── physical-evaluation/                 ✅
+│       ├── physical-evaluation-results/         ✅
+│       ├── settings/                            ✅
+│       ├── login/                               ← Fase 5
+│       ├── dashboard/                           ← Fase 5
+│       ├── clientes/                            ← Fase 5
+│       ├── cliente-detalle/                     ← Fase 5
+│       ├── cliente-registro/                    ← Fase 5
+│       ├── agenda/                              ← Fase 5
+│       └── cliente-portal/                      ← Fase 5
+├── public/
+│   └── manifest.webmanifest                     ✅
 ├── environments/
-│   ├── environment.ts                         ← appName, appVersion aquí
+│   ├── environment.ts                           ← agregar apiUrl Fase 5
 │   └── environment.prod.ts
-├── theme/
-│   ├── variables.scss
-│   └── utilities.scss
-├── global.scss
-├── index.html
-├── main.ts
-├── manifest.webmanifest                       ← generado en Fase 4
-└── ngsw-config.json                          ← generado en Fase 4
 ```
 
-### Patrones usados
-- **Standalone Components** sin NgModule
-- **Angular Signals** para estado reactivo (`signal`, `computed`)
-- **Service layer** — toda la lógica de negocio en servicios
-- **CSS Variables** para theming — nunca valores hardcodeados en componentes
-- **NavigationExtras (state)** para pasar datos entre páginas
+### Roles de usuario
+| Rol | Acceso |
+|---|---|
+| `superadmin` | Panel administrativo NutriEval (v4.0) |
+| `entrenador` | Dashboard, clientes, herramientas, agenda, configuración |
+| `cliente` | Portal: sesiones, progreso, rutina, dieta, check-ins |
 
-### Rutas definidas
+### Rutas actuales ✅
 ```
-/                              → HomePage
+/                              → redirect a /home
+/home                          → HomePage (herramientas)
 /calculator                    → CalculatorPage
 /results                       → ResultsPage
 /physical-evaluation           → PhysicalEvaluationPage
 /physical-evaluation-results   → PhysicalEvaluationResultsPage
 /settings                      → SettingsPage
+```
+
+### Rutas Fase 5
+```
+/login                         → LoginPage (entrenador + cliente)  ✅
+/clientes                      → Tab 1 — ClientesPage (lista + stats, landing del entrenador)
+/clientes/nuevo                → ClienteRegistroPage
+/clientes/:id                  → ClienteDetallePage
+/herramientas                  → Tab 2 — HerramientasPage (calculadora + evaluación física)
+/agenda                        → Tab 3 — AgendaPage
+/settings                      → Tab 4 — SettingsPage (ya existe, se integra al tab bar)
+/portal                        → ClientePortalPage (sin tabs)
 ```
 
 ---
@@ -194,21 +224,9 @@ src/
 --gradient-alerts:      linear-gradient(135deg, #b7770d, #f39c12)
 --gradient-fitness:     linear-gradient(135deg, #c0392b, #e67e22)
 --gradient-somatotype:  linear-gradient(135deg, #5b3fa0, #8e44ad)
+--gradient-dashboard:   linear-gradient(135deg, #1a6b3a, #5b6abf)
+--gradient-cliente:     linear-gradient(135deg, #0f6e56, #1D9E75)
 ```
-
-### Colores fijos de componentes corporales
-```css
-/* No usan variables — funcionan en ambos temas */
-Grasa:    #e74c3c
-Muscular: #2ecc71
-Óseo:     #3498db
-Residual: #9b59b6
-```
-
-### Tipografía y espaciado
-- Fuente: sistema nativo (`var(--ion-font-family)`)
-- Tamaños: Display 48px / H1 28px / H2 22px / Body 16px / Small 14px / Caption 12px
-- `--space-xs: 4px` → `--space-2xl: 48px` (7 pasos)
 
 ### Breakpoints SCSS
 ```scss
@@ -220,28 +238,34 @@ $max-content: 1200px
 
 ---
 
-## 5. Servicios — Estado de implementación
+## 5. Servicios y Componentes
 
-| Servicio | Estado | Descripción |
+| Servicio / Componente | Estado | Descripción |
 |---|---|---|
-| FitnessCalculatorService | ✅ Completo | IMC, TMB, macros, proyección, refeeds, alertas |
-| PhysicalEvaluationService | ✅ Completo | Pliegues, perímetros, somatotipo, 4 componentes, tests |
-| PdfExportService | ✅ Completo | PDF nutricional (7 secc.) + PDF evaluación (9 secc.) |
-| ThemeService | ✅ Completo | Signal + localStorage, clases dark/light en body |
+| FitnessCalculatorService | ✅ | IMC, TMB, macros, proyección, refeeds |
+| PhysicalEvaluationService | ✅ | Pliegues, somatotipo, 4 componentes |
+| PdfExportService | ✅ | PDF nutricional + evaluación física |
+| ThemeService | ✅ | Signal + localStorage, dark/light |
+| PwaInstallComponent | ✅ | Banner Android + instrucciones iOS |
+| AuthService | ⏳ Fase 5 | Login, JWT, roles, logout |
+| ClienteService | ⏳ Fase 5 | CRUD clientes via API |
+| EvaluacionService | ⏳ Fase 5 | Evaluaciones y medidas via API |
+| FotosService | ⏳ Fase 5 | Upload a Cloudinary via API |
+| SesionService | ⏳ Fase 5 | Agenda y sesiones via API |
 
 ---
 
 ## 6. Clases Utilitarias (utilities.scss)
 
 ```
-.ft-card              → card base con bg-card, border-radius, shadow
-.ft-card-header       → header de card con gradiente
+.ft-card              → card base
+.ft-card-header       → header con gradiente
 .ft-gradient-*        → gradientes por módulo
-.ft-badge-success/warning/danger → badges de estado
+.ft-badge-success/warning/danger
 .ft-number-display    → número grande de resultado
 .ft-label-secondary   → etiqueta secundaria
-.ft-progress-bar      → barra de progreso base
-.ft-page-content      → contenedor con max-width centrado
+.ft-progress-bar      → barra de progreso
+.ft-page-content      → contenedor max-width centrado
 .ft-actions-row       → fila de botones responsiva
 ```
 
@@ -249,26 +273,16 @@ $max-content: 1200px
 
 ## 7. Fórmulas Implementadas
 
-### Calculadora Nutricional
 ```
 IMC = peso / estatura²
 TMB Masculino = (10×peso) + (6.25×estatura_cm) - (5×edad) + 5   [Mifflin-St Jeor]
 TMB Femenino  = (10×peso) + (6.25×estatura_cm) - (5×edad) - 161 [Mifflin-St Jeor]
-Mantenimiento = TMB × multiplicador actividad
-Calorías ajustadas = mantenimiento × (1 + ajuste calórico)
-Pérdida semanal = déficit semanal / 6724 kcal/kg
-```
-
-### Evaluación Física
-```
 Jackson & Pollock 3 y 7 pliegues — Siri (DC→%G)
-Durnin & Womersley 4 pliegues — tabla constantes A/B
+Durnin & Womersley 4 pliegues
 Yuhasz Hombre: %G = (suma6 × 0.097) + 3.64
 Yuhasz Mujer:  %G = (suma6 × 0.1429) + 4.56
 Peso óseo (Rocha): 3.02 × (h² × dHumero × dFemur × 400)^0.712
-Peso residual Hombre: peso × 0.241  [Wurch]
-Peso residual Mujer:  peso × 0.209  [Wurch]
-Peso muscular = peso - grasa - óseo - residual
+Peso residual H: peso × 0.241 / M: peso × 0.209  [Wurch]
 ICC = cintura / cadera
 ICE = cintura / estatura_cm
 Ruffier: I = ((FC_post-70) + (FC_rec-FC_rep)) / 10
@@ -278,55 +292,122 @@ Somatotipo Heath-Carter
 
 ---
 
-## 8. Roadmap y Pendientes
+## 8. Roadmap de Producto
 
-### ✅ Completado
-- Fases 1–3: Calculadora nutricional, Evaluación física, Resultados con PDF
+### ✅ v1.0 — Completado hasta Fase 4
+- Herramientas (calculadora + evaluación + PDF)
+- PWA instalable + Firebase Hosting
 
-### 🔄 Fase 4 — PWA (actual)
-- [ ] `ng add @angular/pwa --project app`
-- [ ] Actualizar `environment.ts` y `environment.prod.ts` con `appName` y `appVersion`
-- [ ] Personalizar `manifest.webmanifest` con identidad NutriEval
-- [ ] Personalizar `ngsw-config.json` para cache offline
-- [ ] Actualizar `src/index.html` con metas correctas (título, description, iOS)
-- [ ] Generar íconos PWA en todos los tamaños (72–512px) + apple-touch-icon 180px
-- [ ] Crear `PwaInstallComponent` — banner Android + instrucciones iOS
-- [ ] Integrar `PwaInstallComponent` en `HomePage`
-- [ ] Instalar Firebase CLI y correr `firebase init hosting`
-- [ ] Configurar `firebase.json` para servir `www/` con Angular routing
-- [ ] Agregar script `deploy` en `package.json`
-- [ ] Primer deploy a Firebase Hosting
+### 🔄 Fase 5 — Backend + API (actual)
+- [ ] Crear proyecto ASP.NET Core Web API (.NET 8)
+- [ ] Configurar PostgreSQL en Railway
+- [ ] Implementar ASP.NET Identity + JWT
+- [ ] Roles: entrenador, cliente, superadmin
+- [ ] Endpoints: auth, clientes, evaluaciones, medidas, fotos, sesiones
+- [ ] Integrar Cloudinary SDK en backend
+- [x] Agregar `apiUrl` en `environment.ts`
+- [x] Crear `jwt.interceptor.ts`
+- [x] Crear `auth.guard.ts` y `role.guard.ts`
+- [x] Pantalla Login (entrenador + cliente)
+- [ ] Tab bar del entrenador (4 tabs: clientes, herramientas, agenda, settings)
+- [ ] Tab 1 /clientes — lista de clientes con stats
+- [ ] Registro completo de cliente (/clientes/nuevo)
+- [ ] Detalle de cliente con evaluaciones, medidas y fotos (/clientes/:id)
+- [ ] Tab 2 /herramientas — mover calculadora + evaluación física
+- [ ] Tab 3 /agenda — sesiones del entrenador
+- [ ] Tab 4 /settings — ya existe, integrar al tab bar
+- [ ] Vista próxima sesión para el cliente (/portal)
+- [ ] Deploy v1.0 en Railway
 - [ ] `/update-claude-md` al terminar
 
-### ⏳ Fase 5 — Backend
-- [ ] ASP.NET Core Web API + JWT
-- [ ] Decidir SQL Server vs PostgreSQL
-- [ ] Estrategia refresh tokens
-- [ ] CORS — dominios permitidos
-- [ ] URL base de la API en `environment.ts`
+### ⏳ v2.0 — Seguimiento completo (+3–4 meses)
+- Constructor de rutinas drag & drop
+- Biblioteca de ejercicios con video
+- Historial de cargas y PRs
+- Plan nutricional + registro diario (Open Food Facts API)
+- Portal cliente completo
+- Check-ins semanales
 
-### ⏳ Fase 6 — Gestión de clientes
-- [ ] Persistencia local (Capacitor Preferences o IndexedDB)
-- [ ] Historial de clientes
-- [ ] Navegación persistente (tab bar o menú lateral)
+### ⏳ v3.0 — Automatización (+3–4 meses)
+- Calendario sesiones + recordatorios push
+- Pagos: Stripe + Mercado Pago
+- Dashboard KPIs analítico
+- Gamificación: logros, streaks, badges
+- Alertas automáticas de estancamiento
 
-### ⏳ Fases 7–9
-- Fase 7: Planes de alimentación + banco de alimentos
-- Fase 8: Vista del cliente + notificaciones push
-- Fase 9: Plataforma SaaS multi-entrenador
-
-### 🔴 Deuda técnica (resolver antes de publicar)
-- [ ] Eliminar carpeta stub `src/app/home/`
-- [ ] Cambiar `appId` en `capacitor.config.ts` (actualmente `io.ionic.starter`)
-- [ ] Tests unitarios para `FitnessCalculatorService` y `PhysicalEvaluationService`
+### ⏳ v4.0 — SaaS multi-entrenador (+4–6 meses)
+- Registro público + suscripciones SaaS
+- Prueba gratis 14 días
+- Panel superadmin
+- White-label: dominio + colores propios
+- Integraciones: Apple Health, Google Fit, WhatsApp Business
 
 ---
 
-## 9. Decisiones Abiertas
+## 9. Deuda Técnica
 
-- [ ] Nombre definitivo para tiendas/dominio (actual: NutriEval — confirmar antes de publicar)
+- [ ] Eliminar carpeta stub `src/app/home/`
+- [ ] Cambiar `appId` en `capacitor.config.ts` (actualmente `io.ionic.starter`)
+- [ ] Tests unitarios para `FitnessCalculatorService` y `PhysicalEvaluationService`
+- [ ] SCSS budget exceeded en 4 páginas
+- [ ] CommonJS warning en `canvg` (dependencia jsPDF)
+
+---
+
+## 10. Decisiones Abiertas
+
+- [ ] Nombre definitivo para tiendas/dominio
 - [ ] Dominio web personalizado
-- [ ] Modelo de precios para la plataforma SaaS (Fase 9)
+- [ ] Modelo de precios SaaS (v4.0)
 - [ ] Publicación en Google Play Store
 - [ ] Mac en la nube para compilar iOS
-- [ ] Elegir entre SQL Server y PostgreSQL (Fase 5)
+
+---
+
+## 11. Flujo de Navegación
+
+### v1.0 MVP
+
+```
+/login  ──────────────────────────────────────────────────────────
+         │
+         ├── Entrenador → Tab Bar (ion-tabs)
+         │     ├── Tab 1  /clientes          Lista de clientes + stats del entrenador
+         │     │           ├── /clientes/nuevo       Registro completo de cliente
+         │     │           └── /clientes/:id         Detalle: evaluaciones, medidas, fotos
+         │     ├── Tab 2  /herramientas      Calculadora nutricional + evaluación física
+         │     ├── Tab 3  /agenda            Sesiones del entrenador
+         │     └── Tab 4  /settings          Redes sociales + toggle de tema
+         │
+         └── Cliente → Sin tabs
+               └── /portal                  Próxima sesión del cliente
+```
+
+### v2.0 — Seguimiento completo
+
+```
+Tab Bar entrenador (sin cambios de estructura)
+  /clientes/:id  agrega:  Rutinas, Plan nutricional, Check-ins semanales
+  /herramientas  agrega:  Biblioteca de ejercicios, Registro diario de comidas
+
+/portal cliente se expande:
+  Mi rutina · Mi plan · Check-in semanal · Mi progreso (gráficas)
+```
+
+### v3.0 — Automatización
+
+```
+Tab Bar entrenador agrega Tab 5:
+  /pagos                  Gestión de pagos (Stripe + Mercado Pago)
+
+/clientes/:id  agrega:   Alertas automáticas de estancamiento
+/portal        agrega:   Mis pagos
+```
+
+### v4.0 — SaaS multi-entrenador
+
+```
+/registro               Onboarding de entrenador nuevo (prueba 14 días)
+/superadmin             Panel administrativo NutriEval
+Subdominio por entrenador  → white-label (dominio + colores propios)
+```
