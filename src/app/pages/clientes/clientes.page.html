@@ -1,6 +1,12 @@
 <ion-header>
   <ion-toolbar color="primary">
     <ion-title>Mis Clientes</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" color="light" (click)="logout()">
+        <span class="user-chip">{{ userName() }}</span>
+        <ion-icon name="log-out-outline" slot="end"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -46,16 +52,8 @@
     </div>
   }
 
-  <!-- Error -->
-  @if (error() && !loading()) {
-    <div class="ft-error-banner" role="alert" style="margin:0 16px 12px">
-      <ion-icon name="alert-circle-outline"></ion-icon>
-      <span>{{ error() }}</span>
-    </div>
-  }
-
-  <!-- Lista -->
-  @if (!loading() && !error()) {
+  <!-- Lista + estado vacío -->
+  @if (!loading()) {
     <ion-list>
       @for (c of filtrados(); track c.id) {
         <ion-item button detail="false" (click)="irDetalle(c.id)">
@@ -73,20 +71,16 @@
       }
     </ion-list>
 
-    <!-- Estado vacío -->
     @if (filtrados().length === 0) {
       <div class="empty">
-        <ion-icon name="person-outline" class="empty-icon"></ion-icon>
-        <p class="empty-text">
-          @if (query()) {
-            Sin resultados para "{{ query() }}"
-          } @else {
-            Aún no tienes clientes registrados.
-          }
-        </p>
-        @if (!query()) {
-          <ion-button fill="outline" color="secondary" (click)="irNuevo()">
-            Registrar primer cliente
+        <ion-icon name="people-outline" class="empty-icon"></ion-icon>
+        @if (query()) {
+          <p class="empty-text">Sin resultados para "{{ query() }}"</p>
+        } @else {
+          <h2 class="empty-title">¡Bienvenido a NutriEval!</h2>
+          <p class="empty-text">Agrega tu primer cliente para comenzar a gestionar su progreso.</p>
+          <ion-button color="secondary" (click)="irNuevo()">
+            Agregar primer cliente
           </ion-button>
         }
       </div>

@@ -1,5 +1,6 @@
 ion-content { --background: var(--bg-primary) }
-ion-toolbar   { --background: var(--gradient-body) }
+
+.user-chip { font-size: 12px; font-weight: 600; opacity: .9; margin-right: 2px }
 
 .stats-row { padding: 16px 16px 4px }
 
@@ -34,7 +35,8 @@ ion-item { --background: var(--bg-card); --border-color: var(--bg-border); --inn
 
 ion-badge { font-size: 10px; font-weight: 600; padding: 3px 7px }
 
-.empty       { text-align: center; padding: 48px 24px }
-.empty-icon  { font-size: 52px; color: var(--text-secondary); display: block }
-.empty-text  { color: var(--text-secondary); font-size: 13.5px; margin: 12px 0 20px }
+.empty        { text-align: center; padding: 52px 28px }
+.empty-icon   { font-size: 64px; color: var(--text-secondary); display: block; margin-bottom: 16px }
+.empty-title  { font-size: 20px; font-weight: 700; color: var(--text-primary); margin: 0 0 10px }
+.empty-text   { color: var(--text-secondary); font-size: 14px; margin: 0 0 24px; line-height: 1.5 }
 .spinner-wrap { display: flex; justify-content: center; padding: 48px 0 }

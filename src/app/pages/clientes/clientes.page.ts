@@ -1,14 +1,15 @@
 import { Component, computed, signal, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import {
-  IonHeader, IonToolbar, IonTitle, IonContent,
+  IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent,
   IonSearchbar, IonList, IonItem, IonLabel, IonBadge,
   IonIcon, IonSpinner, IonFab, IonFabButton,
-  IonGrid, IonRow, IonCol, IonButton,
+  IonGrid, IonRow, IonCol,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { addOutline, personOutline, alertCircleOutline } from 'ionicons/icons';
+import { addOutline, peopleOutline, logOutOutline } from 'ionicons/icons';
 import { ClienteService } from '../../core/services/cliente.service';
+import { AuthService } from '../../core/services/auth.service';
 import { Cliente } from '../../shared/models/cliente.model';
 
 @Component({
@@ -17,18 +18,18 @@ import { Cliente } from '../../shared/models/cliente.model';
   styleUrls: ['clientes.page.scss'],
   standalone: true,
   imports: [
-    IonHeader, IonToolbar, IonTitle, IonContent,
+    IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent,
     IonSearchbar, IonList, IonItem, IonLabel, IonBadge,
     IonIcon, IonSpinner, IonFab, IonFabButton,
-    IonGrid, IonRow, IonCol, IonButton,
+    IonGrid, IonRow, IonCol,
   ],
 })
 export class ClientesPage implements OnInit {
-  readonly loading = signal(true);
-  readonly error   = signal<string | null>(null);
-  readonly query   = signal('');
+  readonly loading  = signal(true);
+  readonly query    = signal('');
 
   readonly clientes = this.clienteService.clientes;
+  readonly userName = this.auth.userName;
 
   readonly stats = computed(() => {
     const list = this.clientes();
@@ -55,18 +56,17 @@ export class ClientesPage implements OnInit {
 
   constructor(
     private clienteService: ClienteService,
+    private auth: AuthService,
     private router: Router,
   ) {
-    addIcons({ addOutline, personOutline, alertCircleOutline });
+    addIcons({ addOutline, peopleOutline, logOutOutline });
   }
 
   ngOnInit(): void {
+    // On error: stop spinner — filtrados() stays empty, empty state renders
     this.clienteService.getAll().subscribe({
       next:  () => this.loading.set(false),
-      error: () => {
-        this.loading.set(false);
-        this.error.set('No se pudieron cargar los clientes. Verifica tu conexión.');
-      },
+      error: () => this.loading.set(false),
     });
   }
 
@@ -74,6 +74,7 @@ export class ClientesPage implements OnInit {
     return `${c.nombre[0]}${c.apellido[0]}`.toUpperCase();
   }
 
+  logout():              void { this.auth.logout(); }
   irNuevo():             void { this.router.navigate(['/clientes/nuevo']); }
   irDetalle(id: number): void { this.router.navigate(['/clientes', id]); }
 }
