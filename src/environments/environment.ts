@@ -6,8 +6,8 @@ export const environment = {
   production: false,
   appName: 'NutriEval',
   appVersion: '1.1',
-  apiUrl: 'https://localhost:7104/api',
-  // apiUrl: 'https://nutrieval-backend-production.up.railway.app/api',
+  // apiUrl: 'https://localhost:7104/api',
+  apiUrl: 'https://nutrieval-backend-production.up.railway.app/api',
 };
 
 /*
