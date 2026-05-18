@@ -6,6 +6,7 @@ export const environment = {
   production: false,
   appName: 'NutriEval',
   appVersion: '1.1',
+  apiUrl: 'http://localhost:5000',
 };
 
 /*
