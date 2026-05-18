@@ -1,8 +1,8 @@
 <ion-header>
-  <ion-toolbar color="primary">
+  <ion-toolbar>
     <ion-title>Mis Clientes</ion-title>
     <ion-buttons slot="end">
-      <ion-button fill="clear" color="light" (click)="logout()">
+      <ion-button class="logout-btn" (click)="confirmarLogout()">
         <span class="user-chip">{{ userName() }}</span>
         <ion-icon name="log-out-outline" slot="end"></ion-icon>
       </ion-button>
@@ -38,17 +38,19 @@
     </ion-grid>
   </div>
 
-  <!-- Search -->
-  <ion-searchbar
-    placeholder="Buscar por nombre o email…"
-    [debounce]="200"
-    (ionInput)="query.set($any($event).detail.value ?? '')"
-  ></ion-searchbar>
+  <!-- Search (solo si hay clientes) -->
+  @if (clientes().length > 0) {
+    <ion-searchbar
+      placeholder="Buscar por nombre o email…"
+      [debounce]="200"
+      (ionInput)="query.set($any($event).detail.value ?? '')"
+    ></ion-searchbar>
+  }
 
   <!-- Loading -->
   @if (loading()) {
     <div class="spinner-wrap">
-      <ion-spinner name="crescent"></ion-spinner>
+      <ion-spinner name="crescent" color="secondary"></ion-spinner>
     </div>
   }
 
@@ -73,13 +75,20 @@
 
     @if (filtrados().length === 0) {
       <div class="empty">
-        <ion-icon name="people-outline" class="empty-icon"></ion-icon>
+        <div class="empty-icon-wrap">
+          <ion-icon name="people-outline"></ion-icon>
+        </div>
         @if (query()) {
-          <p class="empty-text">Sin resultados para "{{ query() }}"</p>
+          <h2 class="empty-title">Sin resultados</h2>
+          <p class="empty-text">No encontramos clientes con "{{ query() }}".<br>Prueba con otro nombre o email.</p>
         } @else {
           <h2 class="empty-title">¡Bienvenido a NutriEval!</h2>
-          <p class="empty-text">Agrega tu primer cliente para comenzar a gestionar su progreso.</p>
-          <ion-button color="secondary" (click)="irNuevo()">
+          <p class="empty-text">
+            Aquí verás el progreso de todos tus clientes.<br>
+            Comienza registrando tu primero.
+          </p>
+          <ion-button color="secondary" size="default" (click)="irNuevo()">
+            <ion-icon name="add-outline" slot="start"></ion-icon>
             Agregar primer cliente
           </ion-button>
         }
@@ -90,8 +99,10 @@
 </ion-content>
 
 <!-- FAB -->
-<ion-fab vertical="bottom" horizontal="end" slot="fixed">
-  <ion-fab-button color="secondary" (click)="irNuevo()">
-    <ion-icon name="add-outline"></ion-icon>
-  </ion-fab-button>
-</ion-fab>
+@if (clientes().length > 0) {
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button color="secondary" (click)="irNuevo()">
+      <ion-icon name="add-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+}

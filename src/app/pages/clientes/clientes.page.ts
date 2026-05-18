@@ -5,6 +5,7 @@ import {
   IonSearchbar, IonList, IonItem, IonLabel, IonBadge,
   IonIcon, IonSpinner, IonFab, IonFabButton,
   IonGrid, IonRow, IonCol,
+  AlertController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { addOutline, peopleOutline, logOutOutline } from 'ionicons/icons';
@@ -58,23 +59,38 @@ export class ClientesPage implements OnInit {
     private clienteService: ClienteService,
     private auth: AuthService,
     private router: Router,
+    private alertCtrl: AlertController,
   ) {
     addIcons({ addOutline, peopleOutline, logOutOutline });
   }
 
   ngOnInit(): void {
-    // On error: stop spinner — filtrados() stays empty, empty state renders
     this.clienteService.getAll().subscribe({
       next:  () => this.loading.set(false),
       error: () => this.loading.set(false),
     });
   }
 
+  async confirmarLogout(): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header:  '¿Cerrar sesión?',
+      message: 'Tendrás que volver a ingresar tus credenciales para continuar.',
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text:    'Cerrar sesión',
+          role:    'destructive',
+          handler: () => this.auth.logout(),
+        },
+      ],
+    });
+    await alert.present();
+  }
+
   initials(c: Cliente): string {
     return `${c.nombre[0]}${c.apellido[0]}`.toUpperCase();
   }
 
-  logout():              void { this.auth.logout(); }
   irNuevo():             void { this.router.navigate(['/clientes/nuevo']); }
   irDetalle(id: number): void { this.router.navigate(['/clientes', id]); }
 }

@@ -1,3 +1,5 @@
+@use '../../../theme/variables' as v;
+
 ion-toolbar {
   --background: var(--bg-card);
   --border-color: var(--bg-border);
@@ -9,11 +11,17 @@ ion-title {
   color: var(--ion-color-secondary);
 }
 
-.user-name {
+.logout-btn {
+  --color: var(--text-primary);
   font-size: 13px;
   font-weight: 600;
-  color: var(--text-secondary);
+}
+
+.user-name {
+  display: none;
   margin-right: 4px;
+  color: var(--text-secondary);
+  @media (min-width: v.$tablet) { display: inline }
 }
 
 ion-tab-bar {
