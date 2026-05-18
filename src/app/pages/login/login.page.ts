@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IonContent, IonIcon, IonSpinner } from '@ionic/angular/standalone';
@@ -6,8 +6,11 @@ import { addIcons } from 'ionicons';
 import {
   mailOutline, lockClosedOutline, eyeOutline, eyeOffOutline,
   alertCircleOutline, arrowForwardOutline, fitnessOutline, personOutline,
+  sunnyOutline, moonOutline, shieldCheckmarkOutline,
+  checkmarkCircleOutline, checkmarkOutline, logoGoogle, logoApple,
 } from 'ionicons/icons';
 import { AuthService } from '../../core/services/auth.service';
+import { ThemeService } from '../../core/services/theme.service';
 
 type Role = 'entrenador' | 'cliente';
 
@@ -19,10 +22,13 @@ type Role = 'entrenador' | 'cliente';
   imports: [IonContent, IonIcon, IonSpinner, ReactiveFormsModule],
 })
 export class LoginPage {
-  readonly activeRole = signal<Role>('entrenador');
-  readonly showPw     = signal(false);
-  readonly submitting = signal(false);
-  readonly serverError = signal<string | null>(null);
+  readonly activeRole   = signal<Role>('entrenador');
+  readonly showPw       = signal(false);
+  readonly submitting   = signal(false);
+  readonly loginSuccess = signal(false);
+  readonly rememberMe   = signal(true);
+  readonly serverError  = signal<string | null>(null);
+  readonly isDark       = computed(() => this.theme.currentTheme() === 'dark');
 
   form: FormGroup;
 
@@ -33,10 +39,13 @@ export class LoginPage {
     private auth: AuthService,
     private router: Router,
     private fb: FormBuilder,
+    private theme: ThemeService,
   ) {
     addIcons({
       mailOutline, lockClosedOutline, eyeOutline, eyeOffOutline,
       alertCircleOutline, arrowForwardOutline, fitnessOutline, personOutline,
+      sunnyOutline, moonOutline, shieldCheckmarkOutline,
+      checkmarkCircleOutline, checkmarkOutline, logoGoogle, logoApple,
     });
     this.form = this.fb.group({
       email:    ['', [Validators.required, Validators.email]],
@@ -47,19 +56,28 @@ export class LoginPage {
   setRole(role: Role): void {
     this.activeRole.set(role);
     this.serverError.set(null);
+    this.loginSuccess.set(false);
+  }
+
+  setTheme(dark: boolean): void {
+    this.theme.setTheme(dark);
   }
 
   onSubmit(): void {
     this.form.markAllAsTouched();
-    if (this.form.invalid || this.submitting()) return;
+    if (this.form.invalid || this.submitting() || this.loginSuccess()) return;
 
     this.submitting.set(true);
     this.serverError.set(null);
 
     this.auth.login(this.form.value).subscribe({
       next: () => {
-        const dest = this.auth.userRole() === 'cliente' ? '/portal' : '/clientes';
-        this.router.navigateByUrl(dest);
+        this.submitting.set(false);
+        this.loginSuccess.set(true);
+        setTimeout(() => {
+          const dest = this.auth.userRole() === 'cliente' ? '/portal' : '/clientes';
+          this.router.navigateByUrl(dest);
+        }, 1800);
       },
       error: (err) => {
         this.submitting.set(false);

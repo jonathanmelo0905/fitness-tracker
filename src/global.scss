@@ -76,6 +76,11 @@ body {
   --text-muted:    #888888;
   --input-bg:      #ffffff;
   --input-border:  #d0d7e0;
+  --promo-bg:      #fbfefc;
+}
+
+.dark-theme {
+  --promo-bg: var(--bg-primary);
 }
 
 // ─── Ionic overrides por tema ─────────────────────────────────────────────────
