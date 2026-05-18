@@ -1,3 +1,21 @@
+ion-toolbar {
+  --background: var(--bg-card);
+  --border-color: var(--bg-border);
+}
+
+ion-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ion-color-secondary);
+}
+
+.user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-right: 4px;
+}
+
 ion-tab-bar {
   --background: var(--bg-card);
   --border: 1px solid var(--bg-border);

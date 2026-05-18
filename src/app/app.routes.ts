@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   // ── Auth (outside tabs) ──────────────────────────────────────────────────
@@ -28,6 +29,7 @@ export const routes: Routes = [
   // ── Tab shell ────────────────────────────────────────────────────────────
   {
     path: '',
+    canActivate: [authGuard],
     loadComponent: () => import('./pages/tabs/tabs.page').then(m => m.TabsPage),
     children: [
       {
