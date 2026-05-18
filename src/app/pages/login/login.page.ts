@@ -5,7 +5,7 @@ import { IonContent, IonIcon, IonSpinner } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
   mailOutline, lockClosedOutline, eyeOutline, eyeOffOutline,
-  alertCircleOutline, arrowForwardOutline, barbellOutline, personOutline,
+  alertCircleOutline, arrowForwardOutline, fitnessOutline, personOutline,
 } from 'ionicons/icons';
 import { AuthService } from '../../core/services/auth.service';
 
@@ -36,7 +36,7 @@ export class LoginPage {
   ) {
     addIcons({
       mailOutline, lockClosedOutline, eyeOutline, eyeOffOutline,
-      alertCircleOutline, arrowForwardOutline, barbellOutline, personOutline,
+      alertCircleOutline, arrowForwardOutline, fitnessOutline, personOutline,
     });
     this.form = this.fb.group({
       email:    ['', [Validators.required, Validators.email]],

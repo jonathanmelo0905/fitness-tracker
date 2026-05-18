@@ -25,8 +25,8 @@
 }
 
 // Form body
-.form-body { padding:4px 28px 28px }
-.field { margin-bottom:14px }
+.form-body { padding:8px 28px 28px }
+.field { display:block; margin-bottom:20px }
 .field-label { display:flex; justify-content:space-between; font-size:12px; font-weight:600; color:var(--text-secondary); margin-bottom:7px }
 
 // Input with icon
@@ -50,6 +50,7 @@
 
 // CTA button
 .btn-login {
+  margin-top:8px;
   width:100%; background:var(--gradient-body); color:white; border:none; border-radius:12px;
   padding:14px 18px; font-size:14.5px; font-weight:700; font-family:inherit;
   display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer; transition:transform .15s,filter .15s;
