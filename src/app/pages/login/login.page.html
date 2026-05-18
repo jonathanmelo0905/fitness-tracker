@@ -1,0 +1,139 @@
+<ion-content [fullscreen]="true">
+  <div class="login-wrap">
+      <div class="login-card">
+
+        <!-- ── Header gradient ── -->
+        <div class="login-header" [class.cliente]="activeRole() === 'cliente'">
+          <p class="eyebrow">
+            <span class="eyebrow-dot"></span>
+            {{ activeRole() === 'entrenador' ? 'Acceso profesional' : 'Acceso cliente' }}
+          </p>
+          <h1>
+            {{ activeRole() === 'entrenador' ? 'Bienvenido de vuelta, coach' : 'Tu plan te está esperando' }}
+          </h1>
+          <p>
+            {{ activeRole() === 'entrenador'
+              ? 'Gestiona evaluaciones, planes y clientes.'
+              : 'Registra comidas, mide progreso y habla con tu coach.' }}
+          </p>
+        </div>
+
+        <!-- ── Role tabs ── -->
+        <div class="role-tabs" role="tablist">
+          <button
+            class="role-tab"
+            [class.active]="activeRole() === 'entrenador'"
+            role="tab"
+            [attr.aria-selected]="activeRole() === 'entrenador'"
+            (click)="setRole('entrenador')"
+          >
+            <ion-icon name="barbell-outline" aria-hidden="true"></ion-icon>
+            Entrenador
+          </button>
+          <button
+            class="role-tab"
+            [class.active]="activeRole() === 'cliente'"
+            [class.cliente]="activeRole() === 'cliente'"
+            role="tab"
+            [attr.aria-selected]="activeRole() === 'cliente'"
+            (click)="setRole('cliente')"
+          >
+            <ion-icon name="person-outline" aria-hidden="true"></ion-icon>
+            Cliente
+          </button>
+        </div>
+
+        <!-- ── Form ── -->
+        <form class="form-body" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+          <!-- Error banner -->
+          @if (serverError()) {
+            <div class="ft-error-banner" role="alert">
+              <ion-icon name="alert-circle-outline"></ion-icon>
+              <span>{{ serverError() }}</span>
+            </div>
+          }
+
+          <!-- Email -->
+          <label class="field">
+            <div class="field-label"><span>Email</span></div>
+            <div class="input-wrap">
+              <ion-icon class="icon-left" name="mail-outline" aria-hidden="true"></ion-icon>
+              <input
+                class="login-input"
+                [class.invalid]="emailCtrl.invalid && emailCtrl.touched"
+                type="email"
+                formControlName="email"
+                placeholder="tu@email.com"
+                autocomplete="email"
+              />
+            </div>
+            @if (emailCtrl.invalid && emailCtrl.touched && emailCtrl.value) {
+              <div class="ft-field-error">
+                <ion-icon name="alert-circle-outline"></ion-icon>
+                Introduce un email válido.
+              </div>
+            }
+          </label>
+
+          <!-- Password -->
+          <label class="field">
+            <div class="field-label"><span>Contraseña</span></div>
+            <div class="input-wrap">
+              <ion-icon class="icon-left" name="lock-closed-outline" aria-hidden="true"></ion-icon>
+              <input
+                class="login-input has-toggle"
+                [class.invalid]="pwCtrl.invalid && pwCtrl.touched"
+                [type]="showPw() ? 'text' : 'password'"
+                formControlName="password"
+                placeholder="••••••••"
+                autocomplete="current-password"
+              />
+              <button
+                type="button"
+                class="pw-toggle"
+                (click)="showPw.set(!showPw())"
+                [attr.aria-label]="showPw() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+              >
+                <ion-icon [name]="showPw() ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+              </button>
+            </div>
+            @if (pwCtrl.invalid && pwCtrl.touched && pwCtrl.value) {
+              <div class="ft-field-error">
+                <ion-icon name="alert-circle-outline"></ion-icon>
+                Mínimo 6 caracteres.
+              </div>
+            }
+          </label>
+
+          <!-- Submit -->
+          <button
+            type="submit"
+            class="btn-login"
+            [class.cliente]="activeRole() === 'cliente'"
+            [disabled]="submitting()"
+          >
+            @if (submitting()) {
+              <ion-spinner name="crescent" style="width:16px;height:16px;color:white"></ion-spinner>
+              Verificando…
+            } @else {
+              {{ activeRole() === 'entrenador' ? 'Acceder al panel' : 'Entrar a mi plan' }}
+              <ion-icon name="arrow-forward-outline"></ion-icon>
+            }
+          </button>
+
+          <!-- Footer -->
+          <p class="footer-note">
+            @if (activeRole() === 'entrenador') {
+              ¿Sin cuenta de coach?
+              <a href="#" (click)="$event.preventDefault()">Solicita acceso profesional</a>
+            } @else {
+              ¿Aún no usas NutriEval?
+              <a href="#" (click)="$event.preventDefault()">Pide a tu coach un invite</a>
+            }
+          </p>
+
+        </form>
+      </div>
+  </div>
+</ion-content>

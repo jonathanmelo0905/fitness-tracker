@@ -1,0 +1,72 @@
+import { Component, signal } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { IonContent, IonIcon, IonSpinner } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import {
+  mailOutline, lockClosedOutline, eyeOutline, eyeOffOutline,
+  alertCircleOutline, arrowForwardOutline, barbellOutline, personOutline,
+} from 'ionicons/icons';
+import { AuthService } from '../../core/services/auth.service';
+
+type Role = 'entrenador' | 'cliente';
+
+@Component({
+  selector: 'app-login',
+  templateUrl: 'login.page.html',
+  styleUrls: ['login.page.scss'],
+  standalone: true,
+  imports: [IonContent, IonIcon, IonSpinner, ReactiveFormsModule],
+})
+export class LoginPage {
+  readonly activeRole = signal<Role>('entrenador');
+  readonly showPw     = signal(false);
+  readonly submitting = signal(false);
+  readonly serverError = signal<string | null>(null);
+
+  form: FormGroup;
+
+  get emailCtrl() { return this.form.get('email')!; }
+  get pwCtrl()    { return this.form.get('password')!; }
+
+  constructor(
+    private auth: AuthService,
+    private router: Router,
+    private fb: FormBuilder,
+  ) {
+    addIcons({
+      mailOutline, lockClosedOutline, eyeOutline, eyeOffOutline,
+      alertCircleOutline, arrowForwardOutline, barbellOutline, personOutline,
+    });
+    this.form = this.fb.group({
+      email:    ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+    });
+  }
+
+  setRole(role: Role): void {
+    this.activeRole.set(role);
+    this.serverError.set(null);
+  }
+
+  onSubmit(): void {
+    this.form.markAllAsTouched();
+    if (this.form.invalid || this.submitting()) return;
+
+    this.submitting.set(true);
+    this.serverError.set(null);
+
+    this.auth.login(this.form.value).subscribe({
+      next: () => {
+        const dest = this.auth.userRole() === 'cliente' ? '/home' : '/home';
+        this.router.navigateByUrl(dest);
+      },
+      error: (err) => {
+        this.submitting.set(false);
+        this.serverError.set(
+          err?.error?.message ?? 'Credenciales incorrectas. Inténtalo de nuevo.'
+        );
+      },
+    });
+  }
+}
