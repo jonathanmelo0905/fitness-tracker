@@ -1,10 +1,13 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
+  // ── Auth (outside tabs) ──────────────────────────────────────────────────
   {
-    path: 'home',
-    loadComponent: () => import('./pages/home/home.page').then(m => m.HomePage),
+    path: 'login',
+    loadComponent: () => import('./pages/login/login.page').then(m => m.LoginPage),
   },
+
+  // ── Tool detail pages (outside tabs, push navigation) ───────────────────
   {
     path: 'calculator',
     loadComponent: () => import('./pages/calculator/calculator.page').then(m => m.CalculatorPage),
@@ -21,17 +24,37 @@ export const routes: Routes = [
     path: 'physical-evaluation-results',
     loadComponent: () => import('./pages/physical-evaluation-results/physical-evaluation-results.page').then(m => m.PhysicalEvaluationResultsPage),
   },
-  {
-    path: 'settings',
-    loadComponent: () => import('./pages/settings/settings.page').then(m => m.SettingsPage),
-  },
-  {
-    path: 'login',
-    loadComponent: () => import('./pages/login/login.page').then(m => m.LoginPage),
-  },
+
+  // ── Tab shell ────────────────────────────────────────────────────────────
   {
     path: '',
-    redirectTo: 'home',
-    pathMatch: 'full',
+    loadComponent: () => import('./pages/tabs/tabs.page').then(m => m.TabsPage),
+    children: [
+      {
+        path: 'clientes',
+        loadComponent: () => import('./pages/clientes/clientes.page').then(m => m.ClientesPage),
+      },
+      {
+        path: 'herramientas',
+        loadComponent: () => import('./pages/herramientas/herramientas.page').then(m => m.HerramientasPage),
+      },
+      {
+        path: 'agenda',
+        loadComponent: () => import('./pages/agenda/agenda.page').then(m => m.AgendaPage),
+      },
+      {
+        path: 'settings',
+        loadComponent: () => import('./pages/settings/settings.page').then(m => m.SettingsPage),
+      },
+      {
+        path: 'home',
+        loadComponent: () => import('./pages/home/home.page').then(m => m.HomePage),
+      },
+      {
+        path: '',
+        redirectTo: 'clientes',
+        pathMatch: 'full',
+      },
+    ],
   },
 ];

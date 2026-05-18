@@ -58,7 +58,7 @@ export class LoginPage {
 
     this.auth.login(this.form.value).subscribe({
       next: () => {
-        const dest = this.auth.userRole() === 'cliente' ? '/home' : '/home';
+        const dest = this.auth.userRole() === 'cliente' ? '/portal' : '/clientes';
         this.router.navigateByUrl(dest);
       },
       error: (err) => {

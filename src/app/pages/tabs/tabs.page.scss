@@ -1,0 +1,10 @@
+ion-tab-bar {
+  --background: var(--bg-card);
+  --border: 1px solid var(--bg-border);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+ion-tab-button {
+  --color:          var(--text-secondary);
+  --color-selected: var(--ion-color-secondary);
+}
