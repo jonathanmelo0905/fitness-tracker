@@ -311,7 +311,7 @@ Somatotipo Heath-Carter
 - [x] Pantalla Login (entrenador + cliente)
 - [ ] Tab bar del entrenador (4 tabs: clientes, herramientas, agenda, settings)
 - [ ] Tab 1 /clientes — lista de clientes con stats
-- [ ] Registro completo de cliente (/clientes/nuevo)
+- [ ] Registro completo de cliente (/clientes/nuevo) — incluye campo `passwordTemporal` + modal de un solo uso post-creación (ver §13)
 - [ ] Detalle de cliente con evaluaciones, medidas y fotos (/clientes/:id)
 - [ ] Tab 2 /herramientas — mover calculadora + evaluación física
 - [ ] Tab 3 /agenda — sesiones del entrenador
@@ -361,6 +361,8 @@ Somatotipo Heath-Carter
 - [ ] Modelo de precios SaaS (v4.0)
 - [ ] Publicación en Google Play Store
 - [ ] Mac en la nube para compilar iOS
+- [x] Autenticación de clientes v1.0 → contraseña temporal asignada por entrenador (ver §13)
+- [ ] Cambio de contraseña por parte del cliente → v2.0
 
 ---
 
@@ -457,3 +459,62 @@ function calcularOnboarding(c: Cliente): { completados: number; total: number } 
 - **Sin modales bloqueantes:** el entrenador puede navegar y usar todas las funciones del cliente aunque el onboarding esté incompleto.
 - **Sin notificaciones push:** el recordatorio es solo visual dentro de la pantalla, nunca una notificación del sistema.
 - **Sin impedir avanzar:** crear un cliente solo requiere datos básicos (paso 1). El resto es opcional y se completa en `/clientes/:id`.
+
+---
+
+## 13. Decisiones Técnicas — v1.0
+
+### Autenticación de clientes — contraseña temporal
+
+**Flujo decidido para v1.0:**
+
+1. En `/clientes/nuevo` (paso 1 — Datos personales), el entrenador puede asignar una contraseña temporal al cliente (campo opcional en el formulario).
+2. Al hacer clic en "Crear cliente" y recibir la respuesta exitosa del backend, el sistema muestra un **modal de un solo uso** con la contraseña temporal en texto claro para que el entrenador la copie y la comparta manualmente (WhatsApp, mensaje, email, etc.).
+3. El modal **no se puede volver a abrir** — la contraseña no se vuelve a mostrar. El entrenador es responsable de anotarla o compartirla en ese momento.
+4. El cliente puede iniciar sesión en `/login` con su email y esa contraseña temporal desde el primer día.
+5. El cambio de contraseña por parte del cliente se implementa en **v2.0**.
+
+**Reglas de implementación:**
+
+- El campo `passwordTemporal` en el formulario es **opcional**. Si el entrenador lo deja vacío, el cliente simplemente no tendrá acceso al portal hasta que se le asigne una contraseña (funcionalidad v2.0).
+- La contraseña temporal se envía en texto plano al backend dentro del cuerpo del POST. El transporte es seguro (HTTPS). **NUNCA almacenar en localStorage ni en ningún estado persistente del frontend.**
+- El frontend **descarta la contraseña** en cuanto el modal se cierra — solo existe en memoria mientras el modal está abierto.
+- Si el campo viene vacío, no incluirlo en el payload (`...(v1.passwordTemporal && { passwordTemporal: v1.passwordTemporal })`).
+
+**Contrato de API — POST /api/clientes:**
+
+```json
+// Request body (campo adicional respecto a ClienteCreate)
+{
+  "nombre": "Ana",
+  "apellido": "Morales",
+  "email": "ana@email.com",
+  "fechaNacimiento": "1995-03-15",
+  "genero": "Femenino",
+  "nivelActividad": "moderado",
+  "parqAprobado": false,
+  "consentimientoFirmado": false,
+  "passwordTemporal": "Nutri2025!"   // ← opcional; backend hashea con BCrypt y guarda en password_hash
+}
+```
+
+**Backend (ASP.NET Core):**
+- Si `passwordTemporal` viene en el body, hashearlo con BCrypt y guardarlo en la columna `password_hash` del cliente.
+- Si no viene, dejar `password_hash` en `null` — el cliente no podrá hacer login hasta que se le asigne una en v2.0.
+- El campo `passwordTemporal` **nunca** se devuelve en la respuesta del endpoint.
+
+**Modelo TypeScript a actualizar (`ClienteCreate`):**
+
+```typescript
+export type ClienteCreate = Omit<Cliente, 'id' | 'entrenadorId' | 'creadoEn' | 'activo'> & {
+  passwordTemporal?: string;
+};
+```
+
+**UX del modal post-creación:**
+- Título: "Cliente creado — comparte el acceso"
+- Mostrar email del cliente + contraseña temporal en texto claro dentro de un bloque copiable.
+- Botón "Copiar contraseña" (usa `navigator.clipboard`).
+- Botón "Entendido, ya la compartí" → cierra el modal y navega a `/clientes/:id`.
+- Advertencia visible: "Esta contraseña no se volverá a mostrar."
+- Si no se asignó contraseña temporal, el modal solo muestra confirmación de creación sin datos de acceso.
