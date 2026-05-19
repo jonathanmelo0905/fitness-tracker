@@ -8,7 +8,9 @@
       "PowerShell(Get-Command nvm)",
       "PowerShell(& \"C:\\\\Users\\\\Asus\\\\AppData\\\\Roaming\\\\nvm\\\\nvm.exe\" list)",
       "PowerShell(& \"C:\\\\Users\\\\Asus\\\\AppData\\\\Roaming\\\\nvm\\\\nvm.exe\" list 2>&1)",
-      "Bash(firebase --version)"
+      "Bash(firebase --version)",
+      "Bash(git commit *)",
+      "Bash(git push *)"
     ]
   }
 }

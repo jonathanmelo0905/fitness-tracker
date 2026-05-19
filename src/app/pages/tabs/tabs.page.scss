@@ -34,3 +34,9 @@ ion-tab-button {
   --color:          var(--text-secondary);
   --color-selected: var(--ion-color-secondary);
 }
+
+// En desktop, el sidebar de /clientes maneja la navegación
+@media (min-width: #{v.$desktop}) {
+  ion-header  { display: none !important; }
+  ion-tab-bar { display: none !important; }
+}

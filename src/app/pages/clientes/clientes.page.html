@@ -1,108 +1,367 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Mis Clientes</ion-title>
-    <ion-buttons slot="end">
-      <ion-button fill="clear" class="logout-btn" (click)="confirmarLogout()">
-        <span class="user-chip">{{ userName() }}</span>
-        <ion-icon name="log-out-outline" slot="end"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<ion-content [scrollY]="false">
+  <div class="shell" [class.collapsed]="collapsed()">
 
-<ion-content>
-
-  <!-- Stats -->
-  <div class="stats-row">
-    <ion-grid>
-      <ion-row>
-        <ion-col>
-          <div class="stat-card">
-            <div class="stat-num">{{ stats().total }}</div>
-            <div class="stat-label">Total</div>
+    <!-- ══════════════ SIDEBAR ══════════════ -->
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <a class="brand" href="#">
+          <div class="brand-mark"><ion-icon name="leaf-outline"></ion-icon></div>
+          <div>
+            <div class="brand-name">Nutri<em>Eval</em></div>
+            <div class="brand-sub">Coach Platform</div>
           </div>
-        </ion-col>
-        <ion-col>
-          <div class="stat-card">
-            <div class="stat-num green">{{ stats().activos }}</div>
-            <div class="stat-label">Activos</div>
-          </div>
-        </ion-col>
-        <ion-col>
-          <div class="stat-card">
-            <div class="stat-num purple">{{ stats().nuevos }}</div>
-            <div class="stat-label">Este mes</div>
-          </div>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
-  </div>
-
-  <!-- Search (solo si hay clientes) -->
-  @if (clientes().length > 0) {
-    <ion-searchbar
-      placeholder="Buscar por nombre o email…"
-      [debounce]="200"
-      (ionInput)="query.set($any($event).detail.value ?? '')"
-    ></ion-searchbar>
-  }
-
-  <!-- Loading -->
-  @if (loading()) {
-    <div class="spinner-wrap">
-      <ion-spinner name="crescent" color="secondary"></ion-spinner>
-    </div>
-  }
-
-  <!-- Lista + estado vacío -->
-  @if (!loading()) {
-    <ion-list>
-      @for (c of filtrados(); track c.id) {
-        <ion-item button detail="false" (click)="irDetalle(c.id)">
-          <div slot="start" class="initials" [class.f]="c.genero === 'Femenino'">
-            {{ initials(c) }}
-          </div>
-          <ion-label>
-            <div class="nombre">{{ c.nombre }} {{ c.apellido }}</div>
-            <div class="email">{{ c.email }}</div>
-          </ion-label>
-          <ion-badge slot="end" [color]="c.activo ? 'success' : 'medium'">
-            {{ c.activo ? 'Activo' : 'Inactivo' }}
-          </ion-badge>
-        </ion-item>
-      }
-    </ion-list>
-
-    @if (filtrados().length === 0) {
-      <div class="empty">
-        <div class="empty-icon-wrap">
-          <ion-icon name="people-outline"></ion-icon>
-        </div>
-        @if (query()) {
-          <h2 class="empty-title">Sin resultados</h2>
-          <p class="empty-text">No encontramos clientes con "{{ query() }}".<br>Prueba con otro nombre o email.</p>
-        } @else {
-          <h2 class="empty-title">¡Bienvenido a NutriEval!</h2>
-          <p class="empty-text">
-            Aquí verás el progreso de todos tus clientes.<br>
-            Comienza registrando tu primero.
-          </p>
-          <ion-button color="secondary" size="default" (click)="irNuevo()">
-            <ion-icon name="add-outline" slot="start"></ion-icon>
-            Agregar primer cliente
-          </ion-button>
-        }
+        </a>
+        <button class="sidebar-collapse" (click)="toggleCollapsed()">
+          <ion-icon name="chevron-back-outline"></ion-icon>
+        </button>
       </div>
-    }
-  }
+
+      <div class="nav-group">
+        <div class="nav-label">Trabajo</div>
+        <a href="/clientes" class="nav-item active" title="Clientes">
+          <ion-icon name="people-outline"></ion-icon>
+          <span>Clientes</span>
+          <span class="count">{{ stats().total }}</span>
+        </a>
+        <a href="/agenda" class="nav-item" title="Agenda">
+          <ion-icon name="calendar-outline"></ion-icon>
+          <span>Agenda</span>
+        </a>
+        <a href="/herramientas" class="nav-item" title="Herramientas">
+          <ion-icon name="construct-outline"></ion-icon>
+          <span>Herramientas</span>
+        </a>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-label">Cuenta</div>
+        <a href="/settings" class="nav-item" title="Ajustes">
+          <ion-icon name="settings-outline"></ion-icon>
+          <span>Ajustes</span>
+        </a>
+      </div>
+
+      <div class="sidebar-user">
+        <div class="su-avatar">{{ userInitials() }}</div>
+        <div class="su-who">
+          <div class="su-name">{{ userName() }}</div>
+          <div class="su-sub">Entrenador</div>
+        </div>
+        <button class="su-logout" aria-label="Cerrar sesión" (click)="confirmarLogout()">
+          <ion-icon name="log-out-outline"></ion-icon>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ══════════════ MAIN ══════════════ -->
+    <main class="main">
+
+      <!-- Topbar -->
+      <div class="topbar">
+        <div>
+          <div class="crumbs">NutriEval <span class="sep">/</span> <strong>Clientes</strong></div>
+          <h1 class="page-title">Clientes</h1>
+          <p class="page-sub">Estado general de tus clientes y próximas acciones.</p>
+        </div>
+        <div class="topbar-actions">
+          <div class="theme-toggle">
+            <button [class.active]="theme() === 'light'" (click)="setThemeLight()" title="Tema claro">
+              <ion-icon name="sunny-outline"></ion-icon>
+            </button>
+            <button [class.active]="theme() === 'dark'" (click)="setThemeDark()" title="Tema oscuro">
+              <ion-icon name="moon-outline"></ion-icon>
+            </button>
+          </div>
+          <button class="btn-rail" (click)="openDrawer()" aria-label="Abrir actividad del día">
+            <ion-icon name="calendar-outline"></ion-icon> Hoy
+            @if (pendientesOnboarding().length > 0) {
+              <span class="badge-num">{{ pendientesOnboarding().length }}</span>
+            }
+          </button>
+          <button class="btn-primary" (click)="irNuevo()">
+            <ion-icon name="add-outline"></ion-icon> Nuevo cliente
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats (oculto en estado vacío) -->
+      @if (viewState() !== 'empty') {
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-head">
+              <span class="stat-label">Total clientes</span>
+              <span class="stat-icon si-primary"><ion-icon name="people-outline"></ion-icon></span>
+            </div>
+            <div class="stat-value">{{ stats().total }}</div>
+            <div class="stat-foot"><span class="stat-context">registrados</span></div>
+          </div>
+          <div class="stat">
+            <div class="stat-head">
+              <span class="stat-label">Activos</span>
+              <span class="stat-icon si-cliente"><ion-icon name="checkmark-circle-outline"></ion-icon></span>
+            </div>
+            <div class="stat-value">{{ stats().activos }}<small>/ {{ stats().total }}</small></div>
+            <div class="stat-foot"><span class="stat-context">onboarding completo</span></div>
+          </div>
+          <div class="stat">
+            <div class="stat-head">
+              <span class="stat-label">Este mes</span>
+              <span class="stat-icon si-info"><ion-icon name="person-add-outline"></ion-icon></span>
+            </div>
+            <div class="stat-value">{{ stats().nuevos }}</div>
+            <div class="stat-foot"><span class="stat-context">nuevos registros</span></div>
+          </div>
+          <div class="stat">
+            <div class="stat-head">
+              <span class="stat-label">Requieren atención</span>
+              <span class="stat-icon si-warning"><ion-icon name="alert-circle-outline"></ion-icon></span>
+            </div>
+            <div class="stat-value">{{ stats().atencion }}</div>
+            <div class="stat-foot"><span class="stat-context">onboarding incompleto</span></div>
+          </div>
+        </div>
+      }
+
+      <!-- Toolbar -->
+      @if (viewState() !== 'empty') {
+        <div class="toolbar">
+          <div class="search-wrap">
+            <ion-icon name="search-outline" class="search-icon"></ion-icon>
+            <input type="search" [value]="query()"
+              (input)="setQuery($any($event).target.value)"
+              placeholder="Buscar por nombre o email…" />
+          </div>
+          <div class="segmented">
+            @for (opt of filterOpts; track opt.value) {
+              <button [class.active]="filter() === opt.value" (click)="setFilter(opt.value)">
+                {{ opt.label }} <span class="count">{{ counts()[opt.value] }}</span>
+              </button>
+            }
+          </div>
+          <div class="toolbar-right">
+            <button class="icon-btn"><ion-icon name="swap-vertical-outline"></ion-icon></button>
+            <button class="icon-btn"><ion-icon name="filter-outline"></ion-icon></button>
+            <button class="icon-btn"><ion-icon name="notifications-outline"></ion-icon></button>
+          </div>
+        </div>
+      }
+
+      <!-- ── Loading skeleton ── -->
+      @if (viewState() === 'loading') {
+        <div class="list">
+          @for (i of [1,2,3,4,5]; track i) {
+            <div class="skel-row">
+              <div class="skel-id">
+                <div class="skel-circle"></div>
+                <div>
+                  <div class="skel-block" style="height:12px;width:55%;margin-bottom:7px"></div>
+                  <div class="skel-block" style="height:10px;width:75%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="skel-block" style="height:10px;width:60%;margin-bottom:7px"></div>
+                <div class="skel-block" style="height:6px;width:100%"></div>
+              </div>
+              <div>
+                <div class="skel-block" style="height:12px;width:75%;margin-bottom:6px"></div>
+                <div class="skel-block" style="height:10px;width:50%"></div>
+              </div>
+              <div class="skel-block" style="height:22px;width:80px;border-radius:99px"></div>
+              <div class="skel-block" style="height:28px;width:28px;border-radius:8px"></div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ── Estado vacío ── -->
+      @if (viewState() === 'empty') {
+        <div class="state-card">
+          <div class="state-illust"><ion-icon name="person-add-outline"></ion-icon></div>
+          <h3 class="state-title">Aún no tienes clientes</h3>
+          <p class="state-sub">Agrega tu primer cliente para empezar a evaluar, planificar y dar seguimiento desde un solo lugar.</p>
+          <div class="state-actions">
+            <button class="btn-primary" (click)="irNuevo()">
+              <ion-icon name="add-outline"></ion-icon> Agregar tu primer cliente
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- ── Error ── -->
+      @if (viewState() === 'error') {
+        <div class="state-card">
+          <div class="state-illust danger"><ion-icon name="alert-circle-outline"></ion-icon></div>
+          <h3 class="state-title">No pudimos cargar tus clientes</h3>
+          <p class="state-sub">Hubo un problema al conectar con el servidor. Revisa tu conexión y vuelve a intentarlo.</p>
+          <div class="state-actions">
+            <button class="btn-primary" (click)="retryLoad()">
+              <ion-icon name="refresh-outline"></ion-icon> Reintentar
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- ── Lista cargada ── -->
+      @if (viewState() === 'loaded') {
+        @if (filtrados().length === 0) {
+          <div class="state-card">
+            <div class="state-illust muted"><ion-icon name="search-outline"></ion-icon></div>
+            <h3 class="state-title">Sin resultados para "{{ query() }}"</h3>
+            <p class="state-sub">No encontramos clientes que coincidan. Prueba con otro nombre o email.</p>
+            <div class="state-actions">
+              <button class="btn-ghost" (click)="setQuery('')">Limpiar búsqueda</button>
+            </div>
+          </div>
+        } @else {
+          @for (grupo of grupos(); track grupo.id) {
+            @if (grupo.titulo) {
+              <div class="section-head">
+                <div class="section-title">
+                  <span class="dot" [class.warn]="grupo.dot === 'warn'" [class.muted]="grupo.dot === 'muted'"></span>
+                  {{ grupo.titulo }}
+                  <span class="pill">{{ grupo.items.length }}</span>
+                </div>
+              </div>
+            }
+            <div class="list" [class.mb-grupo]="grupo.titulo">
+              @for (c of grupo.items; track c.id) {
+                <div class="row" (click)="irDetalle(c.id)">
+
+                  <!-- Identidad -->
+                  <div class="identity">
+                    <div [class]="'avatar ' + avatarClass(c)">
+                      {{ initials(c) }}
+                      <span class="presence" [class.off]="!c.activo"></span>
+                    </div>
+                    <div class="who">
+                      <div class="cname">
+                        {{ c.nombre }}{{ c.apellido ? ' ' + c.apellido : '' }}
+                        @if (creadoEsteMes(c)) { <span class="tag">Nuevo</span> }
+                      </div>
+                      <div class="meta">
+                        {{ c.email }}
+                        <span class="pipe">·</span>
+                        <span>{{ weeksWith(c) }} sem.</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Onboarding -->
+                  <div class="col-progress">
+                    <div class="progress-label">
+                      <span>Onboarding</span>
+                      <strong>{{ onboardingOf(c).completados }}/{{ onboardingOf(c).total }}</strong>
+                    </div>
+                    <div class="progress-track">
+                      <div class="progress-fill"
+                        [class.done]="onboardingOf(c).completados === 7"
+                        [class.warning]="onboardingOf(c).completados <= 2"
+                        [style.width.%]="onboardingPct(c)">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Última eval -->
+                  <div class="col-eval">
+                    <div class="eval-when">
+                      <ion-icon name="time-outline"></ion-icon>
+                      Sin evaluación
+                    </div>
+                    <div class="eval-note">Programa la primera eval.</div>
+                  </div>
+
+                  <!-- Estado -->
+                  <div class="col-status">
+                    @if (!c.activo) {
+                      <span class="ft-badge-neutral">Inactivo</span>
+                    } @else if (onboardingOf(c).completados < 7) {
+                      <span class="ft-badge-warning"><span class="bdot"></span>Onboarding</span>
+                    } @else {
+                      <span class="ft-badge-success"><span class="bdot"></span>Activo</span>
+                    }
+                  </div>
+
+                  <!-- Acciones -->
+                  <div class="col-actions" (click)="$event.stopPropagation()">
+                    <button class="row-act" title="Ver perfil" (click)="irDetalle(c.id)">
+                      <ion-icon name="eye-outline"></ion-icon>
+                    </button>
+                    <button class="row-act" title="Agendar">
+                      <ion-icon name="calendar-clear-outline"></ion-icon>
+                    </button>
+                  </div>
+
+                </div>
+              }
+            </div>
+          }
+        }
+      }
+
+    </main>
+
+  </div><!-- /shell -->
+
+  <!-- ══════════════ DRAWER BACKDROP ══════════════ -->
+  <div class="rail-backdrop" [class.show]="drawerOpen()" (click)="closeDrawer()" aria-hidden="true"></div>
+
+  <!-- ══════════════ DRAWER ══════════════ -->
+  <aside class="rightrail" [class.open]="drawerOpen()" role="dialog" aria-label="Actividad de hoy"
+        [attr.aria-hidden]="drawerOpen() ? null : 'true'">
+
+    <div class="rail-head">
+      <h2>Actividad de hoy</h2>
+      <button class="rail-close" (click)="closeDrawer()" aria-label="Cerrar panel">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+
+    <section>
+      <h3 class="rail-title">
+        <ion-icon name="calendar-outline"></ion-icon>
+        Próximas sesiones · hoy
+      </h3>
+      <p class="rail-date">{{ todayLabel }}</p>
+      <div class="rail-empty">
+        <ion-icon name="calendar-outline"></ion-icon>
+        <span>No hay sesiones programadas para hoy</span>
+      </div>
+    </section>
+
+    <div class="rail-divider"></div>
+
+    <section>
+      <h3 class="rail-title">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+        Onboarding pendiente
+      </h3>
+      @if (pendientesOnboarding().length > 0) {
+        <p class="rail-date">{{ pendientesOnboarding().length }} cliente{{ pendientesOnboarding().length === 1 ? '' : 's' }} con pasos por completar</p>
+      }
+      @if (pendientesOnboarding().length === 0) {
+        <div class="rail-empty success">
+          <ion-icon name="checkmark-circle-outline"></ion-icon>
+          <span>Todos al día</span>
+        </div>
+      } @else {
+        <div class="rail-list">
+          @for (c of pendientesOnboarding(); track c.id) {
+            <div class="rail-pending" (click)="closeDrawer(); irDetalle(c.id)">
+              <div [class]="'avatar sm ' + avatarClass(c)">{{ initials(c) }}</div>
+              <div class="rp-who">
+                <div class="rp-name">{{ c.nombre }}{{ c.apellido ? ' ' + c.apellido : '' }}</div>
+                <div class="rp-sub">Paso {{ onboardingOf(c).completados }} de {{ onboardingOf(c).total }}</div>
+                <div class="rail-progress">
+                  <div class="rail-progress-fill" [style.width.%]="onboardingPct(c)"></div>
+                </div>
+              </div>
+              <span class="rp-step">{{ onboardingOf(c).completados }}/{{ onboardingOf(c).total }}</span>
+            </div>
+          }
+        </div>
+      }
+    </section>
+  </aside>
+
 
 </ion-content>
-
-<!-- FAB -->
-@if (clientes().length > 0) {
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button color="secondary" (click)="irNuevo()">
-      <ion-icon name="add-outline"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
-}
