@@ -133,6 +133,32 @@
               </div>
             </ion-col>
           </ion-row>
+
+          <!-- Acceso al portal ───────────────────────────────────────────── -->
+          <ion-row>
+            <ion-col size="12">
+              <div class="pwd-section">
+                <p class="pwd-hint">
+                  <ion-icon name="key-outline"></ion-icon>
+                  Acceso al portal del cliente — opcional
+                </p>
+                <div class="field">
+                  <label class="field-label">Contraseña temporal <span class="opt">Opcional</span></label>
+                  <div class="field-relative">
+                    <input class="form-input"
+                      [type]="verPassword() ? 'text' : 'password'"
+                      formControlName="passwordTemporal"
+                      placeholder="Ej. Nutri2025!"
+                      autocomplete="new-password">
+                    <button type="button" class="pwd-toggle-btn" (click)="verPassword.update(v => !v)">
+                      <ion-icon [name]="verPassword() ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+                    </button>
+                  </div>
+                  <span class="field-hint">Si la omites, el cliente no podrá iniciar sesión hasta que le asignes una contraseña.</span>
+                </div>
+              </div>
+            </ion-col>
+          </ion-row>
         </ion-grid>
       </form>
     }
@@ -313,4 +339,37 @@
     </div>
 
   </div>
+
+  <!-- ── Modal contraseña temporal (un solo uso) ───────────────────────── -->
+  @if (mostrarModal()) {
+    <div class="modal-overlay">
+      <div class="modal-box">
+        <p class="modal-title">Cliente creado — comparte el acceso</p>
+        <p class="modal-subtitle">Comparte estas credenciales con el cliente para que pueda entrar al portal.</p>
+
+        <div class="modal-cred">
+          <p class="modal-label">Email</p>
+          <p class="modal-value">{{ emailModal() }}</p>
+        </div>
+        <div class="modal-cred">
+          <p class="modal-label">Contraseña temporal</p>
+          <p class="modal-value modal-pwd">{{ passwordModal() }}</p>
+        </div>
+
+        <div class="modal-warning">
+          <ion-icon name="warning-outline"></ion-icon>
+          <span>Esta contraseña <strong>no se volverá a mostrar</strong>. Compártela ahora por WhatsApp, mensaje o email antes de cerrar.</span>
+        </div>
+
+        <button type="button" class="btn-copy" [class.copied]="copiado()" (click)="copiarPassword()">
+          <ion-icon [name]="copiado() ? 'checkmark-circle-outline' : 'copy-outline'"></ion-icon>
+          {{ copiado() ? '¡Copiado!' : 'Copiar contraseña' }}
+        </button>
+
+        <button type="button" class="btn-entendido" (click)="cerrarModal()">
+          Entendido, ya la compartí
+        </button>
+      </div>
+    </div>
+  }
 </ion-content>

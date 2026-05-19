@@ -23,7 +23,9 @@ export interface Cliente {
   fotoPerfil?: string;
 }
 
-export type ClienteCreate = Omit<Cliente, 'id' | 'entrenadorId' | 'creadoEn' | 'activo'>;
+export type ClienteCreate = Omit<Cliente, 'id' | 'entrenadorId' | 'creadoEn' | 'activo'> & {
+  passwordTemporal?: string;
+};
 
 // Calcula cuántos pasos del onboarding están completados (se usa en lista y detalle)
 export interface OnboardingStatus {

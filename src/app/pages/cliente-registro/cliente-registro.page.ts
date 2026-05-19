@@ -10,6 +10,8 @@ import {
   chevronBackOutline, chevronForwardOutline, checkmarkOutline,
   personOutline, barbellOutline, medkitOutline, documentTextOutline,
   informationCircleOutline, addOutline, alertCircleOutline,
+  keyOutline, eyeOutline, eyeOffOutline, copyOutline,
+  warningOutline, checkmarkCircleOutline,
 } from 'ionicons/icons';
 import { ClienteService } from '../../core/services/cliente.service';
 import { ClienteCreate } from '../../shared/models/cliente.model';
@@ -26,9 +28,16 @@ import { ClienteCreate } from '../../shared/models/cliente.model';
   ],
 })
 export class ClienteRegistroPage {
-  readonly paso       = signal(0);
-  readonly submitting = signal(false);
+  readonly paso        = signal(0);
+  readonly submitting  = signal(false);
   readonly serverError = signal<string | null>(null);
+
+  readonly mostrarModal  = signal(false);
+  readonly passwordModal = signal('');
+  readonly emailModal    = signal('');
+  readonly copiado       = signal(false);
+  readonly verPassword   = signal(false);
+  private clienteIdCreado = 0;
 
   readonly pasos = [
     { titulo: 'Datos',       subtitulo: 'Datos personales',       icono: 'person-outline'        },
@@ -69,15 +78,18 @@ export class ClienteRegistroPage {
       chevronBackOutline, chevronForwardOutline, checkmarkOutline,
       personOutline, barbellOutline, medkitOutline, documentTextOutline,
       informationCircleOutline, addOutline, alertCircleOutline,
+      keyOutline, eyeOutline, eyeOffOutline, copyOutline,
+      warningOutline, checkmarkCircleOutline,
     });
 
     this.paso1 = this.fb.group({
-      nombre:          ['', [Validators.required, Validators.minLength(2)]],
-      apellido:        ['', [Validators.required, Validators.minLength(2)]],
-      email:           ['', [Validators.required, Validators.email]],
-      telefono:        [''],
-      fechaNacimiento: ['', Validators.required],
-      genero:          ['', Validators.required],
+      nombre:           ['', [Validators.required, Validators.minLength(2)]],
+      apellido:         ['', [Validators.required, Validators.minLength(2)]],
+      email:            ['', [Validators.required, Validators.email]],
+      telefono:         [''],
+      fechaNacimiento:  ['', Validators.required],
+      genero:           ['', Validators.required],
+      passwordTemporal: [''],
     });
 
     this.paso2 = this.fb.group({
@@ -127,6 +139,8 @@ export class ClienteRegistroPage {
     const v3 = this.paso3.value;
     const v4 = this.paso4.value;
 
+    const pwd = (v1.passwordTemporal as string)?.trim();
+
     const data: ClienteCreate = {
       nombre:                v1.nombre.trim(),
       apellido:              v1.apellido.trim(),
@@ -143,15 +157,40 @@ export class ClienteRegistroPage {
       ...(v3.lesiones        && { lesiones:          v3.lesiones.trim() }),
       parqAprobado:          v4.parqAprobado,
       consentimientoFirmado: v4.consentimientoFirmado,
+      ...(pwd                && { passwordTemporal:  pwd }),
     };
 
     this.clienteService.create(data).subscribe({
-      next: (cliente) => this.router.navigate(['/clientes', cliente.id]),
+      next: (cliente) => {
+        this.submitting.set(false);
+        if (pwd) {
+          this.clienteIdCreado = cliente.id;
+          this.emailModal.set(v1.email.trim());
+          this.passwordModal.set(pwd);
+          this.mostrarModal.set(true);
+        } else {
+          this.router.navigate(['/clientes', cliente.id]);
+        }
+      },
       error: (err) => {
         this.submitting.set(false);
         this.serverError.set(err?.error?.message ?? 'Error al crear el cliente. Intenta de nuevo.');
       },
     });
+  }
+
+  async copiarPassword(): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(this.passwordModal());
+      this.copiado.set(true);
+      setTimeout(() => this.copiado.set(false), 2500);
+    } catch { /* clipboard no disponible */ }
+  }
+
+  cerrarModal(): void {
+    this.passwordModal.set('');
+    this.mostrarModal.set(false);
+    this.router.navigate(['/clientes', this.clienteIdCreado]);
   }
 
   // Helpers para validación en template
