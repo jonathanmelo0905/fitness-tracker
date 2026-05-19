@@ -518,3 +518,261 @@ export type ClienteCreate = Omit<Cliente, 'id' | 'entrenadorId' | 'creadoEn' | '
 - Botón "Entendido, ya la compartí" → cierra el modal y navega a `/clientes/:id`.
 - Advertencia visible: "Esta contraseña no se volverá a mostrar."
 - Si no se asignó contraseña temporal, el modal solo muestra confirmación de creación sin datos de acceso.
+
+---
+
+## 14. Contratos de API
+
+> Todos los endpoints excepto `POST /api/auth/login` y `POST /api/auth/register-entrenador` requieren el header `Authorization: Bearer {accessToken}`. El token se lee de `localStorage` key `nutrieval-token`.
+>
+> Envolvente estándar de todas las respuestas:
+> ```json
+> { "success": true, "data": <payload>, "message": "Operación exitosa", "errors": [] }
+> ```
+
+---
+
+### Auth
+
+#### `POST /api/auth/register-entrenador`
+```json
+// Request
+{ "nombre": "string", "email": "string", "password": "string" }
+
+// Response → data
+{
+  "accessToken": "string",
+  "refreshToken": "string",
+  "tipo": "entrenador",
+  "usuario": { "id": "uuid", "tenantId": "uuid", "nombre": "string", "email": "string", "plan": "string" }
+}
+```
+
+#### `POST /api/auth/login`
+```json
+// Request
+{ "email": "string", "password": "string" }
+
+// Response → data  (misma forma que register)
+{
+  "accessToken": "string",
+  "refreshToken": "string",
+  "tipo": "entrenador | cliente",
+  "usuario": { "id": "uuid", "tenantId": "uuid", "nombre": "string", "email": "string", "plan": "string" }
+}
+```
+
+#### `GET /api/auth/me`
+```json
+// Response → data  (misma forma que login)
+{
+  "accessToken": "string",
+  "refreshToken": "string",
+  "tipo": "entrenador | cliente",
+  "usuario": { "id": "uuid", "tenantId": "uuid", "nombre": "string", "email": "string", "plan": "string" }
+}
+```
+
+---
+
+### Clientes
+
+#### `GET /api/clientes`
+```json
+// Response → data: array de objetos cliente (vista reducida de lista)
+[
+  {
+    "id": "uuid",
+    "nombre": "string",
+    "email": "string",
+    "fechaNacimiento": "YYYY-MM-DD",
+    "sexo": "string",
+    "pesoInicial": 70,
+    "estatura": 170,
+    "objetivo": "string | null",
+    "nivel": "string | null",
+    "telefono": "string | null",
+    "parqCompletado": false,
+    "consentimientoAceptado": false,
+    "activo": true,
+    "createdAt": "ISO8601",
+    "contactoEmergencia": { ... } ,
+    "salud": { ... },
+    "habitos": { ... }
+  }
+]
+```
+
+> **Nota de mapeo (frontend):** el mapper en `ClienteService.mapCliente()` traduce `createdAt`→`creadoEn`, `nivel`→`nivelActividad`, `objetivo`→`objetivos`, y defaultea `apellido` a `''` cuando no viene.
+
+#### `POST /api/clientes`
+```json
+// Request
+{
+  "nombre": "string",
+  "email": "string",
+  "fechaNacimiento": "YYYY-MM-DD",
+  "sexo": "string",
+  "pesoInicial": 70,
+  "estatura": 170,
+  "objetivo": "string",
+  "nivel": "string",
+  "telefono": "string",
+  "contactoEmergencia": { ... },
+  "salud": { ... },
+  "habitos": { ... },
+  "passwordTemporal": "string"   // opcional
+}
+
+// Response → data: objeto cliente completo
+```
+
+#### `GET /api/clientes/:id`
+```json
+// Response → data: objeto cliente completo
+```
+
+#### `PUT /api/clientes/:id`
+```json
+// Request: campos opcionales del cliente (mismos que POST)
+// Response → data: objeto cliente actualizado
+```
+
+#### `DELETE /api/clientes/:id`
+```json
+// Response: { "success": true, "message": "Cliente eliminado", "errors": [] }
+```
+
+---
+
+### Evaluaciones
+
+#### `GET /api/clientes/:id/evaluaciones`
+```json
+// Response → data: array
+[
+  {
+    "id": "uuid",
+    "clienteId": "uuid",
+    "tipo": "string",
+    "datosEntrada": { ... },
+    "resultados": { ... },
+    "fecha": "ISO8601",
+    "notas": "string | null",
+    "createdAt": "ISO8601"
+  }
+]
+```
+
+#### `POST /api/clientes/:id/evaluaciones`
+```json
+// Request
+{ "tipo": "string", "datosEntrada": { ... }, "resultados": { ... }, "fecha": "ISO8601", "notas": "string" }
+// Response → data: objeto evaluacion creado
+```
+
+---
+
+### Medidas
+
+#### `GET /api/clientes/:id/medidas`
+```json
+// Response → data: array
+[
+  {
+    "id": "uuid", "clienteId": "uuid",
+    "peso": 70, "porcentajeGrasa": 18, "masaMuscular": 55, "imc": 24,
+    "cintura": 80, "cadera": 95, "pecho": 90,
+    "brazoDerecho": 32, "brazoIzquierdo": 31,
+    "piernaDerecha": 55, "piernaIzquierda": 54,
+    "fecha": "ISO8601", "notas": "string | null", "createdAt": "ISO8601"
+  }
+]
+```
+
+#### `POST /api/clientes/:id/medidas`
+```json
+// Request: todos los campos son opcionales
+{
+  "peso": 70, "porcentajeGrasa": 18, "masaMuscular": 55, "imc": 24,
+  "cintura": 80, "cadera": 95, "pecho": 90,
+  "brazoDerecho": 32, "brazoIzquierdo": 31,
+  "piernaDerecha": 55, "piernaIzquierda": 54,
+  "fecha": "ISO8601", "notas": "string"
+}
+// Response → data: objeto medida creado
+```
+
+---
+
+### Fotos
+
+#### `GET /api/clientes/:id/fotos`
+```json
+// Response → data: array
+[
+  {
+    "id": "uuid", "clienteId": "uuid",
+    "urlCloudinary": "string",
+    "tipo": "string",
+    "fecha": "ISO8601",
+    "mesReferencia": "string | null",
+    "subidoPor": "string",
+    "createdAt": "ISO8601"
+  }
+]
+```
+
+#### `POST /api/clientes/:id/fotos` — `multipart/form-data`
+```
+// Request: file (binario), tipo (string), mesReferencia? (string)
+// Response → data: objeto foto creado
+```
+
+---
+
+### Sesiones
+
+#### `GET /api/sesiones`
+```json
+// Response → data: array
+[
+  {
+    "id": "uuid", "clienteId": "uuid", "nombreCliente": "string",
+    "fechaHora": "ISO8601", "duracionMin": 60,
+    "estado": "pendiente | completada | cancelada",
+    "notas": "string | null", "createdAt": "ISO8601"
+  }
+]
+```
+
+#### `POST /api/sesiones`
+```json
+// Request
+{ "clienteId": "uuid", "fechaHora": "ISO8601", "duracionMin": 60, "notas": "string" }
+// Response → data: objeto sesion creado
+```
+
+#### `PUT /api/sesiones/:id`
+```json
+// Request: campos opcionales
+{ "fechaHora": "ISO8601", "duracionMin": 60, "estado": "string", "notas": "string" }
+// Response → data: objeto sesion actualizado
+```
+
+---
+
+### Configuración
+
+#### `GET /api/configuracion`
+```json
+// Response → data
+{ "instagram": "string | null", "facebook": "string | null", "tiktok": "string | null", "web": "string | null" }
+```
+
+#### `PUT /api/configuracion/redes`
+```json
+// Request: todos opcionales
+{ "instagram": "string", "facebook": "string", "tiktok": "string", "web": "string" }
+// Response → data: objeto redes actualizado
+```
