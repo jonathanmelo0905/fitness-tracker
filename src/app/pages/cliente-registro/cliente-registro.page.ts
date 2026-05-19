@@ -37,7 +37,7 @@ export class ClienteRegistroPage {
   readonly emailModal    = signal('');
   readonly copiado       = signal(false);
   readonly verPassword   = signal(false);
-  private clienteIdCreado = 0;
+  private clienteIdCreado = '';
 
   readonly pasos = [
     { titulo: 'Datos',       subtitulo: 'Datos personales',       icono: 'person-outline'        },
@@ -178,6 +178,8 @@ export class ClienteRegistroPage {
       },
     });
   }
+
+  toggleVerPassword(): void { this.verPassword.update(v => !v); }
 
   async copiarPassword(): Promise<void> {
     try {

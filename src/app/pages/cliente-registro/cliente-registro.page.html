@@ -150,7 +150,7 @@
                       formControlName="passwordTemporal"
                       placeholder="Ej. Nutri2025!"
                       autocomplete="new-password">
-                    <button type="button" class="pwd-toggle-btn" (click)="verPassword.update(v => !v)">
+                    <button type="button" class="pwd-toggle-btn" (click)="toggleVerPassword()">
                       <ion-icon [name]="verPassword() ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
                     </button>
                   </div>

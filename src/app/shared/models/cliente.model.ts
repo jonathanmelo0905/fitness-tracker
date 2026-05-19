@@ -1,7 +1,7 @@
 export type NivelActividad = 'sedentario' | 'ligero' | 'moderado' | 'activo' | 'muy_activo';
 
 export interface Cliente {
-  id: number;
+  id: string;
   nombre: string;
   apellido: string;
   email: string;

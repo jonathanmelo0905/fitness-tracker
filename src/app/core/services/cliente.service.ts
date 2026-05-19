@@ -22,40 +22,66 @@ export class ClienteService {
 
   getAll(): Observable<Cliente[]> {
     return this.http
-      .get<ApiEnvelope<Cliente[]>>(this.base)
+      .get<ApiEnvelope<any[]>>(this.base)
       .pipe(
-        map(res => res.data ?? []),
+        map(res => (res.data ?? []).map(r => this.mapCliente(r))),
         tap(list => this._clientes.set(list))
       );
   }
 
-  getById(id: number): Observable<Cliente> {
+  getById(id: string): Observable<Cliente> {
     return this.http
-      .get<ApiEnvelope<Cliente>>(`${this.base}/${id}`)
-      .pipe(map(res => res.data));
+      .get<ApiEnvelope<any>>(`${this.base}/${id}`)
+      .pipe(map(res => this.mapCliente(res.data)));
   }
 
   create(data: ClienteCreate): Observable<Cliente> {
     return this.http
-      .post<ApiEnvelope<Cliente>>(this.base, data)
+      .post<ApiEnvelope<any>>(this.base, data)
       .pipe(
-        map(res => res.data),
+        map(res => this.mapCliente(res.data)),
         tap(c => this._clientes.update(list => [...list, c]))
       );
   }
 
-  update(id: number, data: Partial<ClienteCreate>): Observable<Cliente> {
+  update(id: string, data: Partial<ClienteCreate>): Observable<Cliente> {
     return this.http
-      .put<ApiEnvelope<Cliente>>(`${this.base}/${id}`, data)
+      .put<ApiEnvelope<any>>(`${this.base}/${id}`, data)
       .pipe(
-        map(res => res.data),
+        map(res => this.mapCliente(res.data)),
         tap(c => this._clientes.update(list => list.map(x => (x.id === id ? c : x))))
       );
   }
 
-  remove(id: number): Observable<void> {
+  remove(id: string): Observable<void> {
     return this.http
       .delete<void>(`${this.base}/${id}`)
       .pipe(tap(() => this._clientes.update(list => list.filter(x => x.id !== id))));
+  }
+
+  // Normaliza las diferencias de nomenclatura entre backend y modelo frontend
+  private mapCliente(raw: any): Cliente {
+    return {
+      id:                    raw.id,
+      nombre:                raw.nombre ?? '',
+      apellido:              raw.apellido ?? '',
+      email:                 raw.email ?? '',
+      telefono:              raw.telefono,
+      fechaNacimiento:       raw.fechaNacimiento ?? raw.fecha_nacimiento ?? '',
+      genero:                raw.genero ?? 'Masculino',
+      pesoInicial:           raw.pesoInicial ?? raw.peso_inicial,
+      altura:                raw.altura,
+      condicionesMedicas:    raw.condicionesMedicas ?? raw.condiciones_medicas,
+      medicamentos:          raw.medicamentos,
+      lesiones:              raw.lesiones,
+      nivelActividad:        raw.nivelActividad ?? raw.nivel ?? 'moderado',
+      objetivos:             raw.objetivos ?? raw.objetivo,
+      parqAprobado:          raw.parqAprobado ?? raw.parq_aprobado ?? false,
+      consentimientoFirmado: raw.consentimientoFirmado ?? raw.consentimiento_firmado ?? false,
+      entrenadorId:          raw.entrenadorId ?? raw.entrenador_id ?? 0,
+      creadoEn:              raw.creadoEn ?? raw.createdAt ?? raw.created_at ?? '',
+      activo:                raw.activo ?? true,
+      fotoPerfil:            raw.fotoPerfil ?? raw.foto_perfil,
+    };
   }
 }

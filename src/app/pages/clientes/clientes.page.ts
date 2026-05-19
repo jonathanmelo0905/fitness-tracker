@@ -88,9 +88,11 @@ export class ClientesPage implements OnInit {
   }
 
   initials(c: Cliente): string {
-    return `${c.nombre[0]}${c.apellido[0]}`.toUpperCase();
+    const n = c.nombre?.[0] ?? '?';
+    const a = c.apellido?.[0] ?? '';
+    return `${n}${a}`.toUpperCase();
   }
 
   irNuevo():             void { this.router.navigate(['/clientes/nuevo']); }
-  irDetalle(id: number): void { this.router.navigate(['/clientes', id]); }
+  irDetalle(id: string): void { this.router.navigate(['/clientes', id]); }
 }
