@@ -6,7 +6,7 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
-  peopleOutline, constructOutline, calendarOutline, settingsOutline, logOutOutline,
+  peopleOutline, constructOutline, calendarOutline, settingsOutline, logOutOutline, leafOutline,
 } from 'ionicons/icons';
 import { AuthService } from '../../core/services/auth.service';
 
@@ -27,7 +27,7 @@ export class TabsPage {
     private auth: AuthService,
     private alertCtrl: AlertController,
   ) {
-    addIcons({ peopleOutline, constructOutline, calendarOutline, settingsOutline, logOutOutline });
+    addIcons({ peopleOutline, constructOutline, calendarOutline, settingsOutline, logOutOutline, leafOutline });
   }
 
   async confirmarLogout(): Promise<void> {
