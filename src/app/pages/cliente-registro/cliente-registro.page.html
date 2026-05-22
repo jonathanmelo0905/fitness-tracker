@@ -100,7 +100,7 @@
         <div class="sidebar-summary">
           <div class="sum-row">
             <span>Cliente</span>
-            <strong>{{ nombreCompleto || '—' }}</strong>
+            <strong>{{ (nombreCompleto | titlecase) || '—' }}</strong>
           </div>
           <div class="sum-row">
             <span>Email</span>
@@ -146,8 +146,9 @@
                   <label class="label">Nombre <span class="req-mark">*</span></label>
                   <div class="input-wrap">
                     <ion-icon name="person-outline" class="input-icon"></ion-icon>
-                    <input class="input" type="text" formControlName="firstName"
-                           placeholder="Ana" autocomplete="given-name">
+                    <input class="input input-cap" type="text" formControlName="firstName"
+                           placeholder="Ana" autocomplete="given-name"
+                           (blur)="capitalizeField('firstName')">
                   </div>
                   @if (isInvalid1('firstName')) {
                     <span class="field-error">
@@ -160,8 +161,9 @@
                   <label class="label">Apellido <span class="req-mark">*</span></label>
                   <div class="input-wrap">
                     <ion-icon name="person-outline" class="input-icon"></ion-icon>
-                    <input class="input" type="text" formControlName="lastName"
-                           placeholder="Morales" autocomplete="family-name">
+                    <input class="input input-cap" type="text" formControlName="lastName"
+                           placeholder="Morales" autocomplete="family-name"
+                           (blur)="capitalizeField('lastName')">
                   </div>
                   @if (isInvalid1('lastName')) {
                     <span class="field-error">
@@ -514,14 +516,14 @@
         <div class="modal-h">
           <div class="modal-icon"><ion-icon name="checkmark-circle-outline"></ion-icon></div>
           <h2>Cliente creado</h2>
-          <p>{{ nombreModal() }} ya forma parte de tu lista de clientes.</p>
+          <p>{{ nombreModal() | titlecase }} ya forma parte de tu lista de clientes.</p>
         </div>
 
         <div class="modal-body">
           <div class="modal-info">
             <div class="modal-info-item">
               <span class="modal-lbl">Cliente</span>
-              <span class="modal-val">{{ nombreModal() }}</span>
+              <span class="modal-val">{{ nombreModal() | titlecase }}</span>
             </div>
             <div class="modal-info-item">
               <span class="modal-lbl">Email</span>

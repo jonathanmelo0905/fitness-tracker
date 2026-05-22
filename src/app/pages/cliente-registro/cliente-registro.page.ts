@@ -1,5 +1,5 @@
 import { Component, computed, signal } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, TitleCasePipe } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { IonContent, IonIcon, IonSpinner } from '@ionic/angular/standalone';
@@ -65,7 +65,7 @@ function generatePassword(): string {
   templateUrl: 'cliente-registro.page.html',
   styleUrls: ['cliente-registro.page.scss'],
   standalone: true,
-  imports: [DecimalPipe, RouterLink, IonContent, IonIcon, IonSpinner, ReactiveFormsModule],
+  imports: [DecimalPipe, TitleCasePipe, RouterLink, IonContent, IonIcon, IonSpinner, ReactiveFormsModule],
 })
 export class ClienteRegistroPage {
   // ── State ─────────────────────────────────────────────────────────────────
@@ -232,6 +232,14 @@ export class ClienteRegistroPage {
   setF1(field: string, value: string): void {
     this.f1.get(field)!.setValue(value);
     this.f1.get(field)!.markAsTouched();
+  }
+
+  private readonly tcp = new TitleCasePipe();
+
+  capitalizeField(field: string): void {
+    const ctrl = this.f1.get(field);
+    if (!ctrl?.value?.trim()) return;
+    ctrl.setValue(this.tcp.transform(ctrl.value.trim()), { emitEvent: false });
   }
 
   // ── Password ──────────────────────────────────────────────────────────────
