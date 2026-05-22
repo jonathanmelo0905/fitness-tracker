@@ -104,12 +104,12 @@ export class ClienteRegistroPage {
   // ── Computed ──────────────────────────────────────────────────────────────
   readonly progressPct    = computed(() => ((this.paso() - 1) / (this.steps.length - 1)) * 100);
   readonly currentStep    = computed(() => this.steps.find(s => s.id === this.paso())!);
-  readonly nombreCompleto = computed(() => {
+  get nombreCompleto(): string {
     if (!this.f1) return '';
     const v = this.f1.value;
     return [v.firstName, v.lastName].filter(Boolean).join(' ');
-  });
-  readonly canAdvance = computed(() => this.paso() !== 1 || (!!this.f1 && this.f1.valid));
+  }
+  get canAdvance(): boolean { return this.paso() !== 1 || (!!this.f1 && this.f1.valid); }
 
   // ── Theme ─────────────────────────────────────────────────────────────────
   get isDark(): boolean { return this.themeService.isDarkTheme(); }

@@ -100,7 +100,7 @@
         <div class="sidebar-summary">
           <div class="sum-row">
             <span>Cliente</span>
-            <strong>{{ nombreCompleto() || '—' }}</strong>
+            <strong>{{ nombreCompleto || '—' }}</strong>
           </div>
           <div class="sum-row">
             <span>Email</span>
@@ -489,7 +489,7 @@
           <button class="btn-skip" (click)="saltar()">Saltar este paso</button>
         }
         @if (paso() < steps.length) {
-          <button class="btn-next" [disabled]="paso() === 1 && !canAdvance()" (click)="siguiente()">
+          <button class="btn-next" [disabled]="paso() === 1 && !canAdvance" (click)="siguiente()">
             Siguiente <ion-icon name="chevron-forward-outline"></ion-icon>
           </button>
         } @else {
