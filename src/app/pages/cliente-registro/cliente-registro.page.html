@@ -107,7 +107,7 @@
             <code>{{ f1.value.email || '—' }}</code>
           </div>
           @if (f2.value.objetivo) {
-            <div class="sum-row"><span>Objetivo</span><strong>{{ f2.value.objetivo }}</strong></div>
+            <div class="sum-row"><span>Objetivo</span><strong>{{ selectedGoalLabel }}</strong></div>
           }
           @if (f5.value.passwordTemporal) {
             <div class="sum-row"><span>Acceso</span><code>•••• asignada</code></div>
@@ -265,7 +265,7 @@
                           (click)="f2.get('objetivo')!.setValue(g.v)">
                     <div class="opt-card-icon"><ion-icon [name]="g.icon"></ion-icon></div>
                     <div>
-                      <div class="opt-card-title">{{ g.v }}</div>
+                      <div class="opt-card-title">{{ g.label }}</div>
                       <div class="opt-card-sub">{{ g.sub }}</div>
                     </div>
                   </button>

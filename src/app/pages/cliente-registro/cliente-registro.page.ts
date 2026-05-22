@@ -22,20 +22,21 @@ import { ClienteCreate, SaludInfo, HabitosInfo } from '../../shared/models/clien
 
 type StepStatus = 'pending' | 'done' | 'skipped';
 interface StepDef { id: number; titulo: string; desc: string; required: boolean; }
-interface GoalOpt { v: string; icon: string; sub: string; }
+interface GoalOpt { v: string; label: string; icon: string; sub: string; }
 interface SegOpt  { v: string; label: string; sub?: string; }
 
+// v  → valor enviado al backend  |  label → texto visible en UI
 const GOALS: GoalOpt[] = [
-  { v: 'Bajar grasa',   icon: 'flame-outline',   sub: 'Déficit calórico controlado' },
-  { v: 'Ganar músculo', icon: 'barbell-outline',  sub: 'Superávit + entrenamiento de fuerza' },
-  { v: 'Recomposición', icon: 'sync-outline',     sub: 'Ganar masa magra y bajar grasa' },
-  { v: 'Rendimiento',   icon: 'trophy-outline',   sub: 'Optimizar fuerza, resistencia, potencia' },
+  { v: 'bajar_grasa',   label: 'Bajar grasa',   icon: 'flame-outline',   sub: 'Déficit calórico controlado' },
+  { v: 'ganar_musculo', label: 'Ganar músculo', icon: 'barbell-outline',  sub: 'Superávit + entrenamiento de fuerza' },
+  { v: 'recomposicion', label: 'Recomposición', icon: 'sync-outline',     sub: 'Ganar masa magra y bajar grasa' },
+  { v: 'rendimiento',   label: 'Rendimiento',   icon: 'trophy-outline',   sub: 'Optimizar fuerza, resistencia, potencia' },
 ];
 
 const NIVELES: SegOpt[] = [
-  { v: 'Principiante', label: 'Principiante', sub: '< 6 meses' },
-  { v: 'Intermedio',   label: 'Intermedio',   sub: '6 m – 2 años' },
-  { v: 'Avanzado',     label: 'Avanzado',     sub: '+ 2 años' },
+  { v: 'principiante', label: 'Principiante', sub: '< 6 meses' },
+  { v: 'intermedio',   label: 'Intermedio',   sub: '6 m – 2 años' },
+  { v: 'avanzado',     label: 'Avanzado',     sub: '+ 2 años' },
 ];
 
 const SEXOS: SegOpt[] = [
@@ -110,6 +111,10 @@ export class ClienteRegistroPage {
     return [v.firstName, v.lastName].filter(Boolean).join(' ');
   }
   get canAdvance(): boolean { return this.paso() !== 1 || (!!this.f1 && this.f1.valid); }
+  get selectedGoalLabel(): string {
+    const v = this.f2?.value?.objetivo;
+    return GOALS.find(g => g.v === v)?.label ?? '';
+  }
 
   // ── Theme ─────────────────────────────────────────────────────────────────
   get isDark(): boolean { return this.themeService.isDarkTheme(); }
