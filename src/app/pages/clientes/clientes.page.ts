@@ -163,7 +163,7 @@ export class ClientesPage implements OnInit {
   onboardingOf(c: Cliente): OnboardingStatus {
     const pasos = [
       !!(c.nombre && c.email),
-      !!(c.pesoInicial && c.altura),
+      !!(c.pesoInicial && c.estatura),
       !!(c.fotoPerfil),
       false,
       false,

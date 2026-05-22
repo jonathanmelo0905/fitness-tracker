@@ -9,7 +9,7 @@ export interface Cliente {
   fechaNacimiento: string;        // ISO date — "YYYY-MM-DD"
   genero: 'Masculino' | 'Femenino';
   pesoInicial?: number;           // kg — línea base onboarding
-  altura?: number;                // cm — línea base onboarding
+  estatura?: number;                // cm — línea base onboarding
   condicionesMedicas?: string;
   medicamentos?: string;
   lesiones?: string;
@@ -67,7 +67,7 @@ export interface OnboardingStatus {
 export function calcularOnboarding(c: Cliente, tieneEvaluacion = false, tieneSesion = false): OnboardingStatus {
   const pasos = [
     !!(c.nombre && c.apellido && c.email),
-    !!(c.pesoInicial && c.altura),
+    !!(c.pesoInicial && c.estatura),
     !!(c.fotoPerfil),
     tieneEvaluacion,
     tieneSesion,

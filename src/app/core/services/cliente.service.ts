@@ -70,7 +70,7 @@ export class ClienteService {
       fechaNacimiento:       raw.fechaNacimiento ?? raw.fecha_nacimiento ?? '',
       genero:                raw.genero ?? raw.sexo ?? 'Masculino',
       pesoInicial:           raw.pesoInicial ?? raw.peso_inicial,
-      altura:                raw.altura ?? raw.estatura,
+      estatura:                raw.altura ?? raw.estatura,
       condicionesMedicas:    raw.condicionesMedicas ?? raw.condiciones_medicas,
       medicamentos:          raw.medicamentos,
       lesiones:              raw.lesiones,
