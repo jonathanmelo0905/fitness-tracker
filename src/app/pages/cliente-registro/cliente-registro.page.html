@@ -1,375 +1,574 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-button fill="clear" (click)="cancelar()">
-        <ion-icon name="chevron-back-outline" slot="start"></ion-icon>
-        Cancelar
-      </ion-button>
-    </ion-buttons>
-    <ion-title>Nuevo cliente</ion-title>
-    <ion-buttons slot="end">
-      <span class="paso-counter">Paso {{ paso() + 1 }} / {{ pasos.length }}</span>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<ion-content [scrollY]="false">
 
-<ion-content>
+  <!-- ══ Page wrap (flex column — fills ion-content height) ════════════════ -->
   <div class="page-wrap">
 
-    <!-- ── Stepper ────────────────────────────────────────────────────── -->
-    <div class="stepper">
-      @for (p of pasos; track i; let i = $index) {
-        <div class="step" [class.active]="paso() === i" [class.done]="paso() > i">
-          <div class="step-circle">
-            @if (paso() > i) {
-              <ion-icon name="checkmark-outline"></ion-icon>
-            } @else {
-              {{ i + 1 }}
-            }
-          </div>
-          <span class="step-label">{{ p.titulo }}</span>
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-l">
+        <a class="brand" routerLink="/clientes">
+          <div class="brand-mark"><ion-icon name="leaf-outline"></ion-icon></div>
+          <div class="brand-name">Nutri<em>Eval</em></div>
+        </a>
+        <div class="crumbs">
+          Clientes <span class="sep">/</span> <strong>Nuevo cliente</strong>
         </div>
-        @if (i < pasos.length - 1) {
-          <div class="step-line" [class.done]="paso() > i"></div>
+      </div>
+      <div class="topbar-c">
+        <span class="step-counter">Paso <strong>{{ paso() }}</strong> / {{ steps.length }}</span>
+      </div>
+      <div class="topbar-r">
+        <div class="theme-toggle">
+          <button [class.active]="!isDark" (click)="setTheme(false)" title="Tema claro">
+            <ion-icon name="sunny-outline"></ion-icon><span>Claro</span>
+          </button>
+          <button [class.active]="isDark" (click)="setTheme(true)" title="Tema oscuro">
+            <ion-icon name="moon-outline"></ion-icon><span>Oscuro</span>
+          </button>
+        </div>
+        <button class="cancel-btn" (click)="cancelar()">
+          <ion-icon name="close-outline"></ion-icon><span>Cancelar</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="progress-track">
+      <div class="progress-fill" [style.width.%]="progressPct()"></div>
+    </div>
+
+    <!-- Mobile progress strip (≤1023px) -->
+    <div class="mobile-progress">
+      <span class="mp-label">Paso <strong>{{ paso() }}</strong> / {{ steps.length }}</span>
+      <div class="mp-dots">
+        @for (s of steps; track s.id) {
+          <div class="mp-dot"
+               [class.active]="paso() === s.id"
+               [class.done]="getStatus(s.id) === 'done'"
+               [class.skipped]="getStatus(s.id) === 'skipped'"></div>
         }
-      }
+      </div>
+      <span class="mp-step-title">{{ currentStep().titulo }}</span>
+      <span [class]="currentStep().required ? 'mp-required' : 'mp-optional'">
+        {{ currentStep().required ? 'Obligatorio' : 'Opcional' }}
+      </span>
     </div>
 
-    <!-- ── Guía de onboarding ─────────────────────────────────────────── -->
-    <div class="guide-banner">
-      <ion-icon name="information-circle-outline"></ion-icon>
-      <div class="guide-body">
-        <strong>Este formulario cubre los pasos:</strong>
-        <div class="guide-chips">
-          @for (item of onboardingCubre; track item.num) {
-            <span class="chip chip-ok">{{ item.num }}. {{ item.label }}</span>
+    <!-- Shell: sidebar + main -->
+    <div class="shell">
+
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <p class="sidebar-label">Progreso del registro</p>
+
+        <nav class="stepper">
+          @for (s of steps; track s.id) {
+            <button class="step"
+                    [class.active]="paso() === s.id"
+                    [class.done]="getStatus(s.id) === 'done'"
+                    [class.skipped]="getStatus(s.id) === 'skipped'"
+                    (click)="jumpTo(s.id)">
+              <div class="step-dot">
+                @if (getStatus(s.id) === 'done') {
+                  <ion-icon name="checkmark-outline"></ion-icon>
+                } @else if (getStatus(s.id) === 'skipped') {
+                  <ion-icon name="chevron-forward-outline"></ion-icon>
+                } @else {
+                  {{ s.id }}
+                }
+              </div>
+              <div class="step-body">
+                <div class="step-title">
+                  {{ s.titulo }}
+                  @if (s.required) { <span class="tag-req">Req.</span> }
+                  @else            { <span class="tag-opt">Opcional</span> }
+                </div>
+                <div class="step-desc">{{ s.desc }}</div>
+                @if (getStatus(s.id) === 'done' && paso() !== s.id) {
+                  <div class="step-status ok">
+                    <ion-icon name="checkmark-outline"></ion-icon> Completado
+                  </div>
+                }
+                @if (getStatus(s.id) === 'skipped' && paso() !== s.id) {
+                  <div class="step-status skip">Omitido</div>
+                }
+              </div>
+            </button>
           }
-          @for (item of onboardingDespues; track item.num) {
-            <span class="chip chip-pend">{{ item.num }}. {{ item.label }}</span>
+        </nav>
+
+        <div class="sidebar-summary">
+          <div class="sum-row">
+            <span>Cliente</span>
+            <strong>{{ nombreCompleto() || '—' }}</strong>
+          </div>
+          <div class="sum-row">
+            <span>Email</span>
+            <code>{{ f1.value.email || '—' }}</code>
+          </div>
+          @if (f2.value.objetivo) {
+            <div class="sum-row"><span>Objetivo</span><strong>{{ f2.value.objetivo }}</strong></div>
+          }
+          @if (f5.value.passwordTemporal) {
+            <div class="sum-row"><span>Acceso</span><code>•••• asignada</code></div>
           }
         </div>
-        <p class="guide-note">Los chips grises se completan en el perfil del cliente.</p>
-      </div>
-    </div>
+      </aside>
 
-    <!-- ── Error de servidor ──────────────────────────────────────────── -->
-    @if (serverError()) {
-      <div class="ft-error-banner" role="alert">
-        <ion-icon name="alert-circle-outline"></ion-icon>
-        <span>{{ serverError() }}</span>
-      </div>
-    }
+      <!-- Main -->
+      <main class="main">
+        <div class="form-wrap">
 
-    <!-- ══════════════════════ PASO 1 — Datos personales ══════════════════════ -->
-    @if (paso() === 0) {
-      <form [formGroup]="paso1" class="form-section" novalidate>
-        <h2 class="section-title">
-          <ion-icon name="person-outline"></ion-icon>
-          Datos personales
-        </h2>
-        <p class="section-desc">Información obligatoria para identificar al cliente en el sistema.</p>
+          <!-- Step header -->
+          <div class="form-h">
+            <div>
+              <h1 class="form-title">{{ currentStep().titulo }}</h1>
+              <p class="form-sub">{{ currentStep().desc }}</p>
+            </div>
+            <span class="step-badge" [class.req]="currentStep().required" [class.opt]="!currentStep().required">
+              {{ currentStep().required ? 'Obligatorio' : 'Opcional' }}
+            </span>
+          </div>
 
-        <ion-grid class="ion-no-padding">
-          <ion-row>
-            <ion-col size="12" size-md="6">
-              <div class="field" [class.invalid]="isInvalid(paso1, 'nombre')">
-                <label class="field-label">Nombre <span class="req">*</span></label>
-                <input class="form-input" type="text" formControlName="nombre" placeholder="Ana" autocomplete="given-name">
-                @if (isInvalid(paso1, 'nombre')) {
-                  <span class="field-error">Mínimo 2 caracteres.</span>
-                }
-              </div>
-            </ion-col>
-            <ion-col size="12" size-md="6">
-              <div class="field" [class.invalid]="isInvalid(paso1, 'apellido')">
-                <label class="field-label">Apellido <span class="req">*</span></label>
-                <input class="form-input" type="text" formControlName="apellido" placeholder="Morales" autocomplete="family-name">
-                @if (isInvalid(paso1, 'apellido')) {
-                  <span class="field-error">Mínimo 2 caracteres.</span>
-                }
-              </div>
-            </ion-col>
-          </ion-row>
+          @if (serverError()) {
+            <div class="error-banner" role="alert">
+              <ion-icon name="alert-circle-outline"></ion-icon>
+              <span>{{ serverError() }}</span>
+            </div>
+          }
 
-          <ion-row>
-            <ion-col size="12" size-md="8">
-              <div class="field" [class.invalid]="isInvalid(paso1, 'email')">
-                <label class="field-label">Email <span class="req">*</span></label>
-                <input class="form-input" type="email" formControlName="email" placeholder="ana@email.com" autocomplete="off">
-                @if (isInvalid(paso1, 'email')) {
-                  <span class="field-error">Introduce un email válido.</span>
-                }
-              </div>
-            </ion-col>
-            <ion-col size="12" size-md="4">
-              <div class="field">
-                <label class="field-label">Teléfono <span class="opt">Opcional</span></label>
-                <input class="form-input" type="tel" formControlName="telefono" placeholder="+57 300 000 0000">
-              </div>
-            </ion-col>
-          </ion-row>
+          <!-- ══ PASO 1 — Datos básicos ══ -->
+          @if (paso() === 1) {
+            <form [formGroup]="f1" class="form-section" novalidate>
 
-          <ion-row>
-            <ion-col size="12" size-md="6">
-              <div class="field" [class.invalid]="isInvalid(paso1, 'fechaNacimiento')">
-                <label class="field-label">Fecha de nacimiento <span class="req">*</span></label>
-                <input class="form-input" type="date" formControlName="fechaNacimiento">
-                @if (isInvalid(paso1, 'fechaNacimiento')) {
-                  <span class="field-error">Selecciona una fecha.</span>
-                }
-              </div>
-            </ion-col>
-            <ion-col size="12" size-md="6">
-              <div class="field" [class.invalid]="isInvalid(paso1, 'genero')">
-                <label class="field-label">Género <span class="req">*</span></label>
-                <select class="form-input form-select" formControlName="genero">
-                  <option value="" disabled>Seleccionar…</option>
-                  <option value="Masculino">Masculino</option>
-                  <option value="Femenino">Femenino</option>
-                </select>
-                @if (isInvalid(paso1, 'genero')) {
-                  <span class="field-error">Selecciona un género.</span>
-                }
-              </div>
-            </ion-col>
-          </ion-row>
+              <div class="form-grid">
+                <div class="field" [class.is-error]="isInvalid1('firstName')">
+                  <label class="label">Nombre <span class="req-mark">*</span></label>
+                  <div class="input-wrap">
+                    <ion-icon name="person-outline" class="input-icon"></ion-icon>
+                    <input class="input" type="text" formControlName="firstName"
+                           placeholder="Ana" autocomplete="given-name">
+                  </div>
+                  @if (isInvalid1('firstName')) {
+                    <span class="field-error">
+                      <ion-icon name="alert-circle-outline"></ion-icon> Mínimo 2 caracteres.
+                    </span>
+                  }
+                </div>
 
-          <!-- Acceso al portal ───────────────────────────────────────────── -->
-          <ion-row>
-            <ion-col size="12">
-              <div class="pwd-section">
-                <p class="pwd-hint">
-                  <ion-icon name="key-outline"></ion-icon>
-                  Acceso al portal del cliente — opcional
-                </p>
+                <div class="field" [class.is-error]="isInvalid1('lastName')">
+                  <label class="label">Apellido <span class="req-mark">*</span></label>
+                  <div class="input-wrap">
+                    <ion-icon name="person-outline" class="input-icon"></ion-icon>
+                    <input class="input" type="text" formControlName="lastName"
+                           placeholder="Morales" autocomplete="family-name">
+                  </div>
+                  @if (isInvalid1('lastName')) {
+                    <span class="field-error">
+                      <ion-icon name="alert-circle-outline"></ion-icon> Mínimo 2 caracteres.
+                    </span>
+                  }
+                </div>
+
+                <div class="field full" [class.is-error]="isInvalid1('email')">
+                  <label class="label">Email <span class="req-mark">*</span></label>
+                  <div class="input-wrap">
+                    <ion-icon name="mail-outline" class="input-icon"></ion-icon>
+                    <input class="input" type="email" formControlName="email"
+                           placeholder="ana&#64;email.com" autocomplete="off">
+                  </div>
+                  @if (isInvalid1('email')) {
+                    <span class="field-error">
+                      <ion-icon name="alert-circle-outline"></ion-icon> Introduce un email válido.
+                    </span>
+                  }
+                </div>
+
+                <div class="field" [class.is-error]="isInvalid1('fechaNacimiento')">
+                  <label class="label">Fecha de nacimiento <span class="req-mark">*</span></label>
+                  <input class="input" type="date" formControlName="fechaNacimiento">
+                  @if (isInvalid1('fechaNacimiento')) {
+                    <span class="field-error">
+                      <ion-icon name="alert-circle-outline"></ion-icon> Selecciona una fecha.
+                    </span>
+                  }
+                </div>
+
+                <div class="field" [class.is-error]="isInvalid1('sexo')">
+                  <label class="label">Sexo <span class="req-mark">*</span></label>
+                  <div class="seg">
+                    @for (o of sexoOpts; track o.v) {
+                      <button type="button" class="seg-opt"
+                              [class.active]="f1.value.sexo === o.v"
+                              (click)="setF1('sexo', o.v)">{{ o.label }}</button>
+                    }
+                  </div>
+                  @if (isInvalid1('sexo')) {
+                    <span class="field-error">
+                      <ion-icon name="alert-circle-outline"></ion-icon> Selecciona una opción.
+                    </span>
+                  }
+                </div>
+
+                <div class="field full">
+                  <label class="label">Teléfono <span class="hint">opcional</span></label>
+                  <div class="input-wrap">
+                    <ion-icon name="call-outline" class="input-icon"></ion-icon>
+                    <input class="input" type="tel" formControlName="telefono"
+                           placeholder="+57 300 000 0000">
+                  </div>
+                </div>
+              </div>
+
+              <div class="callout">
+                <ion-icon name="information-circle-outline"></ion-icon>
+                <div>
+                  <strong>Estos datos identifican al cliente en el sistema.</strong>
+                  <span class="muted"> Podrás completar el resto del perfil ahora o más tarde desde la ficha del cliente.</span>
+                </div>
+              </div>
+
+            </form>
+          }
+
+          <!-- ══ PASO 2 — Medidas iniciales ══ -->
+          @if (paso() === 2) {
+            <form [formGroup]="f2" class="form-section" novalidate>
+
+              <p class="subsec-h">Mediciones de línea base</p>
+              <div class="form-grid">
                 <div class="field">
-                  <label class="field-label">Contraseña temporal <span class="opt">Opcional</span></label>
-                  <div class="field-relative">
-                    <input class="form-input"
-                      [type]="verPassword() ? 'text' : 'password'"
-                      formControlName="passwordTemporal"
-                      placeholder="Ej. Nutri2025!"
-                      autocomplete="new-password">
-                    <button type="button" class="pwd-toggle-btn" (click)="toggleVerPassword()">
+                  <label class="label">Peso inicial <span class="hint">kg</span></label>
+                  <div class="input-suffix">
+                    <input class="input" type="number" formControlName="pesoInicial"
+                           placeholder="70.0" min="20" max="300" step="0.1">
+                    <span class="suffix">kg</span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="label">Estatura <span class="hint">cm</span></label>
+                  <div class="input-suffix">
+                    <input class="input" type="number" formControlName="estatura"
+                           placeholder="170" min="100" max="230">
+                    <span class="suffix">cm</span>
+                  </div>
+                </div>
+              </div>
+
+              <p class="subsec-h">Objetivo principal</p>
+              <div class="opt-cards">
+                @for (g of goalOpts; track g.v) {
+                  <button type="button" class="opt-card"
+                          [class.active]="f2.value.objetivo === g.v"
+                          (click)="f2.get('objetivo')!.setValue(g.v)">
+                    <div class="opt-card-icon"><ion-icon [name]="g.icon"></ion-icon></div>
+                    <div>
+                      <div class="opt-card-title">{{ g.v }}</div>
+                      <div class="opt-card-sub">{{ g.sub }}</div>
+                    </div>
+                  </button>
+                }
+              </div>
+
+              <p class="subsec-h">Nivel de experiencia</p>
+              <div class="seg">
+                @for (l of nivelOpts; track l.v) {
+                  <button type="button" class="seg-opt seg-opt--lvl"
+                          [class.active]="f2.value.nivel === l.v"
+                          (click)="f2.get('nivel')!.setValue(l.v)">
+                    <span>{{ l.label }}</span>
+                    @if (l.sub) { <small>{{ l.sub }}</small> }
+                  </button>
+                }
+              </div>
+
+            </form>
+          }
+
+          <!-- ══ PASO 3 — Historial de salud ══ -->
+          @if (paso() === 3) {
+            <form [formGroup]="f3" class="form-section" novalidate>
+
+              <div class="callout callout-lock">
+                <ion-icon name="lock-closed-outline"></ion-icon>
+                <div>
+                  <strong>Información confidencial.</strong>
+                  <span class="muted"> Solo el entrenador asignado puede ver estos datos.</span>
+                </div>
+              </div>
+
+              <div class="form-grid">
+                <div class="field full">
+                  <label class="label">
+                    <ion-icon name="medkit-outline" class="label-icon"></ion-icon>
+                    Enfermedades o condiciones médicas
+                    <span class="hint">opcional</span>
+                  </label>
+                  <textarea class="input textarea" formControlName="enfermedades" rows="2"
+                    placeholder="Diabetes tipo 2, hipertensión, hipotiroidismo…"></textarea>
+                </div>
+                <div class="field full">
+                  <label class="label">Medicamentos actuales <span class="hint">opcional</span></label>
+                  <textarea class="input textarea" formControlName="medicamentos" rows="2"
+                    placeholder="Metformina 500 mg, Losartán 50 mg…"></textarea>
+                </div>
+                <div class="field">
+                  <label class="label">Lesiones o limitaciones <span class="hint">opcional</span></label>
+                  <textarea class="input textarea" formControlName="lesiones" rows="2"
+                    placeholder="Tendinitis rotuliana, lumbalgia…"></textarea>
+                </div>
+                <div class="field">
+                  <label class="label">Cirugías previas <span class="hint">opcional</span></label>
+                  <textarea class="input textarea" formControlName="cirugias" rows="2"
+                    placeholder="Menisco (2021), apendicitis (2018)…"></textarea>
+                </div>
+                <div class="field full">
+                  <label class="label">Restricciones alimentarias <span class="hint">opcional</span></label>
+                  <input class="input" type="text" formControlName="restricciones"
+                    placeholder="Vegetariana, intolerancia a la lactosa, sin gluten…">
+                </div>
+              </div>
+
+            </form>
+          }
+
+          <!-- ══ PASO 4 — Hábitos diarios ══ -->
+          @if (paso() === 4) {
+            <form [formGroup]="f4" class="form-section" novalidate>
+
+              <div class="slider-field">
+                <div class="slider-head">
+                  <label class="label">
+                    <ion-icon name="moon-outline" class="sl-icon"></ion-icon>
+                    Horas de sueño promedio
+                  </label>
+                  <span class="slider-val">{{ f4.value.sueno }}<small>h</small></span>
+                </div>
+                <input type="range" class="range" formControlName="sueno" min="0" max="12" step="0.5">
+                <div class="range-scale"><span>0</span><span>4</span><span>8</span><span>12</span></div>
+              </div>
+
+              <div class="slider-field">
+                <div class="slider-head">
+                  <label class="label">
+                    <ion-icon name="pulse-outline" class="sl-icon warn"></ion-icon>
+                    Nivel de estrés percibido
+                  </label>
+                  <span class="slider-val">{{ f4.value.estres }}<small>/10</small></span>
+                </div>
+                <input type="range" class="range" formControlName="estres" min="1" max="10" step="1">
+                <div class="range-scale"><span>Bajo</span><span>Moderado</span><span>Alto</span><span>Muy alto</span></div>
+              </div>
+
+              <div class="slider-field">
+                <div class="slider-head">
+                  <label class="label">
+                    <ion-icon name="water-outline" class="sl-icon info"></ion-icon>
+                    Litros de agua al día
+                  </label>
+                  <span class="slider-val">{{ f4.value.agua }}<small>L</small></span>
+                </div>
+                <input type="range" class="range" formControlName="agua" min="0" max="6" step="0.25">
+                <div class="range-scale"><span>0</span><span>2</span><span>4</span><span>6</span></div>
+              </div>
+
+              <div class="slider-field">
+                <div class="slider-head">
+                  <label class="label">
+                    <ion-icon name="footsteps-outline" class="sl-icon ok"></ion-icon>
+                    Pasos diarios estimados
+                  </label>
+                  <span class="slider-val">{{ f4.value.pasos_diarios | number }}</span>
+                </div>
+                <input type="range" class="range" formControlName="pasos_diarios" min="0" max="20000" step="500">
+                <div class="range-scale"><span>0</span><span>5 k</span><span>10 k</span><span>20 k</span></div>
+              </div>
+
+              <div class="callout">
+                <ion-icon name="information-circle-outline"></ion-icon>
+                <div>
+                  <strong>Estos datos sirven como línea base.</strong>
+                  <span class="muted"> El cliente actualizará sus hábitos semanalmente desde la app.</span>
+                </div>
+              </div>
+
+            </form>
+          }
+
+          <!-- ══ PASO 5 — Acceso al portal ══ -->
+          @if (paso() === 5) {
+            <form [formGroup]="f5" class="form-section" novalidate>
+
+              <div class="callout">
+                <ion-icon name="key-outline"></ion-icon>
+                <div>
+                  <strong>Acceso al portal del cliente — opcional.</strong>
+                  <span class="muted"> Sin contraseña el cliente no tendrá acceso al portal aún. Podrás asignarla más tarde.</span>
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="label">
+                  Contraseña temporal
+                  <span class="hint">opcional · mín. 8 caracteres</span>
+                </label>
+                <div class="pw-wrap">
+                  <input class="input pw-input"
+                         [type]="verPassword() ? 'text' : 'password'"
+                         formControlName="passwordTemporal"
+                         placeholder="Mínimo 8 caracteres"
+                         autocomplete="new-password">
+                  <div class="pw-btns">
+                    <button type="button" class="pw-btn" (click)="generarPassword()" title="Generar contraseña segura">
+                      <ion-icon name="refresh-outline"></ion-icon>
+                    </button>
+                    <button type="button" class="pw-btn" (click)="toggleVerPassword()"
+                            [attr.aria-label]="verPassword() ? 'Ocultar' : 'Mostrar'">
                       <ion-icon [name]="verPassword() ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
                     </button>
                   </div>
-                  <span class="field-hint">Si la omites, el cliente no podrá iniciar sesión hasta que le asignes una contraseña.</span>
                 </div>
+
+                @if (f5.value.passwordTemporal) {
+                  <div class="pw-strength">
+                    <div class="pw-bars">
+                      @for (bar of [1,2,3,4]; track bar) {
+                        <div class="pw-bar" [class]="pwBarClass(bar)"></div>
+                      }
+                    </div>
+                    <div class="pw-meta">
+                      <span>Fortaleza</span>
+                      <span class="pw-score" [attr.data-score]="pwScore">{{ pwScoreLabel }}</span>
+                    </div>
+                    <div class="pw-checks">
+                      <span class="pw-check" [class.ok]="pwChecks.hasLen">
+                        <ion-icon [name]="pwChecks.hasLen ? 'checkmark-outline' : 'close-outline'"></ion-icon>
+                        8+ caracteres
+                      </span>
+                      <span class="pw-check" [class.ok]="pwChecks.hasMix">
+                        <ion-icon [name]="pwChecks.hasMix ? 'checkmark-outline' : 'close-outline'"></ion-icon>
+                        Mayús. y minús.
+                      </span>
+                      <span class="pw-check" [class.ok]="pwChecks.hasNum">
+                        <ion-icon [name]="pwChecks.hasNum ? 'checkmark-outline' : 'close-outline'"></ion-icon>
+                        Al menos un número
+                      </span>
+                      <span class="pw-check" [class.ok]="pwChecks.hasSym">
+                        <ion-icon [name]="pwChecks.hasSym ? 'checkmark-outline' : 'close-outline'"></ion-icon>
+                        Al menos un símbolo
+                      </span>
+                    </div>
+                  </div>
+                }
               </div>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </form>
-    }
 
-    <!-- ══════════════════════ PASO 2 — Condición física ══════════════════════ -->
-    @if (paso() === 1) {
-      <form [formGroup]="paso2" class="form-section" novalidate>
-        <h2 class="section-title">
-          <ion-icon name="barbell-outline"></ion-icon>
-          Condición física
-        </h2>
-        <p class="section-desc">Datos de línea base para medir progreso. Todos son opcionales pero recomendados.</p>
-
-        <ion-grid class="ion-no-padding">
-          <ion-row>
-            <ion-col size="6">
-              <div class="field">
-                <label class="field-label">Peso inicial <span class="unit">kg</span></label>
-                <input class="form-input" type="number" formControlName="pesoInicial"
-                  placeholder="70" min="20" max="300" step="0.1">
-              </div>
-            </ion-col>
-            <ion-col size="6">
-              <div class="field">
-                <label class="field-label">Altura <span class="unit">cm</span></label>
-                <input class="form-input" type="number" formControlName="altura"
-                  placeholder="170" min="100" max="250" step="0.5">
-              </div>
-            </ion-col>
-          </ion-row>
-
-          <ion-row>
-            <ion-col size="12">
-              <div class="field" [class.invalid]="isInvalid(paso2, 'nivelActividad')">
-                <label class="field-label">Nivel de actividad <span class="req">*</span></label>
-                <select class="form-input form-select" formControlName="nivelActividad">
-                  <option value="sedentario">Sedentario — sin ejercicio</option>
-                  <option value="ligero">Ligero — 1 a 2 días por semana</option>
-                  <option value="moderado">Moderado — 3 a 5 días por semana</option>
-                  <option value="activo">Activo — 6 a 7 días por semana</option>
-                  <option value="muy_activo">Muy activo — doble sesión diaria</option>
-                </select>
-              </div>
-            </ion-col>
-          </ion-row>
-
-          <ion-row>
-            <ion-col size="12">
-              <div class="field">
-                <label class="field-label">Objetivos del cliente <span class="opt">Opcional</span></label>
-                <textarea class="form-input form-textarea" formControlName="objetivos" rows="3"
-                  placeholder="Ej. Reducción de grasa corporal, aumento de masa muscular, mejora de resistencia…"></textarea>
-              </div>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </form>
-    }
-
-    <!-- ══════════════════════ PASO 3 — Historial de salud ════════════════════ -->
-    @if (paso() === 2) {
-      <form [formGroup]="paso3" class="form-section" novalidate>
-        <h2 class="section-title">
-          <ion-icon name="medkit-outline"></ion-icon>
-          Historial de salud
-        </h2>
-        <p class="section-desc">Información médica relevante para adaptar el plan de entrenamiento. Todos los campos son opcionales.</p>
-
-        <div class="field">
-          <label class="field-label">Condiciones médicas <span class="opt">Opcional</span></label>
-          <textarea class="form-input form-textarea" formControlName="condicionesMedicas" rows="2"
-            placeholder="Ej. Diabetes tipo 2, hipertensión, hipotiroidismo…"></textarea>
-        </div>
-
-        <div class="field">
-          <label class="field-label">Medicamentos actuales <span class="opt">Opcional</span></label>
-          <textarea class="form-input form-textarea" formControlName="medicamentos" rows="2"
-            placeholder="Ej. Metformina 500mg, Losartán 50mg…"></textarea>
-        </div>
-
-        <div class="field">
-          <label class="field-label">Lesiones o limitaciones físicas <span class="opt">Opcional</span></label>
-          <textarea class="form-input form-textarea" formControlName="lesiones" rows="2"
-            placeholder="Ej. Tendinitis rotuliana en rodilla derecha, lumbalgia crónica…"></textarea>
-        </div>
-
-        <div class="health-note">
-          <ion-icon name="information-circle-outline"></ion-icon>
-          Esta información es confidencial y solo la ve el entrenador asignado.
-        </div>
-      </form>
-    }
-
-    <!-- ══════════════════════ PASO 4 — PAR-Q y consentimiento ═══════════════ -->
-    @if (paso() === 3) {
-      <form [formGroup]="paso4" class="form-section" novalidate>
-        <h2 class="section-title">
-          <ion-icon name="document-text-outline"></ion-icon>
-          PAR-Q y consentimiento
-        </h2>
-        <p class="section-desc">Cuestionario de aptitud física y autorización del cliente. Ambos son opcionales y se pueden completar después.</p>
-
-        <!-- PAR-Q -->
-        <div class="consent-card">
-          <h3 class="consent-title">PAR-Q — Physical Activity Readiness Questionnaire</h3>
-          <p class="consent-desc">El cliente respondió NO a todas las siguientes preguntas:</p>
-          <ul class="parq-list">
-            <li>¿Le ha dicho su médico que tiene un problema cardíaco?</li>
-            <li>¿Siente dolor en el pecho cuando hace actividad física?</li>
-            <li>¿Ha sentido dolor en el pecho en el último mes (en reposo)?</li>
-            <li>¿Pierde el equilibrio por mareos o ha perdido el conocimiento?</li>
-            <li>¿Tiene algún problema óseo o articular que empeore con el ejercicio?</li>
-            <li>¿Su médico le receta actualmente medicamentos para la presión?</li>
-            <li>¿Hay alguna razón física por la que no debería hacer ejercicio?</li>
-          </ul>
-          <button type="button" class="toggle-row" (click)="paso4.get('parqAprobado')!.setValue(!paso4.value.parqAprobado)">
-            <span class="check-box" [class.checked]="paso4.value.parqAprobado">
-              @if (paso4.value.parqAprobado) {
-                <ion-icon name="checkmark-outline"></ion-icon>
-              }
-            </span>
-            <span>El cliente respondió <strong>NO</strong> a todas las preguntas (PAR-Q aprobado)</span>
-          </button>
-        </div>
-
-        <!-- Consentimiento -->
-        <div class="consent-card">
-          <h3 class="consent-title">Consentimiento informado</h3>
-          <p class="consent-desc">
-            El cliente declara conocer los riesgos asociados a la actividad física y autoriza
-            al entrenador a diseñar y supervisar su programa de entrenamiento y nutrición.
-            Esta información será tratada con estricta confidencialidad.
-          </p>
-          <button type="button" class="toggle-row" (click)="paso4.get('consentimientoFirmado')!.setValue(!paso4.value.consentimientoFirmado)">
-            <span class="check-box" [class.checked]="paso4.value.consentimientoFirmado">
-              @if (paso4.value.consentimientoFirmado) {
-                <ion-icon name="checkmark-outline"></ion-icon>
-              }
-            </span>
-            <span>El cliente acepta el consentimiento informado</span>
-          </button>
-        </div>
-
-        <div class="health-note">
-          <ion-icon name="information-circle-outline"></ion-icon>
-          Puedes omitir ambos y completarlos más tarde en el perfil del cliente.
-        </div>
-      </form>
-    }
-
-    <!-- ── Navegación ────────────────────────────────────────────────── -->
-    <div class="nav-row">
-      @if (paso() > 0) {
-        <button class="btn-nav btn-prev" (click)="anterior()">
-          <ion-icon name="chevron-back-outline"></ion-icon>
-          Anterior
-        </button>
-      } @else {
-        <div></div>
-      }
-
-      @if (paso() < pasos.length - 1) {
-        <button class="btn-nav btn-next" (click)="siguiente()">
-          Siguiente
-          <ion-icon name="chevron-forward-outline"></ion-icon>
-        </button>
-      } @else {
-        <button class="btn-nav btn-crear" [disabled]="submitting()" (click)="crear()">
-          @if (submitting()) {
-            <ion-spinner name="crescent" style="width:16px;height:16px;color:white"></ion-spinner>
-            Creando…
-          } @else {
-            <ion-icon name="add-outline"></ion-icon>
-            Crear cliente
+            </form>
           }
-        </button>
-      }
-    </div>
 
+        </div><!-- /form-wrap -->
+      </main>
+
+    </div><!-- /shell -->
+
+  </div><!-- /page-wrap -->
+
+  <!-- ══ Footer fixed ════════════════════════════════════════════════════ -->
+  <div class="footer">
+    <div class="footer-inner">
+      <div class="footer-l">
+        <button class="btn-prev" [disabled]="paso() === 1" (click)="anterior()">
+          <ion-icon name="chevron-back-outline"></ion-icon> <span>Anterior</span>
+        </button>
+        <span class="footer-hint">
+          @if (paso() === 1) { Los campos con * son obligatorios. }
+          @else { Este paso es opcional — puedes saltarlo y completarlo más tarde. }
+        </span>
+      </div>
+      <div class="footer-r">
+        @if (paso() > 1 && paso() < steps.length) {
+          <button class="btn-skip" (click)="saltar()">Saltar este paso</button>
+        }
+        @if (paso() < steps.length) {
+          <button class="btn-next" [disabled]="paso() === 1 && !canAdvance()" (click)="siguiente()">
+            Siguiente <ion-icon name="chevron-forward-outline"></ion-icon>
+          </button>
+        } @else {
+          <button class="btn-create" [disabled]="submitting()" (click)="crear()">
+            @if (submitting()) {
+              <ion-spinner name="crescent" style="width:16px;height:16px"></ion-spinner>
+              Creando…
+            } @else {
+              <ion-icon name="add-outline"></ion-icon> Crear cliente
+            }
+          </button>
+        }
+      </div>
+    </div>
   </div>
 
-  <!-- ── Modal contraseña temporal (un solo uso) ───────────────────────── -->
+  <!-- ══ Modal (un solo uso) ════════════════════════════════════════════ -->
   @if (mostrarModal()) {
-    <div class="modal-overlay">
-      <div class="modal-box">
-        <p class="modal-title">Cliente creado — comparte el acceso</p>
-        <p class="modal-subtitle">Comparte estas credenciales con el cliente para que pueda entrar al portal.</p>
+    <div class="modal-backdrop" (click)="cerrarModal()">
+      <div class="modal" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
 
-        <div class="modal-cred">
-          <p class="modal-label">Email</p>
-          <p class="modal-value">{{ emailModal() }}</p>
-        </div>
-        <div class="modal-cred">
-          <p class="modal-label">Contraseña temporal</p>
-          <p class="modal-value modal-pwd">{{ passwordModal() }}</p>
+        <div class="modal-h">
+          <div class="modal-icon"><ion-icon name="checkmark-circle-outline"></ion-icon></div>
+          <h2>Cliente creado</h2>
+          <p>{{ nombreModal() }} ya forma parte de tu lista de clientes.</p>
         </div>
 
-        <div class="modal-warning">
-          <ion-icon name="warning-outline"></ion-icon>
-          <span>Esta contraseña <strong>no se volverá a mostrar</strong>. Compártela ahora por WhatsApp, mensaje o email antes de cerrar.</span>
+        <div class="modal-body">
+          <div class="modal-info">
+            <div class="modal-info-item">
+              <span class="modal-lbl">Cliente</span>
+              <span class="modal-val">{{ nombreModal() }}</span>
+            </div>
+            <div class="modal-info-item">
+              <span class="modal-lbl">Email</span>
+              <span class="modal-val">{{ emailModal() }}</span>
+            </div>
+          </div>
+
+          @if (passwordModal()) {
+            <div class="pw-card">
+              <div class="pw-card-label">
+                <ion-icon name="key-outline"></ion-icon>
+                Contraseña temporal
+              </div>
+              <div class="pw-card-row">
+                <code class="pw-card-val">{{ passwordModal() }}</code>
+                <button type="button" class="copy-btn" (click)="copiarPassword()">
+                  <ion-icon [name]="copiado() ? 'checkmark-circle-outline' : 'copy-outline'"></ion-icon>
+                  {{ copiado() ? 'Copiada' : 'Copiar' }}
+                </button>
+              </div>
+              <div class="pw-warn">
+                <ion-icon name="warning-outline"></ion-icon>
+                Esta contraseña no se volverá a mostrar. Cópiala antes de cerrar.
+              </div>
+            </div>
+          } @else {
+            <div class="callout">
+              <ion-icon name="information-circle-outline"></ion-icon>
+              <div>
+                <strong>Sin contraseña temporal.</strong>
+                <span class="muted"> El cliente no tendrá acceso al portal hasta que le asignes una desde su perfil.</span>
+              </div>
+            </div>
+          }
         </div>
 
-        <button type="button" class="btn-copy" [class.copied]="copiado()" (click)="copiarPassword()">
-          <ion-icon [name]="copiado() ? 'checkmark-circle-outline' : 'copy-outline'"></ion-icon>
-          {{ copiado() ? '¡Copiado!' : 'Copiar contraseña' }}
-        </button>
+        <div class="modal-f">
+          <button type="button" class="btn-ghost" (click)="cerrarModal()">
+            Entendido, ya la compartí
+          </button>
+          <button type="button" class="btn-primary" (click)="cerrarModal()">
+            Ir al perfil <ion-icon name="chevron-forward-outline"></ion-icon>
+          </button>
+        </div>
 
-        <button type="button" class="btn-entendido" (click)="cerrarModal()">
-          Entendido, ya la compartí
-        </button>
       </div>
     </div>
   }
+
 </ion-content>

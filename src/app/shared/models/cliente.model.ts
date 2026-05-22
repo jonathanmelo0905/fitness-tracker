@@ -23,9 +23,39 @@ export interface Cliente {
   fotoPerfil?: string;
 }
 
-export type ClienteCreate = Omit<Cliente, 'id' | 'entrenadorId' | 'creadoEn' | 'activo'> & {
+// JSONB payloads — POST /api/clientes (CLAUDE.md §14)
+export interface SaludInfo {
+  enfermedades?: string;
+  medicamentos?: string;
+  lesiones?: string;
+  cirugias?: string;
+  restricciones?: string;
+}
+
+export interface HabitosInfo {
+  sueno?: number;       // horas/día
+  estres?: number;      // 1–10
+  agua?: number;        // litros/día
+  pasos_diarios?: number;
+}
+
+// Matches POST /api/clientes request body (CLAUDE.md §14)
+export interface ClienteCreate {
+  nombre: string;            // nombre completo: firstName + ' ' + lastName
+  email: string;
+  fechaNacimiento: string;   // YYYY-MM-DD
+  sexo: string;
+  telefono?: string;
+  pesoInicial?: number;
+  estatura?: number;
+  objetivo?: string;
+  nivel?: string;
+  salud?: SaludInfo;
+  habitos?: HabitosInfo;
+  parqAprobado?: boolean;
+  consentimientoFirmado?: boolean;
   passwordTemporal?: string;
-};
+}
 
 // Calcula cuántos pasos del onboarding están completados (se usa en lista y detalle)
 export interface OnboardingStatus {
